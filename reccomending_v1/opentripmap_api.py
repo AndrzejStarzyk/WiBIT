@@ -4,30 +4,36 @@ import json
 
 # https://opentripmap.io/docs
 
-def get_places():
-    opentripmap_key = ''
+class OpenTripMapApiProvider:
+    def __init__(self):
+        self.places = []
+        self.places_fetched = False
+        self.opentripmap_key = ''
+        self.base_url = 'https://api.opentripmap.com/0.1/en/'
+        self.city = 'Cracow'
 
-    base_url = 'https://api.opentripmap.com/0.1/en/'
+    def fetch_places(self):
+        url = f"https://api.opentripmap.com/0.1/en/places/geoname?name={self.city}&apikey={self.opentripmap_key}"
+        headers = {"accept": "application/json"}
 
-    city = 'Cracow'
-    url = f"https://api.opentripmap.com/0.1/en/places/geoname?name={city}&apikey={opentripmap_key}"
-    headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
 
-    response = requests.get(url, headers=headers)
+        response_dict = json.loads(response.text)
 
-    response_dict = json.loads(response.text)
+        radius = 3000
+        limit = 500  # this is maximum
+        url = f"https://api.opentripmap.com/0.1/en/places/radius?radius={str(radius)}" \
+              f"&lon={response_dict['lon']}&lat={response_dict['lat']}&format=json&limit={limit}&apikey={self.opentripmap_key}"
 
-    radius = 3000
-    limit = 500  # this is maximum
-    url = f"https://api.opentripmap.com/0.1/en/places/radius?radius={str(radius)}" \
-          f"&lon={response_dict['lon']}&lat={response_dict['lat']}&format=json&limit={limit}&apikey={opentripmap_key}"
+        places_response = requests.get(url, headers=headers)
+        self.places = json.loads(places_response.text)
+        self.places_fetched = True
 
-    places_response = requests.get(url, headers=headers)
-    places_dict = json.loads(places_response.text)
+    def get_places(self):
+        if not self.places_fetched:
+            self.fetch_places()
+        return self.places
 
-    xid = places_dict[0]['xid']
-    url = f"https://api.opentripmap.com/0.1/en/places/xid/{xid}?apikey={opentripmap_key}"
 
-    details_response = requests.get(url, headers=headers)
-    details_dict = json.loads(details_response.text)
-    return places_dict
+if __name__ == "__main__":
+    pass

@@ -32,36 +32,39 @@ class Model(nn.Module):
 class Recommender:
     def __init__(self):
         self.trained = False
+        self.labels_ids = {}
+        self.n_parameters = 0
         self.learning_rate = 1e-3
         self.model = None
         self.optimizer = None
 
     def train(self):
         categories = get_categories()
-        places =get_places()
-        labels_ids = {}
+        places = get_places()
+        self.labels_ids = {}
         for i in range(len(categories)):
-            labels_ids[categories[i]] = i
+            self.labels_ids[categories[i]] = i
 
         for i in range(len(places)):
-            labels_ids[places[i]['name']] = i + len(categories)
+            self.labels_ids[places[i]['name']] = i + len(categories)
 
         length = len(categories) + len(places)
+        self.n_parameters = length
         print(len(categories), len(places), length)
         X_list = []
         y_list = []
         for place in places:
             place_data = [0 for _ in range(length)]
             for cat in place['kinds'].split(','):
-                place_data[labels_ids[cat]] = 1
-            place_data[labels_ids[place['name']]] = 1
+                place_data[self.labels_ids[cat]] = 1
+            place_data[self.labels_ids[place['name']]] = 1
             X_list.append(place_data)
             y_list.append(1)
 
             place_data = [1 if i < len(categories) else 0 for i in range(length)]
             for cat in place['kinds'].split(','):
-                place_data[labels_ids[cat]] = 0
-            place_data[labels_ids[place['name']]] = 1
+                place_data[self.labels_ids[cat]] = 0
+            place_data[self.labels_ids[place['name']]] = 1
             X_list.append(place_data)
             y_list.append(0)
 
@@ -73,7 +76,6 @@ class Recommender:
         self.model = Model(input_size=X_train.shape[1])
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
-        # note that we are using loss function with sigmoid built in
         loss_fn = torch.nn.BCEWithLogitsLoss()
         num_epochs = 2000
         evaluation_steps = 200
@@ -90,10 +92,17 @@ class Recommender:
                 print(f"Epoch {i} train loss: {loss.item():.4f}")
 
         print(f"final loss: {loss.item():.4f}")
-        self.model = Model(input_size=X_train.shape[1])
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
+        self.trained = True
+
+    def recommend(self, preferences):
+        places = get_places()
+        X = [0 for _ in range(self.n_parameters)]
+        for category in preferences:
+            X[self.labels_ids[category]] = 1
+        self.model.predict()
 
 
 if __name__ == "__main__":
     recommender = Recommender()
     recommender.train()
+    print(recommender.recommend(['historic', 'architecture']))
