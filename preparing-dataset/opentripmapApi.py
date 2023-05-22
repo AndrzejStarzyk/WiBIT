@@ -1,5 +1,6 @@
 import requests
 import json
+from keysAndPasswords import opentripmap_key
 
 # https://opentripmap.io/docs
 
