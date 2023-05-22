@@ -8,7 +8,7 @@ class OpenTripMapApiProvider:
     def __init__(self):
         self.places = []
         self.places_fetched = False
-        self.opentripmap_key = ''
+        self.opentripmap_key = '5ae2e3f221c38a28845f05b6b5e25b81a769f0d40d1323e54cf91bac'
         self.base_url = 'https://api.opentripmap.com/0.1/en/'
         self.city = 'Cracow'
 

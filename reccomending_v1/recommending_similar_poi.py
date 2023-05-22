@@ -1,3 +1,5 @@
+import string
+
 from sklearn.model_selection import train_test_split
 from surprise.dataset import Dataset, Reader
 import pandas as pd
@@ -58,12 +60,12 @@ class Recommender:
         self.model = KNNBasic()
         self.model.fit(self.train_set)
 
-    def get_recommended(self):
-        pass
-
     def test(self):
         pred_knn_basic = self.model.test(self.test_set)
         print(pred_knn_basic[:5])
+
+    def get_recommended(self, preferences: [string]):
+        pass
 
 
 if __name__ == "__main__":
