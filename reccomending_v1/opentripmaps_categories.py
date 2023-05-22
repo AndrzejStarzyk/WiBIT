@@ -1,7 +1,6 @@
 import json
 import string
 from typing import Union
-from collections import deque
 
 import requests
 
