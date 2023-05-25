@@ -1,5 +1,4 @@
 import math
-import string
 from typing import List, Tuple
 
 import folium
@@ -7,10 +6,10 @@ import folium
 map_center = (50.0619474, 19.9368564)
 
 
-def create_map(pois: [(float, float, string)]):
+def create_map(pois: [(float, float, str)]):
     m = folium.Map(location=map_center, zoom_start=16)
     trail = []
-    for coordinate in shortest_path(pois):
+    for coordinate in pretty_path(pois):
         folium.Marker(
             location=(coordinate[1], coordinate[0]),
             popup=coordinate[2],
@@ -22,7 +21,7 @@ def create_map(pois: [(float, float, string)]):
     m.save("./templates/map.html")
 
 
-def shortest_path(places: List[Tuple[float, float]]):
+def pretty_path(places: List[Tuple[float, float]]):
     dl = len(places)
     graph = [[math.sqrt((coordinates1[0] - coordinates2[0]) * (coordinates1[0] - coordinates2[0]) +
                         (coordinates1[1] - coordinates2[1]) * (coordinates1[1] - coordinates2[1]))

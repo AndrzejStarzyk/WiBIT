@@ -1,14 +1,13 @@
 import json
-import string
-from typing import Union
+from typing import Union, List
 
 import requests
 
 
 class CategoriesProvider:
     def __init__(self):
-        self.categories_list: [string] = []
-        self.categories_graph: [[int]] = []
+        self.categories_list: List[str] = []
+        self.categories_graph: List[List[int]] = []
         self.max_score = 0
         self.min_score = 0
         self.categories_fetched = False
@@ -39,12 +38,12 @@ class CategoriesProvider:
         self.get_max_distance()
         self.categories_fetched = True
 
-    def get_categories(self) -> [string]:
+    def get_categories(self) -> List[str]:
         if not self.categories_fetched:
             self.fetch_categories()
         return self.categories_list
 
-    def distance(self, place1: string, place2: string) -> int:
+    def distance(self, place1: str, place2: str) -> int:
         if not self.categories_fetched:
             self.fetch_categories()
         try:
@@ -100,7 +99,7 @@ class CategoriesProvider:
             self.fetch_categories()
         return self.max_score - dist
 
-    def get_score(self, preferences: [string], categories: [string]):
+    def get_score(self, preferences: List[str], categories: List[str]):
         score = 0
         for preference in preferences:
             total_dist = 0
