@@ -1,9 +1,7 @@
-import math
 import string
 
 from sklearn.model_selection import train_test_split
 from surprise.dataset import Dataset, Reader
-from surprise import AlgoBase, PredictionImpossible
 import pandas as pd
 from surprise.prediction_algorithms.knns import KNNBasic
 from random import randrange, choices
@@ -69,13 +67,13 @@ class Recommender:
         pred_knn_basic = self.model.test(self.test_set)
         print(pred_knn_basic[:5])
 
-    def get_recommended(self, preferences: [string]):
+    def get_recommended(self, preferences: List[str]):
         user_to_sort = []
         for i in range(len(self.users)):
             user_to_sort.append((i, self.categories_provider.get_score(self.users[i], preferences)))
         user_to_sort.sort(key=lambda x: x[1], reverse=True)
         users_id = map(lambda x: x[0], user_to_sort[:3])
-
+        print(user_to_sort)
         recommended: Dict[int, int] = {}
         for user_id in users_id:
             semi_recommended = []
@@ -88,7 +86,6 @@ class Recommender:
                     recommended[item[0]] = recommended[item[0]] + item[1]
                 else:
                     recommended[item[0]] = item[1]
-
         res = [(self.places[item[0]], item[1]) for item in recommended.items()]
         res.sort(key=lambda x: x[1], reverse=True)
         return map(lambda x: x[0], res[0:5])

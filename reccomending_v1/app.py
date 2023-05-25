@@ -7,9 +7,10 @@ app = Flask(__name__)
 recommender = Recommender()
 recommender.train()
 
+
 @app.route('/')
 def show_default():
-    return render_template("choose_page.html", categories=categories)
+    return render_template("choose_page.html", input_categories=categories)
 
 
 @app.route('/map')

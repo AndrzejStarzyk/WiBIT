@@ -100,9 +100,6 @@ class CategoriesProvider:
         return self.max_score - dist
 
     def get_score(self, preferences: List[str], categories: List[str]):
-        if len(preferences) == 0 or len(categories) == 0:
-            return 0
-
         score = 0
         for preference in preferences:
             total_dist = 0
