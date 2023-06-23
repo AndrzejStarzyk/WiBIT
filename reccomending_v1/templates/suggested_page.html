@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Suggested trip</title>
+</head>
+<body>
+{%  extends "map.html" %}
+{% block title %}Index{% endblock %}
+<form action="/suggested" method="post">
+    <input type="submit" value="true" name="approve">
+    <input type="submit" value="false" name="disapprove">
+</form>
+<p>ALDINFANODBA</p>
+</body>
+</html>
