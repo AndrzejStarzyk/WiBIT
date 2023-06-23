@@ -1,11 +1,10 @@
 from typing import List
 
 from recommending_v2.poi_provider import Provider
-from recommending_v2.model.user import User
-from recommending_v2.model.default_trip import DefaultTrip
-from recommending_v2.model.constraint import Constraint
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.trajectory import Trajectory
+from recommending_v2.user import User
+from recommending_v2.default_trip import DefaultTrip
+from constraint import Constraint
+from point_of_interest import PointOfInterest
 
 
 class Recommender:
@@ -14,34 +13,25 @@ class Recommender:
         self.places: List[PointOfInterest] = self.places_provider.get_places()
         self.user = User()
         self.cold_start = True
-        self.pois_limit = 0
 
     def set_user(self, user: User):
         self.user = user
         self.cold_start = False
 
-    def add_constraint(self, constraint: Constraint):
-        if self.cold_start:
-            self.cold_start = False
-        self.user.add_constraint(constraint, constraint.get_weight())
+    def add_constraint(self, constraint: Constraint, weight: int):
+        self.user.add_constraint(constraint, weight)
 
-    def get_recommended(self) -> Trajectory:
+    def get_recommended(self):
         if self.cold_start:
             trip = DefaultTrip()
             return trip.get_trip()
         else:
-            self.user.decay_weights()
             evaluated_places = [(i, self.user.evaluate(self.places[i])) for i in range(len(self.places))]
-            evaluated_places.sort(key=lambda x: x[1], reverse=True)
+            evaluated_places.sort(key=lambda x: x[1])
 
-            return self.trip_from_pois_id([i[0] for i in evaluated_places])
+            return self.trip_from_pois_id([i[0] for i in evaluated_places], 7)
 
-    def trip_from_pois_id(self, pois: List[int]) -> Trajectory:
-        trajectory = Trajectory()
-        for id in pois[0:self.pois_limit]:
-            trajectory.add_poi(self.places[id])
-        return trajectory
+    def trip_from_pois_id(self, pois: List[int], limit: int):
+        return [(self.places[id].lon, self.places[id].lat, self.places[id].name) for id in pois[0:limit]]
 
-    def set_pois_limit(self, number: int):
-        self.pois_limit = number
 

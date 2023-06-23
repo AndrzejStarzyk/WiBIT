@@ -3,7 +3,7 @@ from OSMPythonTools.overpass import overpassQueryBuilder, Overpass
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.point_of_interest import PointOfInterest
+from point_of_interest import PointOfInterest
 
 
 class Provider:
@@ -21,9 +21,9 @@ class Provider:
             print(e)
 
         db = client["wibit"]
-        collection = db["cracow-attractions-popular"]
+        collection = db["cracow-attractions"]
 
-        """overpass = Overpass()
+        overpass = Overpass()
         nominatim = Nominatim()
 
         cracow = nominatim.query('Kraków, Poland')
@@ -52,17 +52,11 @@ class Provider:
             res = overpass.query(query)
             for element in res.elements():
                 osm = f"{element.type()}/{element.id()}"
-                el = collection.find_one({"osm": osm})
-                if el is not None:
-                    """
-        all_places = collection.find()
-        for place in all_places:
-            self.pois.append(
-                PointOfInterest(name=place.get('name'),
-                                lon=place.get('point').get('lon'),
-                                lat=place.get('point').get('lat'),
-                                kinds=place.get('kinds'),
-                                xid=place.get('xid')))
+                kinds = collection.find_one({"osm": osm}, projection={"kinds"})
+                self.pois.append(PointOfInterest(name=element.tag("name") if element.tag("name") is not None else selector,
+                                                 lon=element.lon(),
+                                                 lat=element.lat(),
+                                                 kinds=kinds))
         self.fetched = True
 
     def get_places(self):

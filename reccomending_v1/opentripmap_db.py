@@ -1,7 +1,5 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
-
 class OpenTripMapDbProvider:
     def __init__(self):
         self.places = []
