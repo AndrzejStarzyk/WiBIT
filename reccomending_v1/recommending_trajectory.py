@@ -3,8 +3,8 @@ import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from torch import sigmoid
 
-from opentripmaps_categories import get_categories
-from opentripmap_api import get_places
+from reccomending_v1.opentripmaps_categories import *
+from reccomending_v1.opentripmap_api import *
 
 
 class Model(nn.Module):
@@ -39,8 +39,8 @@ class Recommender:
         self.optimizer = None
 
     def train(self):
-        categories = get_categories()
-        places = get_places()
+        categories = CategoriesProvider().get_categories()
+        places = OpenTripMapApiProvider().get_places()
         self.labels_ids = {}
         for i in range(len(categories)):
             self.labels_ids[categories[i]] = i

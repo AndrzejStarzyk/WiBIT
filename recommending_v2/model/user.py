@@ -1,5 +1,6 @@
-from constraint import Constraint
-from point_of_interest import PointOfInterest
+from recommending_v2.model.constraint import Constraint
+from recommending_v2.model.point_of_interest import PointOfInterest
+
 
 class User:
     def __init__(self):

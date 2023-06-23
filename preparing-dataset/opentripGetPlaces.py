@@ -147,12 +147,12 @@ def getDetails(start_idx: int = 0, stop_idx: int = -1):
         single_place = apiRequest(url)
         places_details.append(single_place)
 
-    #result = collection.insert_many(places_details)
-    #print(result.inserted_ids)
+    # result = collection.insert_many(places_details)
+    # print(result.inserted_ids)
 
     with open(places_details_path, "w") as places_details_file:
         json.dump(places_details, places_details_file)
 
 
-#getDetails()
+# getDetails()
 

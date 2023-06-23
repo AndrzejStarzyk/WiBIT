@@ -29,4 +29,4 @@ response = requests.get(url, headers=headers)
 print(response.text)
 
 
-#https://www.tripadvisor.com/Attraction_Review-g274772-d276748-Reviews-Wawel_Royal_Castle-Krakow_Lesser_Poland_Province_Southern_Poland.html
+# https://www.tripadvisor.com/Attraction_Review-g274772-d276748-Reviews-Wawel_Royal_Castle-Krakow_Lesser_Poland_Province_Southern_Poland.html

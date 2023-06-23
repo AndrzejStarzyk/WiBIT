@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
-from display_route import create_map
-from categories import categories
-from recommending_similar_poi import Recommender
+from reccomending_v1.display_route import create_map
+from reccomending_v1.categories import categories
+from reccomending_v1.recommending_similar_poi import Recommender
 from recommending_v2.recommender import Recommender as EvalRecommender
 
 app = Flask(__name__)
