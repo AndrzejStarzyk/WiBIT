@@ -1,43 +1,16 @@
-{% extends 'base.html' %}
-{% block head %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>Suggested trip</title>
-    {{map_header|safe}}
-{% endblock %}
-
-{% block body %}
+</head>
 <body>
-    <div class="row">
-        <div class="big-map col-12 col-lg-8">
-            {{ map_html|safe }}
-            <script>
-                {{ map_script|safe }}
-            </script>
-        </div>
-
-        <div class="col-12 col-lg-4">
-            <h2> Trasa wycieczki </h2>
-            <form id="save-form" class="not-displayed" action="/" method="post"> </form>
-            <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
-                {% for place in places %}
-                <div class="one-line">
-                    <p class="trip-place-name-small"> {{place.name}} </p>
-                    <input id="remove_{{place.xid}}" form="opinion-form" class="not-displayed remove-checkbox" type="radio"
-                           name="remove_{{place.xid}}" value="{{place.xid}}">
-                    <label class="base-label" for="remove_{{place.xid}}"> <span>USUŃ</span> </label>
-                    <input id="replace_{{place.xid}}" form="opinion-form" class="not-displayed replace-checkbox" type="checkbox"
-                           name="replace_{{place.xid}}" value="{{place.xid}}">
-                    <label class="base-label" for="replace_{{place.xid}}"> <span>WYMIEŃ</span> </label>
-                </div>
-                {% endfor %}
-
-
-                <h3> Dodatkowe opcje </h3>
-                <input class="base-button suggested-form-button" type="submit"
-                       form="save-form" value="Zapisz wycieczkę" name="button_approve">
-                <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
-            </form>
-
-        </div>
-    </div>
-
-{% endblock %}
+{%  extends "map.html" %}
+{% block title %}Index{% endblock %}
+<form action="/suggested" method="post">
+    <input type="submit" value="true" name="approve">
+    <input type="submit" value="false" name="disapprove">
+</form>
+<p>ALDINFANODBA</p>
+</body>
+</html>

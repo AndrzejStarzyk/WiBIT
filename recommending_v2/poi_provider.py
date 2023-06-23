@@ -3,7 +3,7 @@ from OSMPythonTools.overpass import overpassQueryBuilder, Overpass
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from point_of_interest import PointOfInterest
+from recommending_v2.model.point_of_interest import PointOfInterest
 
 
 class Provider:

@@ -1,10 +1,10 @@
 from typing import List
 
 from recommending_v2.poi_provider import Provider
-from recommending_v2.user import User
-from recommending_v2.default_trip import DefaultTrip
-from constraint import Constraint
-from point_of_interest import PointOfInterest
+from recommending_v2.model.user import User
+from recommending_v2.model.default_trip import DefaultTrip
+from recommending_v2.model.constraint import Constraint
+from recommending_v2.model.point_of_interest import PointOfInterest
 
 
 class Recommender:

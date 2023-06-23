@@ -1,9 +1,6 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.model.point_of_interest import PointOfInterest
-
 trip = {
     "trip": [
         {
@@ -52,9 +49,10 @@ trip = {
 
 class DefaultTrip:
     def __init__(self):
-        self.trip: Trajectory = Trajectory()
-        self.places_fetched: bool = False
-        self.uri: str = "mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+        self.places = []
+        self.places_fetched = False
+        self.uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+        self.default_trip = []
 
     def get_trip(self):
         client = MongoClient(self.uri, server_api=ServerApi('1'))
@@ -66,15 +64,13 @@ class DefaultTrip:
             print(e)
 
         db = client["wibit"]
-        collection = db["cracow-attractions-popular"]
+        collection = db["cracow-attractions"]
 
         for osm in trip["trip"]:
             place = collection.find_one({"osm": f"{osm['type']}/{osm['id']}"})
             if place is not None:
-                self.trip.add_poi(PointOfInterest(place['xid'],
-                                                  place["name"],
-                                                  place['point']['lon'],
-                                                  place['point']['lat'],
-                                                  place['kinds']))
+                lon = place['point']['lon']
+                lat = place['point']['lat']
+                self.default_trip.append((lon, lat, place["name"]))
 
-        return self.trip
+        return self.default_trip

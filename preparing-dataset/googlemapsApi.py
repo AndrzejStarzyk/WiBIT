@@ -38,7 +38,7 @@ cracow_places_nearby = gmaps.places_nearby(
 
 json_formatted_places_nearby = json.dumps(cracow_places_nearby, indent=2, ensure_ascii=False)
 
-#print(json_formatted_places_nearby)
+# print(json_formatted_places_nearby)
 for place in cracow_places_nearby["results"]:
     print(place["name"], " ---> ", place["place_id"])
 

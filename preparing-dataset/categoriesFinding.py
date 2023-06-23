@@ -1,7 +1,7 @@
 from opentripGetPlaces import getMongoDbCollection
 import json
 
-#https://opentripmap.io/catalog
+# https://opentripmap.io/catalog
 
 
 def getAllPlaces():
@@ -22,7 +22,7 @@ def existedCategories() -> set:
     return categories
 
 
-def getMainCategories(only_in_db = True):
+def getMainCategories(only_in_db=True):
     catalog_path = "jsons/catalog_en.json"
     with open(catalog_path, "r", encoding="utf-8") as catalog_file:
         categories = json.load(catalog_file)
@@ -43,7 +43,7 @@ def getMainCategories(only_in_db = True):
     return categories_at_level
 
 
-def thirdLevelCategories(only_in_db= True):
+def thirdLevelCategories(only_in_db=True):
     main_categories = getMainCategories(only_in_db)
 
     catalog_path = "jsons/catalog_en.json"

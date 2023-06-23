@@ -1,41 +1,49 @@
-{% extends 'base.html' %}
-{% block head %}
-    <title>Choose page</title>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Default page</title>
 
-{% block body %}
+</head>
 <body>
-    <h1>Wybór kategorii atrakcji turystycznych</h1>
-    <div class="form" id="main_category_form">
-        <div class="container">
-            {% for category in input_categories %}
-                <div class="item">
-                    <input class="not-displayed select-checkbox" name="{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
-                    <label class="base-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
-                </div>
-            {% endfor %}
-            <br>
-            <button onclick="show_next_form()" class="base-button">Dalej</button>
-        </div>
 
-    </div >
-
-<form id="subcategory_form" action="/suggested" method="post">
+<div class="form" id="main_form">
+    <div class="container">
+        {% for category in input_categories %}
+            <div class="item">
+                <input class="checkbox" name="{{ category["code"]  }}" id="{{ category["code"]  }}" type="checkbox">
+                <label for="{{ category["code"]  }}">{{ category["name"]  }}</label>
+            </div>
+        {% endfor %}
+    </div>
+    <button onclick="show_next_form()">Dalej</button>
+</div >
+<form action="/map" method="get">
     <div id="container2" class="container">
 
-
-        <br>
-
     </div>
-    <div class="container">
-        <button type="submit" class="base-button">Szukaj</button>
-    </div>
-
+    <button type="submit">Szukaj</button>
 </form>
+<style>
+    .container{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
 
+    }
+    form, div.form{
+        position: relative;
+        width: 50%;
+        left: 25%;
+        padding-top:10vh;
+    }
+    form{
+        display: none;
+    }
+</style>
 <script>
     const categories = {{ input_categories | tojson }},
-        checkboxes = document.querySelectorAll(".select-checkbox"),
+        checkboxes = document.querySelectorAll(".checkbox"),
         container2 = document.querySelector("#container2");
 
     function show_next_form(){
@@ -43,36 +51,32 @@
             if(checkbox.checked){
                 let category_code = checkbox.id,
                 selected = categories.filter(cat => cat["code"] === category_code);
+                console.log(selected)
                 for (let selected_category of selected){
                     for (let sub_category of selected_category["sub_categories"] ){
                         let div = document.createElement("div"),
                         input = document.createElement("input"),
                         label = document.createElement("label");
 
-                            div.className = "item"
+                        div.className = "item"
 
                         input.id = sub_category["code"];
-                        input.name = "cat_"+sub_category["code"];
-                        input.value = sub_category["code"];
-                        input.className = "not-displayed select-checkbox"
+                        input.name = sub_category["code"];
                         input.setAttribute("type", "checkbox")
-
 
                         label.setAttribute("for", sub_category["code"]);
                         label.innerHTML =sub_category["name"]
-                        label.className = "base-label"
 
-                            div.appendChild(input);
-                            div.appendChild(label);
-                            container2.appendChild(div);
-                        }
+                        div.appendChild(input);
+                        div.appendChild(label);
+                        container2.appendChild(div);
                     }
                 }
             }
-            document.querySelector("#main_category_form").style.display = "none";
-            document.querySelector("#subcategory_form").style.display = "block";
         }
-    </script>
+        document.querySelector(".form").style.display = "none";
+        document.querySelector("form").style.display = "block";
+    }
+</script>
 </body>
-{% endblock %}
-
+</html>
