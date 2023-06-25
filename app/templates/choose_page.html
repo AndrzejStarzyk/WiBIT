@@ -1,46 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Default page</title>
+{% extends 'base.html' %}
+{% block head %}
+    <title>Choose page</title>
+{% endblock %}
 
-</head>
-<body>
-
-<div class="form" id="main_form">
+{% block body %}
+<div class="form" id="main_category_form">
     <div class="container">
         {% for category in input_categories %}
             <div class="item">
-                <input class="checkbox" name="{{ category["code"]  }}" id="{{ category["code"]  }}" type="checkbox">
-                <label for="{{ category["code"]  }}">{{ category["name"]  }}</label>
+                <input class="checkbox" name="{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
+                <label for="{{ category['code']  }}">{{ category["name"]  }}</label>
             </div>
         {% endfor %}
     </div>
     <button onclick="show_next_form()">Dalej</button>
 </div >
-<form action="/map" method="get">
+<form id="subcategory_form" action="/suggested" method="get">
     <div id="container2" class="container">
 
     </div>
     <button type="submit">Szukaj</button>
 </form>
-<style>
-    .container{
-        display: flex;
-        flex-direction: column;
-        width: 100%;
 
-    }
-    form, div.form{
-        position: relative;
-        width: 50%;
-        left: 25%;
-        padding-top:10vh;
-    }
-    form{
-        display: none;
-    }
-</style>
 <script>
     const categories = {{ input_categories | tojson }},
         checkboxes = document.querySelectorAll(".checkbox"),
@@ -74,9 +55,8 @@
                 }
             }
         }
-        document.querySelector(".form").style.display = "none";
-        document.querySelector("form").style.display = "block";
+        document.querySelector("#main_category_form").style.display = "none";
+        document.querySelector("#subcategory_form").style.display = "block";
     }
 </script>
-</body>
-</html>
+{% endblock %}

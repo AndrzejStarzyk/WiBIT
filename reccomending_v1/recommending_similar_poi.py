@@ -5,8 +5,8 @@ from surprise.prediction_algorithms.knns import KNNBasic
 from random import randrange, choices
 from copy import deepcopy
 from typing import Dict, List
-from opentripmaps_categories import CategoriesProvider
-from opentripmap_api import OpenTripMapApiProvider
+from reccomending_v1.opentripmaps_categories import CategoriesProvider
+from reccomending_v1.opentripmap_api import OpenTripMapApiProvider
 
 
 class Recommender:

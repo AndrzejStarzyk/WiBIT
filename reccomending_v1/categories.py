@@ -40,7 +40,7 @@ categories = [
         "sub_categories": [
             {
                 "name": "Kościoły",
-                "code": "chuches"
+                "code": "churches"
             },
             {
                 "name": "Katedry",
@@ -204,7 +204,7 @@ categories = [
         },
             {
                 "name": "Wieże",
-                "code": "Towers"
+                "code": "towers"
             },
             {
                 "name": "Architektura historyczna",

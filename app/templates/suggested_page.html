@@ -1,16 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+{% extends 'base.html' %}
+{% block head %}
     <title>Suggested trip</title>
-</head>
+{% endblock %}
+
+{% block body %}
 <body>
-{%  extends "map.html" %}
-{% block title %}Index{% endblock %}
-<form action="/suggested" method="post">
-    <input type="submit" value="true" name="approve">
-    <input type="submit" value="false" name="disapprove">
-</form>
-<p>ALDINFANODBA</p>
-</body>
-</html>
+    <div class="row">
+        <div class="big-map col-12 col-lg-8">
+            {% include "map.html" %}
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <h2> Trasa wycieczki </h2>
+
+            {% for place in places %}
+            <div class="one-line">
+                <p class="trip-place-name-small"> {{place['name']}} </p>
+                <button class="base-button"> Usuń </button>
+            </div>
+            {% endfor %}
+
+        <form class="suggested-form" action="/suggested" method="post">
+            <h3> Dodatkowe opcje </h3>
+            <input class="base-button suggested-form-button" type="submit" value="Zapisz wycieczkę" name="approve">
+            <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="disapprove">
+        </form>
+
+        </div>
+    </div>
+
+{% endblock %}
