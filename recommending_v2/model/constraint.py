@@ -1,6 +1,6 @@
 import string
 from typing import List
-from point_of_interest import PointOfInterest
+from recommending_v2.model.point_of_interest import PointOfInterest
 
 from reccomending_v1.opentripmaps_categories import CategoriesProvider
 
@@ -14,7 +14,7 @@ class Constraint:
 
 
 class CategoryConstraint(Constraint):
-    def __init__(self, codes: List[string]):
+    def __init__(self, codes: List[str]):
         super().__init__()
         self.codes = codes
         self.provider = CategoriesProvider()

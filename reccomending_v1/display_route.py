@@ -6,7 +6,7 @@ import folium
 map_center = (50.0619474, 19.9368564)
 
 
-def create_map(pois: [(float, float, str)]):
+def create_map(pois: [(float, float, str)]) -> folium.map:
     m = folium.Map(location=map_center, zoom_start=16)
     trail = []
     for coordinate in pretty_path(pois):
@@ -18,6 +18,7 @@ def create_map(pois: [(float, float, str)]):
         trail.append((coordinate[1], coordinate[0]))
     if len(trail) > 0:
         folium.PolyLine(trail).add_to(m)
+
     m.save("./templates/map.html")
 
 
