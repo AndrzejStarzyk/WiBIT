@@ -52,11 +52,14 @@ class Provider:
             res = overpass.query(query)
             for element in res.elements():
                 osm = f"{element.type()}/{element.id()}"
-                kinds = collection.find_one({"osm": osm}, projection={"kinds"})
-                self.pois.append(PointOfInterest(name=element.tag("name") if element.tag("name") is not None else selector,
-                                                 lon=element.lon(),
-                                                 lat=element.lat(),
-                                                 kinds=kinds))
+                el = collection.find_one({"osm": osm})
+                if el is not None:
+                    self.pois.append(
+                        PointOfInterest(name=element.tag("name") if element.tag("name") is not None else selector,
+                                        lon=element.lon(),
+                                        lat=element.lat(),
+                                        kinds=el.get('kinds').split(","),
+                                        xid=el.get('xid')))
         self.fetched = True
 
     def get_places(self):
