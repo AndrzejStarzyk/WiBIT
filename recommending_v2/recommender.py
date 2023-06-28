@@ -5,6 +5,7 @@ from recommending_v2.model.user import User
 from recommending_v2.model.default_trip import DefaultTrip
 from recommending_v2.model.constraint import Constraint
 from recommending_v2.model.point_of_interest import PointOfInterest
+from recommending_v2.model.trajectory import Trajectory
 
 
 class Recommender:
@@ -18,10 +19,12 @@ class Recommender:
         self.user = user
         self.cold_start = False
 
-    def add_constraint(self, constraint: Constraint, weight: int):
+    def add_constraint(self, constraint: Constraint, weight: int = 5):
+        if self.cold_start:
+            self.cold_start = False
         self.user.add_constraint(constraint, weight)
 
-    def get_recommended(self):
+    def get_recommended(self) -> Trajectory:
         if self.cold_start:
             trip = DefaultTrip()
             return trip.get_trip()
@@ -31,7 +34,8 @@ class Recommender:
 
             return self.trip_from_pois_id([i[0] for i in evaluated_places], 7)
 
-    def trip_from_pois_id(self, pois: List[int], limit: int):
-        return [(self.places[id].lon, self.places[id].lat, self.places[id].name) for id in pois[0:limit]]
-
-
+    def trip_from_pois_id(self, pois: List[int], limit: int) -> Trajectory:
+        trajectory = Trajectory()
+        for id in pois[0:limit]:
+            trajectory.add_poi(self.places[id])
+        return trajectory

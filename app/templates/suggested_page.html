@@ -1,26 +1,33 @@
 {% extends 'base.html' %}
 {% block head %}
     <title>Suggested trip</title>
+    {{map_header|safe}}
 {% endblock %}
 
 {% block body %}
 <body>
     <div class="row">
         <div class="big-map col-12 col-lg-8">
-            {% include "map.html" %}
+            {{ map_html|safe }}
+            <script>
+                {{ map_script|safe }}
+            </script>
         </div>
 
         <div class="col-12 col-lg-4">
             <h2> Trasa wycieczki </h2>
-
+        <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
             {% for place in places %}
             <div class="one-line">
-                <p class="trip-place-name-small"> {{place['name']}} </p>
-                <button class="base-button"> Usuń </button>
+                <p class="trip-place-name-small"> {{place.name}} </p>
+                <input id="{{place.xid}}" form="opinion-form" class="hidden-checkbox" type="checkbox"
+                       name="{{place.xid}}" value="{{place.xid}}">
+                <label class="base-label" for="{{place.xid}}"> <span>usuń</span> </label>
+
             </div>
             {% endfor %}
 
-        <form class="suggested-form" action="/suggested" method="post">
+
             <h3> Dodatkowe opcje </h3>
             <input class="base-button suggested-form-button" type="submit" value="Zapisz wycieczkę" name="approve">
             <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="disapprove">

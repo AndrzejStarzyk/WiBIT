@@ -64,3 +64,17 @@ h1, h2, h3{
     margin: 10px;
 }
 
+.hidden-checkbox{
+    display: none;
+}
+
+.base-label{
+    margin: auto auto auto 10vw;
+    padding: 1vh 1vw 1vh 1vw;
+    border-radius: 3vh;
+    text-align: center;
+}
+
+.hidden-checkbox:checked~.base-label{
+    background-color: red;
+}
