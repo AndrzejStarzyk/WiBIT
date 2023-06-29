@@ -14,6 +14,7 @@ class Recommender:
         self.places: List[PointOfInterest] = self.places_provider.get_places()
         self.user = User()
         self.cold_start = True
+        self.pois_limit = 0
 
     def set_user(self, user: User):
         self.user = user
@@ -32,10 +33,15 @@ class Recommender:
             evaluated_places = [(i, self.user.evaluate(self.places[i])) for i in range(len(self.places))]
             evaluated_places.sort(key=lambda x: x[1])
 
-            return self.trip_from_pois_id([i[0] for i in evaluated_places], 7)
+            return self.trip_from_pois_id([i[0] for i in evaluated_places])
 
-    def trip_from_pois_id(self, pois: List[int], limit: int) -> Trajectory:
+    def trip_from_pois_id(self, pois: List[int]) -> Trajectory:
+        print(self.pois_limit)
         trajectory = Trajectory()
-        for id in pois[0:limit]:
+        for id in pois[0:self.pois_limit]:
             trajectory.add_poi(self.places[id])
         return trajectory
+
+    def set_pois_limit(self, number: int):
+        self.pois_limit = number
+

@@ -4,59 +4,64 @@
 {% endblock %}
 
 {% block body %}
-<div class="form" id="main_category_form">
-    <div class="container">
-        {% for category in input_categories %}
-            <div class="item">
-                <input class="checkbox" name="{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
-                <label for="{{ category['code']  }}">{{ category["name"]  }}</label>
-            </div>
-        {% endfor %}
-    </div>
-    <button onclick="show_next_form()">Dalej</button>
-</div >
-<form id="subcategory_form" action="/suggested" method="get">
-    <div id="container2" class="container">
+<body>
+    <h1>Wybór kategorii atrakcji turystycznych</h1>
+    <div class="form" id="main_category_form">
+        <div class="container">
+            {% for category in input_categories %}
+                <div class="item">
+                    <input class="checkbox" name="{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
+                    <label for="{{ category['code']  }}">{{ category["name"]  }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        <br>
+        <button onclick="show_next_form()" class="base-button">Dalej</button>
+    </div >
+    <form id="subcategory_form" action="/suggested" method="get">
+        <div id="container2" class="container">
 
-    </div>
-    <button type="submit">Szukaj</button>
-</form>
+        </div>
+        <br>
+        <button type="submit" class="base-button">Szukaj</button>
+    </form>
 
-<script>
-    const categories = {{ input_categories | tojson }},
-        checkboxes = document.querySelectorAll(".checkbox"),
-        container2 = document.querySelector("#container2");
+    <script>
+        const categories = {{ input_categories | tojson }},
+            checkboxes = document.querySelectorAll(".checkbox"),
+            container2 = document.querySelector("#container2");
 
-    function show_next_form(){
-        for (const checkbox of checkboxes) {
-            if(checkbox.checked){
-                let category_code = checkbox.id,
-                selected = categories.filter(cat => cat["code"] === category_code);
-                console.log(selected)
-                for (let selected_category of selected){
-                    for (let sub_category of selected_category["sub_categories"] ){
-                        let div = document.createElement("div"),
-                        input = document.createElement("input"),
-                        label = document.createElement("label");
+        function show_next_form(){
+            for (const checkbox of checkboxes) {
+                if(checkbox.checked){
+                    let category_code = checkbox.id,
+                    selected = categories.filter(cat => cat["code"] === category_code);
+                    console.log(selected)
+                    for (let selected_category of selected){
+                        for (let sub_category of selected_category["sub_categories"] ){
+                            let div = document.createElement("div"),
+                            input = document.createElement("input"),
+                            label = document.createElement("label");
 
-                        div.className = "item"
+                            div.className = "item"
 
-                        input.id = sub_category["code"];
-                        input.name = sub_category["code"];
-                        input.setAttribute("type", "checkbox")
+                            input.id = sub_category["code"];
+                            input.name = sub_category["code"];
+                            input.setAttribute("type", "checkbox")
 
-                        label.setAttribute("for", sub_category["code"]);
-                        label.innerHTML =sub_category["name"]
+                            label.setAttribute("for", sub_category["code"]);
+                            label.innerHTML =sub_category["name"]
 
-                        div.appendChild(input);
-                        div.appendChild(label);
-                        container2.appendChild(div);
+                            div.appendChild(input);
+                            div.appendChild(label);
+                            container2.appendChild(div);
+                        }
                     }
                 }
             }
+            document.querySelector("#main_category_form").style.display = "none";
+            document.querySelector("#subcategory_form").style.display = "block";
         }
-        document.querySelector("#main_category_form").style.display = "none";
-        document.querySelector("#subcategory_form").style.display = "block";
-    }
-</script>
+    </script>
+</body>
 {% endblock %}

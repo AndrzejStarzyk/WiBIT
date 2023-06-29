@@ -3,6 +3,17 @@ h1, h2, h3{
     width: 100%;
 }
 
+/* main page */
+.main-page-option{
+    text-align: center;
+    text-decoration: none;
+    padding: 30px;
+    margin-top: 10vh;
+    font-size: medium;
+    color: black;
+    border: 1px solid black;
+}
+
 /* choose category page */
 
 .container{
@@ -77,4 +88,13 @@ h1, h2, h3{
 
 .hidden-checkbox:checked~.base-label{
     background-color: red;
+}
+
+/* duration form */
+#duration_form{
+    position: relative;
+    width: 50%;
+    left: 25%;
+    padding-top:10vh;
+    text-align: center;
 }
