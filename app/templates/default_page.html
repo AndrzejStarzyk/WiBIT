@@ -4,4 +4,8 @@
 {% endblock %}
 
 {% block body %}
+    <div class="main-text">Witaj w Wirtualnym Biurze Informacji Turystycznej</div>
+    <form class="suggested-form" action="/initial_preferences" method="get">
+        <input class="base-button " type="submit" value="Zaproponuj mi wycieczkę" name="button_suggest_trip">
+    </form>
 {% endblock %}

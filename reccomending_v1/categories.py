@@ -191,7 +191,7 @@ categories = [
             },
             {
                 "name": "Zoo",
-                "code": "zoo"
+                "code": "zoos"
             }
         ]
     },
@@ -215,13 +215,5 @@ categories = [
                 "code": "bridges"
             }
         ]
-    },
-    {
-        "name": "",
-        "code": "",
-        "sub_categories": [{
-            "name": "",
-            "code": ""
-        }]
     }
 ]

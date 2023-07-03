@@ -20,23 +20,23 @@ class Recommender:
         self.user = user
         self.cold_start = False
 
-    def add_constraint(self, constraint: Constraint, weight: int = 5):
+    def add_constraint(self, constraint: Constraint):
         if self.cold_start:
             self.cold_start = False
-        self.user.add_constraint(constraint, weight)
+        self.user.add_constraint(constraint, constraint.get_weight())
 
     def get_recommended(self) -> Trajectory:
         if self.cold_start:
             trip = DefaultTrip()
             return trip.get_trip()
         else:
+            self.user.decay_weights()
             evaluated_places = [(i, self.user.evaluate(self.places[i])) for i in range(len(self.places))]
-            evaluated_places.sort(key=lambda x: x[1])
+            evaluated_places.sort(key=lambda x: x[1], reverse=True)
 
             return self.trip_from_pois_id([i[0] for i in evaluated_places])
 
     def trip_from_pois_id(self, pois: List[int]) -> Trajectory:
-        print(self.pois_limit)
         trajectory = Trajectory()
         for id in pois[0:self.pois_limit]:
             trajectory.add_poi(self.places[id])
