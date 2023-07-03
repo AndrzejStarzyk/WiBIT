@@ -66,7 +66,7 @@ class DefaultTrip:
             print(e)
 
         db = client["wibit"]
-        collection = db["cracow-attractions"]
+        collection = db["cracow-attractions-popular"]
 
         for osm in trip["trip"]:
             place = collection.find_one({"osm": f"{osm['type']}/{osm['id']}"})

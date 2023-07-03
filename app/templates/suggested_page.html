@@ -16,22 +16,24 @@
 
         <div class="col-12 col-lg-4">
             <h2> Trasa wycieczki </h2>
-        <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
-            {% for place in places %}
-            <div class="one-line">
-                <p class="trip-place-name-small"> {{place.name}} </p>
-                <input id="{{place.xid}}" form="opinion-form" class="hidden-checkbox" type="checkbox"
-                       name="{{place.xid}}" value="{{place.xid}}">
-                <label class="base-label" for="{{place.xid}}"> <span>usuń</span> </label>
+            <form id="save-form" class="not-displayed" action="/" method="post"> </form>
+            <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
+                {% for place in places %}
+                <div class="one-line">
+                    <p class="trip-place-name-small"> {{place.name}} </p>
+                    <input id="{{place.xid}}" form="opinion-form" class="not-displayed remove-checkbox" type="checkbox"
+                           name="remove_{{place.xid}}" value="{{place.xid}}">
+                    <label class="base-label" for="{{place.xid}}"> <span>usuń</span> </label>
 
-            </div>
-            {% endfor %}
+                </div>
+                {% endfor %}
 
 
-            <h3> Dodatkowe opcje </h3>
-            <input class="base-button suggested-form-button" type="submit" value="Zapisz wycieczkę" name="approve">
-            <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="disapprove">
-        </form>
+                <h3> Dodatkowe opcje </h3>
+                <input class="base-button suggested-form-button" type="submit"
+                       form="save-form" value="Zapisz wycieczkę" name="button_approve">
+                <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
+            </form>
 
         </div>
     </div>

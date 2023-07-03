@@ -1,22 +1,17 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, redirect, url_for
 
-from reccomending_v1.display_route import create_map
+from reccomending_v1.display_route import create_map, pretty_path
 from reccomending_v1.categories import categories
-from reccomending_v1.recommending_similar_poi import Recommender
 from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 
 
 app = Flask(__name__)
-# recommender = Recommender()
-# recommender.train()
 
 eval_recommender = EvalRecommender()
-#eval_recommender.add_constraint(AttractionConstraint(["N278057698"]), 5)
-#eval_recommender.add_constraint(CategoryConstraint(["natural"]), 1)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def show_home():
     return render_template("home.html")
 
@@ -27,17 +22,7 @@ def show_categories():
 
 @app.route('/map')
 def show_map():
-    res = render_template("default_page.html")
-    """try:
-        selected = []
-        for checkbox_result in request.values.lists():
-            selected.append(checkbox_result[0])
-        places = recommender.get_recommended(selected)
-        create_map([(place['point']['lon'], place['point']['lat'], place['name']) for place in places])
-        res = render_template("map.html")
-    except FileExistsError:
-        print("Index file no found")"""
-    return res
+    return render_template("choose_page.html", input_categories=categories)
 
 
 @app.route('/suggested', methods=['GET', 'POST'])
@@ -45,7 +30,6 @@ async def show_suggested():
     res = render_template("default_page.html")
     if request.method == 'GET':
         try:
-
             recommended = eval_recommender.get_recommended()
             eval_recommender.set_pois_limit(7)
 
@@ -60,15 +44,28 @@ async def show_suggested():
         return res
 
     if request.method == "POST":
+        init_pref = []
         for item in request.form.items():
-            if item[0] == "disabled":
+            if item[0].startswith('button'):
                 continue
-            eval_recommender.add_constraint(AttractionConstraint([item[0]]))
+            elif item[0].startswith('remove'):
+                eval_recommender.add_constraint(AttractionConstraint([item[1]], False))
+            elif item[0].startswith('cat'):
+                init_pref.append(item[1])
+            elif item[0].startswith('datetime'):
+                if item[0] == 'datetime_start':
+                    pass
+                if item[0] == 'datetime_end':
+                    pass
+
+        if len(init_pref) > 0:
+            eval_recommender.add_constraint(CategoryConstraint(init_pref))
 
         recommended = eval_recommender.get_recommended()
-        m = create_map(recommended)
+        path = pretty_path(recommended)
+        m = create_map(path)
         m.get_root().render()
-        res = render_template("suggested_page.html", places=recommended.pois,
+        res = render_template("suggested_page.html", places=path,
                               map_header=m.get_root().header.render(),
                               map_html=m.get_root().html.render(),
                               map_script=m.get_root().script.render())

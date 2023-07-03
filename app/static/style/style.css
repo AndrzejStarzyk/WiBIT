@@ -14,12 +14,26 @@ h1, h2, h3{
     border: 1px solid black;
 }
 
+/* default page */
+
+.main-text{
+    width: 100%;
+    text-align: center;
+    font-size: 4vh;
+}
+
+.select-checkbox:checked~.base-label{
+    background-color: limegreen;
+}
+
 /* choose category page */
 
 .container{
     display: flex;
     flex-direction: column;
+    row-gap: 1vh;
     width: 100%;
+    margin-top: 5vh;
 }
 
 #subcategory_form, #main_category_form{
@@ -31,6 +45,13 @@ h1, h2, h3{
 
 #subcategory_form{
     display: none;
+}
+
+.next-button{
+    width: 25%;
+    padding: 6px 20px 6px 20px;
+    margin: 5vh auto 0 auto;
+    text-align: center;
 }
 
 /* suggested trip page */
@@ -75,7 +96,7 @@ h1, h2, h3{
     margin: 10px;
 }
 
-.hidden-checkbox{
+.not-displayed{
     display: none;
 }
 
@@ -86,9 +107,11 @@ h1, h2, h3{
     text-align: center;
 }
 
-.hidden-checkbox:checked~.base-label{
+.remove-checkbox:checked~.base-label{
     background-color: red;
 }
+
+
 
 /* duration form */
 #duration_form{

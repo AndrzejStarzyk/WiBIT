@@ -21,9 +21,9 @@ class Provider:
             print(e)
 
         db = client["wibit"]
-        collection = db["cracow-attractions"]
+        collection = db["cracow-attractions-popular"]
 
-        overpass = Overpass()
+        """overpass = Overpass()
         nominatim = Nominatim()
 
         cracow = nominatim.query('Kraków, Poland')
@@ -54,12 +54,15 @@ class Provider:
                 osm = f"{element.type()}/{element.id()}"
                 el = collection.find_one({"osm": osm})
                 if el is not None:
-                    self.pois.append(
-                        PointOfInterest(name=element.tag("name") if element.tag("name") is not None else selector,
-                                        lon=element.lon(),
-                                        lat=element.lat(),
-                                        kinds=el.get('kinds').split(","),
-                                        xid=el.get('xid')))
+                    """
+        all_places = collection.find()
+        for place in all_places:
+            self.pois.append(
+                PointOfInterest(name=place.get('name'),
+                                lon=place.get('point').get('lon'),
+                                lat=place.get('point').get('lat'),
+                                kinds=place.get('kinds'),
+                                xid=place.get('xid')))
         self.fetched = True
 
     def get_places(self):
