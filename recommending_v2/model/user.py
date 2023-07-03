@@ -16,7 +16,7 @@ class User:
         self.total_weights: int = 0
 
         for poi in DefaultTrip().get_trip().pois:
-            self.add_constraint(AttractionConstraint([poi.xid]), 5)
+            self.add_constraint(AttractionConstraint([poi.xid]), 15)
 
     def add_constraint(self, constraint: Constraint, weight: int):
         self.preferences.append({'constraint': constraint, 'weight': weight})
