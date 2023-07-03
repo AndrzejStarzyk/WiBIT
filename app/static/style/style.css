@@ -101,17 +101,19 @@ h1, h2, h3{
 }
 
 .base-label{
-    margin: auto auto auto 10vw;
+    margin: auto auto auto 5vw;
     padding: 1vh 1vw 1vh 1vw;
     border-radius: 3vh;
     text-align: center;
 }
 
-.remove-checkbox:checked~.base-label{
+.remove-checkbox:checked+.base-label{
     background-color: red;
 }
 
-
+.replace-checkbox:checked+.base-label{
+    background-color: yellow;
+}
 
 /* duration form */
 #duration_form{

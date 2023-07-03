@@ -5,7 +5,6 @@ import folium
 
 from recommending_v2.model.trajectory import Trajectory
 from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.default_trip import DefaultTrip
 
 map_center = (50.0619474, 19.9368564)
 
@@ -21,15 +20,17 @@ def create_map(path: List[PointOfInterest]) -> folium.Map:
         icon=folium.Icon(color='orange')
     ).add_to(m)
     trail.append((path[0].lat, path[0].lon))
-    for coordinate in path[1:-1]:
+    for coordinate in path[1:]:
         folium.Marker(
             location=(coordinate.lat, coordinate.lon),
             popup=coordinate.name,
             icon=folium.Icon(color='red')
         ).add_to(m)
         trail.append((coordinate.lat, coordinate.lon))
+
     if len(trail) > 0:
         folium.PolyLine(trail).add_to(m)
+
     return m
 
 

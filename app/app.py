@@ -32,10 +32,10 @@ async def show_suggested():
         try:
             recommended = eval_recommender.get_recommended()
             eval_recommender.set_pois_limit(7)
-
-            m = create_map(recommended)
+            path = pretty_path(recommended)
+            m = create_map(path)
             m.get_root().render()
-            res = render_template("suggested_page.html", places=recommended.pois,
+            res = render_template("suggested_page.html", places=path,
                                   map_header=m.get_root().header.render(),
                                   map_html=m.get_root().html.render(),
                                   map_script=m.get_root().script.render())
@@ -49,6 +49,9 @@ async def show_suggested():
             if item[0].startswith('button'):
                 continue
             elif item[0].startswith('remove'):
+                eval_recommender.add_constraint(AttractionConstraint([item[1]], False))
+                eval_recommender.pois_limit -= 1
+            elif item[0].startswith('replace'):
                 eval_recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
                 init_pref.append(item[1])
