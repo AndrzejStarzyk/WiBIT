@@ -71,10 +71,14 @@ class DefaultTrip:
         for osm in trip["trip"]:
             place = collection.find_one({"osm": f"{osm['type']}/{osm['id']}"})
             if place is not None:
-                self.trip.add_poi(PointOfInterest(place['xid'],
-                                                  place["name"],
-                                                  place['point']['lon'],
-                                                  place['point']['lat'],
-                                                  place['kinds']))
+                self.trip.add_poi(PointOfInterest(name=place.get('name'),
+                                                  lon=place.get('point').get('lon'),
+                                                  lat=place.get('point').get('lat'),
+                                                  kinds=place.get('kinds'),
+                                                  xid=place.get('xid'),
+                                                  website=place.get('url'),
+                                                  wiki=place.get('wikipedia'),
+                                                  img=place.get('image'),
+                                                  opening_hours=place.get('opening_hours')))
 
         return self.trip

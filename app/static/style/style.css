@@ -123,3 +123,20 @@ h1, h2, h3{
     padding-top:10vh;
     text-align: center;
 }
+
+.centered-form{
+    position: relative;
+    width: 50%;
+    left: 30%;
+    padding-top:10vh;
+    text-align: center;
+}
+
+.popup{
+    width: 10vw;
+    height: 18vh;
+}
+
+.span-label{
+    margin: auto 3vw auto 3vw;
+}
