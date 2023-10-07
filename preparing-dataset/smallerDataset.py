@@ -2,11 +2,11 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from pymongo.errors import CollectionInvalid
 import googlemaps
-from keysAndPasswords import mongodb_password, gmaps_key
+from keysAndPasswords import mongodb_password, mongodb_user, gmaps_key
 
 
 def connectMongoDb():
-    uri = f"mongodb+srv://mikolaj:{mongodb_password}@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+    uri = f"mongodb+srv://{mongodb_user}:{mongodb_password}@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
     client = MongoClient(uri, server_api=ServerApi('1'))
 

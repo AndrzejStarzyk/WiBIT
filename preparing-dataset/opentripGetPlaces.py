@@ -2,8 +2,7 @@ import requests
 import json
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from keysAndPasswords import opentripmap_key, mongodb_password
-
+from keysAndPasswords import opentripmap_key, mongodb_password, mongodb_user
 
 base_url = 'https://api.opentripmap.com/0.1/en/'
 
@@ -113,7 +112,7 @@ def saveAllXIDs():
 
 
 def getMongoDbCollection():
-    uri = f"mongodb+srv://mikolaj:{mongodb_password}@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+    uri = f"mongodb+srv://{mongodb_user}:{mongodb_password}@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
     client = MongoClient(uri, server_api=ServerApi('1'))
 
