@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from datetime import date, timedelta
 
 from display_route import create_map
-from reccomending_v1.categories import categories
-from recommending_v2.recommender import Recommender as EvalRecommender, pretty_path
+from recommending_v2.categories.categories import categories
+from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 
 app = Flask(__name__)

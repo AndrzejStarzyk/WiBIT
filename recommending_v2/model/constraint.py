@@ -1,8 +1,7 @@
-import string
 from typing import List
 from recommending_v2.model.point_of_interest import PointOfInterest
 
-from reccomending_v1.opentripmaps_categories import CategoriesProvider
+from recommending_v2.categories.categories_graph import CategoriesProvider
 
 
 class Constraint:
@@ -35,7 +34,7 @@ class CategoryConstraint(Constraint):
         self.weight = 20
 
     def evaluate(self, poi: PointOfInterest) -> int:
-        return self.provider.get_score(poi.kinds, self.codes)
+        return self.provider.compute_score(poi.kinds, self.codes)
 
     def get_weight(self):
         return self.weight
