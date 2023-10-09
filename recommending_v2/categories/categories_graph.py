@@ -5,7 +5,7 @@ from pymongo.server_api import ServerApi
 
 from pyvis.network import Network
 
-
+very_low_score = -100
 class CategoriesProvider:
     def __init__(self):
         self.categories_list: List[str] = []
@@ -48,9 +48,9 @@ class CategoriesProvider:
         edges.rewind()
         for edge in edges:
             self.categories_graph[self.categories_ids.index(edge.get("from_id"))] \
-                .append((self.categories_ids.index(edge.get("to_id")), 5))
+                .append((self.categories_ids.index(edge.get("to_id")), edge.get("weight")))
             self.categories_graph[self.categories_ids.index(edge.get("to_id"))] \
-                .append((self.categories_ids.index(edge.get("from_id")), 5))
+                .append((self.categories_ids.index(edge.get("from_id")), edge.get("weight")))
         self.categories_fetched = True
 
         collection2 = db["categories"]
@@ -63,13 +63,11 @@ class CategoriesProvider:
 
     def compute_shortest_paths(self):
         n = len(self.categories_ids)
-        self.categories_distances = []
-        for i in range(n):
-            self.categories_distances.append(
-                [self.categories_graph[i][1]
-                 if j in map(lambda x: x[0], self.categories_graph[j])
-                 else inf
-                 for j in range(n)])
+        self.categories_distances = [[inf for _ in range(n)] for _ in range(n)]
+        for u in range(n):
+            self.categories_distances[u][u] = 0
+            for v, w in self.categories_graph[u]:
+                self.categories_distances[u][v] = w
 
         for k in range(n):
             for i in range(n):
@@ -91,18 +89,21 @@ class CategoriesProvider:
             self.compute_shortest_paths()
 
         if len(preferences) == 0 or len(categories) == 0:
-            return 0
+            return very_low_score
 
         total_dist = 0
+        only_nones = True
         for pref in preferences:
             avg_dist = 0
             for cat in categories:
                 dist = self.distance(pref, cat)
                 if dist is not None:
                     avg_dist += dist
+                    only_nones = False
 
             total_dist += avg_dist / len(categories)
-
+        if only_nones:
+            return very_low_score
         return -1 * total_dist / len(preferences)
 
     def show_graph(self):

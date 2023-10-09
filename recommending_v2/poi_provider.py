@@ -21,7 +21,7 @@ class Provider:
             print(e)
 
         db = client["wibit"]
-        collection = db["cracow-attractions-popular"]
+        collection = db["cracow-attractions-v2"]
 
 
         """overpass = Overpass()
@@ -69,17 +69,7 @@ class Provider:
                                 wiki=place.get('wikipedia'),
                                 img=place.get('image'),
                                 opening_hours=place.get('opening_hours')))
-        for place in db["cracow-attractions-new"].find():
-            self.pois.append(
-                PointOfInterest(name=place.get('name'),
-                                lon=place.get('point').get('lon'),
-                                lat=place.get('point').get('lat'),
-                                kinds=place.get('kinds'),
-                                xid=place.get('xid'),
-                                website=place.get('url'),
-                                wiki=place.get('wikipedia'),
-                                img=place.get('image'),
-                                opening_hours=place.get('opening_hours')))
+
         self.fetched = True
 
     def get_places(self):
