@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>visit time</title>
+{% endblock %}
+
+{% block body %}
+<body>
+    <form id="schedule-form" class="centered-form" method="POST">
+        {% for date in dates %}
+        <div class="one-line">
+            <label>{{date}}</label>
+            <label class="span-label" for="start_{{loop.index0}}">od</label>
+            <input type="time" id="start_{{loop.index0}}" name="start_{{loop.index0}}" value="10:00">
+            <label class="span-label"  for="end_{{loop.index0}}">do</label>
+            <input type="time" id="end_{{loop.index0}}" name="end_{{loop.index0}}" value="18:00">
+        </div>
+
+        {% endfor %}
+        <input type="submit" value="dalej" class="base-button">
+    </form>
+</body>
+{% endblock %}
+

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Popup</title>
+</head>
+<body>
+    <div class="popup">
+        {% if name %}
+        <div>{{name}}</div>
+        {% endif %}
+        {% if website %}
+        <div> <a href="{{website}}">Strona internetowa</a></div>
+        {% endif %}
+        {% if wiki %}
+        <div><a href="{{wiki}}">Więcej informacji</a></div>
+        {% endif %}
+        {% if date %}
+        <div>W dniu {{date}}</div>
+        {% endif %}
+        {% if start %}
+        <div> od {{start}}</div>
+        {% endif %}
+        {% if end %}
+        <div>do {{end}}</div>
+        {% endif %}
+        <div></div>
+    </div>
+</body>
+</html>
