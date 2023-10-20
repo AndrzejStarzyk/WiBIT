@@ -25,6 +25,7 @@ eval_recommender = EvalRecommender()
 mongo_utils = MongoUtils()
 
 users = mongo_utils.get_collection('users')
+user_name = None
 
 
 @login_manager.user_loader
@@ -51,7 +52,7 @@ class LoginForm(FlaskForm):
 
 @app.route('/', methods=['GET', 'POST'])
 def show_home():
-    return render_template("home.html")
+    return render_template("home.html", user_name=user_name)
 
 
 @app.route('/map')
@@ -71,6 +72,8 @@ def login():
             curr_user = User(**user)
             if bcrypt.check_password_hash(curr_user.password, login_password):
                 login_user(curr_user, duration=timedelta(days=1))
+                global user_name
+                user_name = curr_user.login
                 return redirect(url_for('show_home'))
             else:
                 print("WRONG PASSWORD")
@@ -103,6 +106,13 @@ def registration():
                     user = User(**raw_usr)
                     users.insert_one(user.to_bson())
 
+                    user = users.find_one({"login": new_login})
+                    curr_user = User(**user)
+                    login_user(curr_user, duration=timedelta(days=1))
+                    global user_name
+                    user_name = curr_user.login
+                    return redirect(url_for('show_home'))
+
                 except ValidationError as e:
                     print(e)
             else:
@@ -118,7 +128,9 @@ def registration():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    global user_name
+    user_name = None
+    return redirect(url_for('show_home'))
 
 
 # for tests only

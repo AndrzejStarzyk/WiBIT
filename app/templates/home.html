@@ -4,7 +4,19 @@
 {% endblock %}
 
 {% block body %}
-<body>
+<div class="user-top-bar">
+    <div class="user-login">
+        {% if user_name %}
+            Zalogowano jako: {{ user_name }}
+            <a href="{{url_for('logout')}}"> Wyloguj się </a>
+        {% else %}
+            <a href="{{url_for('login')}}"> Zaloguj się </a>
+        {% endif %}
+
+    </div>
+</div>
+
+<div>
     <h1> Witamy w wirtualnym biurze informacji turystycznej </h1>
 
     <div class="row justify-content-center">
@@ -22,5 +34,5 @@
 
     </div>
 
-</body>
+</div>
 {% endblock %}

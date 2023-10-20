@@ -5,19 +5,23 @@
 {% endblock %}
 
 {% block body %}
-    <div>
-        <div>
-            <div>
-                <h1>Rejestracja</h1>
-                <form method="POST" action="">
-                    {{ form.hidden_tag() }} <br>
-                    {{ form.username }} <br>
-                    {{ form.password1 }} <br>
-                    {{ form.password2 }} <br>
-                    {{ form.submit }} <br>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="auth-form">
+    <h1>Rejestracja</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }} <br>
+        Nazwa użytkownika<br>
+        {{ form.username }} <br>
+        Hasło <br>
+        {{ form.password1 }} <br>
+        Powtórzenie hasła <br>
+        {{ form.password2 }} <br>
+        {{ form.submit }} <br>
+    </form>
+
+    <p>Jeśli masz już konto
+        <a href="{{url_for('login')}}"> zaloguj się </a>
+    </p>
+
+</div>
 
 {% endblock %}

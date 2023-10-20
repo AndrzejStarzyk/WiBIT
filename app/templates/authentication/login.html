@@ -5,18 +5,22 @@
 {% endblock %}
 
 {% block body %}
-    <div class>
-        <div class>
-            <div class>
-                <h1>Logowanie</h1>
-                <form method="POST" action="">
-                    {{ form.hidden_tag() }} <br>
-                    {{ form.username }} <br>
-                    {{ form.password }} <br>
-                    {{ form.submit }} <br>
-                </form>
-            </div>
-        </div>
+    <div class="auth-form">
+        <h1>Logowanie</h1>
+        <form method="POST" action="">
+            {{ form.hidden_tag() }} <br>
+            Nazwa użytkownika <br>
+            {{ form.username }} <br>
+            Hasło <br>
+            {{ form.password }} <br>
+            {{ form.submit }} <br>
+        </form>
+
+        <p>Jeśli nie masz jeszcze konta
+            <a href="{{url_for('registration')}}"> zarejestruj się </a>
+        </p>
+
+
     </div>
 
 {% endblock %}
