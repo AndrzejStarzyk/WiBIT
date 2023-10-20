@@ -1,14 +1,50 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import date, timedelta
+from flask_bcrypt import Bcrypt
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from models.user import User
+from models.mongo_utils import MongoUtils
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import InputRequired, Length, ValidationError
 
 from display_route import create_map
 from reccomending_v1.categories import categories
 from recommending_v2.recommender import Recommender as EvalRecommender, pretty_path
 from recommending_v2.model.constraint import *
+from models.constants import SECRET_KEY
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = SECRET_KEY
+bcrypt = Bcrypt(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 
 eval_recommender = EvalRecommender()
+mongo_utils = MongoUtils()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = User().get_user_by_id(user_id, mongo_utils)
+    return user
+
+
+class RegisterForm(FlaskForm):
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
+                           render_kw={"placeholder": "Nazwa użytkownika"})
+    password1 = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Hasło"})
+    password2 = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
+                              render_kw={"placeholder": "Powtórzenie hasła"})
+    submit = SubmitField('Zarejestruj')
+
+
+class LoginForm(FlaskForm):
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
+                           render_kw={"placeholder": "Nazwa użytkownika"})
+    password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Hasło"})
+    submit = SubmitField('Zaloguj')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -19,6 +55,60 @@ def show_home():
 @app.route('/map')
 def show_map():
     return render_template("choose_page.html", input_categories=categories)
+
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        tmp_user = User()
+        tmp_user.get_user_by_login(form.username.data, mongo_utils)
+        if tmp_user.login is not None:
+            if bcrypt.check_password_hash(tmp_user.hashed_password, form.password.data):
+                login_user(tmp_user)
+                print(current_user.is_authenticated)
+                return redirect(url_for('show_home'))
+
+    return render_template("authentication/login.html", form=form)
+
+
+@app.route("/registration", methods=['GET', 'POST'])
+def registration():
+    form = RegisterForm()
+    if form.password1.data == form.password2.data:
+        tmp_user = User()
+        tmp_user.get_user_by_login(form.username.data, mongo_utils)
+        if tmp_user.login is None:
+            hashed_password = bcrypt.generate_password_hash(form.password1.data)
+            new_user = User(form.username.data, hashed_password)
+            new_user.add_user_to_db(mongo_utils)
+            login_user(new_user)
+            return redirect(url_for('show_home'))
+
+        else:
+            return redirect(url_for('registration'))
+
+    return render_template("authentication/registration.html", form=form)
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+# for tests only
+@app.route("/is_auth")
+def is_auth():
+    return f"Is user authenticated? {current_user.is_authenticated}"
+
+
+# for tests only
+@app.route("/auth_only")
+@login_required
+def auth_summary():
+    return f"Authenticated user: {current_user.login}, id: {current_user.id}"
 
 
 @app.route('/duration', methods=['GET', 'POST'])

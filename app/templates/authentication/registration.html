@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Rejestracja</title>
+{% endblock %}
+
+{% block body %}
+    <div>
+        <div>
+            <div>
+                <h1>Rejestracja</h1>
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }} <br>
+                    {{ form.username }} <br>
+                    {{ form.password1 }} <br>
+                    {{ form.password2 }} <br>
+                    {{ form.submit }} <br>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
