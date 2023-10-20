@@ -153,12 +153,23 @@ body{
     margin: 2px 10px 10px 10px;
     text-align: center;
     border: 1px solid black;
+    padding: 5px;
+    border-radius: 5px;
 }
-
 
 .user-top-bar{
     width: 100%;
     margin-bottom: 20px;
     text-align: right;
+}
 
+.auth-alert{
+    margin: 20px 0 20px 0;
+    text-align: center;
+    color: darkred;
+    font-weight: bold;
+}
+
+.auth-proposition-link{
+    margin: 30px 0 10px 0;
 }

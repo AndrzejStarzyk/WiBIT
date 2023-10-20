@@ -18,9 +18,14 @@
         {{ form.submit }} <br>
     </form>
 
-    <p>Jeśli masz już konto
+    {% if alert_message %}
+        <div class="auth-alert">{{ alert_message }}</div>
+    {% endif %}
+
+    <div class="auth-proposition-link">
+        Jeśli masz już konto
         <a href="{{url_for('login')}}"> zaloguj się </a>
-    </p>
+    </div>
 
 </div>
 

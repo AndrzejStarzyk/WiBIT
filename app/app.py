@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from models.user import User
 from models.mongo_utils import MongoUtils
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms.validators import ValidationError
 
 from display_route import create_map
 from reccomending_v1.categories import categories
@@ -14,6 +12,7 @@ from recommending_v2.recommender import Recommender as EvalRecommender, pretty_p
 from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
+from models.forms import LoginForm, RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -34,22 +33,6 @@ def load_user(user_id):
     return User(**user) if user else None
 
 
-class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
-                           render_kw={"placeholder": "Nazwa użytkownika"})
-    password1 = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Hasło"})
-    password2 = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
-                              render_kw={"placeholder": "Powtórzenie hasła"})
-    submit = SubmitField('Zarejestruj')
-
-
-class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
-                           render_kw={"placeholder": "Nazwa użytkownika"})
-    password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Hasło"})
-    submit = SubmitField('Zaloguj')
-
-
 @app.route('/', methods=['GET', 'POST'])
 def show_home():
     return render_template("home.html", user_name=user_name)
@@ -62,6 +45,7 @@ def show_map():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    alert = None
     form = LoginForm()
     if form.validate_on_submit():
         login_login = form.username.data
@@ -74,17 +58,18 @@ def login():
                 login_user(curr_user, duration=timedelta(days=1))
                 global user_name
                 user_name = curr_user.login
-                return redirect(url_for('show_home'))
+                return redirect(url_for('user_main_page'))
             else:
-                print("WRONG PASSWORD")
+                alert = "Podano błędne hasło!"
         else:
-            print("USER NOT EXISTS")
+            alert = "Taki użytkownik nie istnieje!"
 
-    return render_template("authentication/login.html", form=form)
+    return render_template("authentication/login.html", form=form, alert_message=alert)
 
 
 @app.route("/registration", methods=['GET', 'POST'])
 def registration():
+    alert = None
     form = RegisterForm()
     if form.validate_on_submit():
         new_login = form.username.data
@@ -114,14 +99,14 @@ def registration():
                     return redirect(url_for('show_home'))
 
                 except ValidationError as e:
+                    alert = "Wystąpił błąd podczas tworzenia konta!"
                     print(e)
             else:
-                print("PASSWORDS ARE NOT SAME")
-
+                alert = "Podane hasła nie są takie same!"
         else:
-            print("WRONG USERNAME")
+            alert = "Ta nazwa użytkownika jest już zajęta!"
 
-    return render_template("authentication/registration.html", form=form)
+    return render_template("authentication/registration.html", form=form, alert_message=alert)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -248,6 +233,14 @@ async def show_suggested():
         return res
 
     return res
+
+
+@app.route('/user-panel', methods=['GET', 'POST'])
+@login_required
+def user_main_page():
+    return render_template("user_main_page.html", user_name=current_user.login)
+
+
 
 
 if __name__ == '__main__':
