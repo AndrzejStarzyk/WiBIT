@@ -13,6 +13,7 @@ from reccomending_v1.categories import categories
 from recommending_v2.recommender import Recommender as EvalRecommender, pretty_path
 from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
+from models.objectid import PydanticObjectId
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -20,15 +21,16 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
 eval_recommender = EvalRecommender()
 mongo_utils = MongoUtils()
+
+users = mongo_utils.get_collection('users')
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    user = User().get_user_by_id(user_id, mongo_utils)
-    return user
+    user = users.find_one({"_id": PydanticObjectId(user_id)})
+    return User(**user) if user else None
 
 
 class RegisterForm(FlaskForm):
@@ -61,13 +63,19 @@ def show_map():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        tmp_user = User()
-        tmp_user.get_user_by_login(form.username.data, mongo_utils)
-        if tmp_user.login is not None:
-            if bcrypt.check_password_hash(tmp_user.hashed_password, form.password.data):
-                login_user(tmp_user)
-                print(current_user.is_authenticated)
+        login_login = form.username.data
+        login_password = form.password.data
+
+        user = users.find_one({"login": login_login})
+        if user is not None:
+            curr_user = User(**user)
+            if bcrypt.check_password_hash(curr_user.password, login_password):
+                login_user(curr_user, duration=timedelta(days=1))
                 return redirect(url_for('show_home'))
+            else:
+                print("WRONG PASSWORD")
+        else:
+            print("USER NOT EXISTS")
 
     return render_template("authentication/login.html", form=form)
 
@@ -75,18 +83,33 @@ def login():
 @app.route("/registration", methods=['GET', 'POST'])
 def registration():
     form = RegisterForm()
-    if form.password1.data == form.password2.data:
-        tmp_user = User()
-        tmp_user.get_user_by_login(form.username.data, mongo_utils)
-        if tmp_user.login is None:
-            hashed_password = bcrypt.generate_password_hash(form.password1.data)
-            new_user = User(form.username.data, hashed_password)
-            new_user.add_user_to_db(mongo_utils)
-            login_user(new_user)
-            return redirect(url_for('show_home'))
+    if form.validate_on_submit():
+        new_login = form.username.data
+        new_pass_1 = form.password1.data
+        new_pass_2 = form.password2.data
+
+        if not users.find_one({"login": new_login}):
+            if new_pass_1 == new_pass_2:
+                hashed_password = bcrypt.generate_password_hash(new_pass_1.encode('utf-8'))
+
+                cursor = users.find().sort("user_id", -1).limit(1)
+                last_user = next(cursor, None)
+                user_id = last_user["user_id"] + 1 if last_user else 1
+
+                raw_usr = {"user_id": user_id,
+                           "login": new_login,
+                           "password": hashed_password}
+                try:
+                    user = User(**raw_usr)
+                    users.insert_one(user.to_bson())
+
+                except ValidationError as e:
+                    print(e)
+            else:
+                print("PASSWORDS ARE NOT SAME")
 
         else:
-            return redirect(url_for('registration'))
+            print("WRONG USERNAME")
 
     return render_template("authentication/registration.html", form=form)
 
