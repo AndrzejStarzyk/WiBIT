@@ -118,19 +118,6 @@ def logout():
     return redirect(url_for('show_home'))
 
 
-# for tests only
-@app.route("/is_auth")
-def is_auth():
-    return f"Is user authenticated? {current_user.is_authenticated}"
-
-
-# for tests only
-@app.route("/auth_only")
-@login_required
-def auth_summary():
-    return f"Authenticated user: {current_user.login}, id: {current_user.id}"
-
-
 @app.route('/duration', methods=['GET', 'POST'])
 def show_duration():
     duration_options = [
@@ -239,8 +226,6 @@ async def show_suggested():
 @login_required
 def user_main_page():
     return render_template("user_main_page.html", user_name=current_user.login)
-
-
 
 
 if __name__ == '__main__':

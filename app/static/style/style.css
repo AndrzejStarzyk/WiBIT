@@ -12,6 +12,9 @@ h1, h2, h3{
     font-size: medium;
     color: black;
     border: 1px solid black;
+    border-radius: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 body{
@@ -172,4 +175,20 @@ body{
 
 .auth-proposition-link{
     margin: 30px 0 10px 0;
+}
+
+.user-login * {
+    margin: 0 10px;
+}
+
+.user-login a {
+    color: black;
+    text-decoration: none;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.user-login a:hover{
+    color: blue;
 }

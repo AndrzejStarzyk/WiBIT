@@ -9,6 +9,7 @@
         {% if user_name %}
             Zalogowano jako: {{ user_name }}
             <a href="{{url_for('logout')}}"> Wyloguj się </a>
+            <a href="{{url_for('user_main_page')}}"> Panel użytkownika </a>
         {% else %}
             <a href="{{url_for('login')}}"> Zaloguj się </a>
         {% endif %}
