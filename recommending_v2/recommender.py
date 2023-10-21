@@ -36,7 +36,7 @@ class Recommender:
         self.places: List[PointOfInterest] = self.places_provider.get_places()
         self.user: User = User()
         self.cold_start: bool = True
-        self.pois_limit: int = 0
+        self.pois_limit: int = 100
         self.dates: List[str] = []
         self.days: int = 0
         self.hours: List[Tuple[str, str]] = []
@@ -193,4 +193,5 @@ def pretty_path(trajectory: Trajectory) -> List[PointOfInterest]:
 
 
 if __name__ == "__main__":
-    print(40000 / 360)
+    a = [0, 1, 2]
+    print(a[0:0])

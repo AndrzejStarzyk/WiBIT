@@ -7,8 +7,8 @@ from models.mongo_utils import MongoUtils
 from wtforms.validators import ValidationError
 
 from display_route import create_map
-from reccomending_v1.categories import categories
-from recommending_v2.recommender import Recommender as EvalRecommender, pretty_path
+from recommending_v2.categories.categories import categories
+from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
