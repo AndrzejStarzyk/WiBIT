@@ -33,8 +33,17 @@ def load_user(user_id):
     return User(**user) if user else None
 
 
+def update_user_name():
+    global user_name
+    if current_user.is_authenticated:
+        user_name = current_user.login
+    else:
+        user_name = None
+
+
 @app.route('/', methods=['GET', 'POST'])
 def show_home():
+    update_user_name()
     return render_template("home.html", user_name=user_name)
 
 
@@ -56,8 +65,7 @@ def login():
             curr_user = User(**user)
             if bcrypt.check_password_hash(curr_user.password, login_password):
                 login_user(curr_user, duration=timedelta(days=1))
-                global user_name
-                user_name = curr_user.login
+                update_user_name()
                 return redirect(url_for('user_main_page'))
             else:
                 alert = "Podano błędne hasło!"
@@ -94,8 +102,7 @@ def registration():
                     user = users.find_one({"login": new_login})
                     curr_user = User(**user)
                     login_user(curr_user, duration=timedelta(days=1))
-                    global user_name
-                    user_name = curr_user.login
+                    update_user_name()
                     return redirect(url_for('show_home'))
 
                 except ValidationError as e:
@@ -222,10 +229,11 @@ async def show_suggested():
     return res
 
 
-@app.route('/user-panel', methods=['GET', 'POST'])
-@login_required
+@app.route('/user-panel', methods=['GET'])
 def user_main_page():
-    return render_template("user_main_page.html", user_name=current_user.login)
+    if current_user.is_authenticated:
+        return render_template("user_main_page.html", user_name=current_user.login)
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
