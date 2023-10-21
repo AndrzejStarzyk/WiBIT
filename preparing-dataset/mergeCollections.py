@@ -15,4 +15,4 @@ def merge_two_collections():
     new_collection.insert_many(list(col2_items))
 
 
-merge_two_collections()
+# merge_two_collections()

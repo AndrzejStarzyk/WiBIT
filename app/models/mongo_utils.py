@@ -1,6 +1,7 @@
 from pymongo import MongoClient
+from pymongo.errors import CollectionInvalid
 from pymongo.server_api import ServerApi
-from constants import MONGODB_LOGIN, MONGODB_PASSWORD
+from models.constants import MONGODB_LOGIN, MONGODB_PASSWORD
 
 
 class MongoUtils:
@@ -31,6 +32,18 @@ class MongoUtils:
             print(f"EXCEPTION while connecting mongodb atlas: {e}")
 
         self.mongo_database = self.mongo_client["wibit"]
+
+    def get_collection(self, collection_name):
+        self.get_db()
+        try:
+            self.mongo_database.create_collection(collection_name)
+        except CollectionInvalid:
+            print(f"Collection {collection_name} already exists.")
+        else:
+            print(f"Collection {collection_name} created.")
+
+        collection = self.mongo_database[collection_name]
+        return collection
 
 
 mu = MongoUtils()
