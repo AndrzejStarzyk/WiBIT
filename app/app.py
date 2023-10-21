@@ -125,6 +125,13 @@ async def show_suggested():
     return res
 
 
+@app.route('/chatbot', methods=['GET', 'POST'])
+def show_chatbot():
+    chat_user = 'Użytkownik'
+    #TODO - replace chat user with logged user name
+    return render_template("chatbot_view.html", user_name=chat_user)
+
+
 if __name__ == '__main__':
     app.run()
 

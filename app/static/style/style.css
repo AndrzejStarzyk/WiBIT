@@ -140,3 +140,48 @@ h1, h2, h3{
 .span-label{
     margin: auto 3vw auto 3vw;
 }
+
+.message-chatbot{
+    text-align: left;
+    margin-top: 20px;
+}
+
+.message-user{
+    text-align: right;
+    margin-top: 20px;
+}
+
+.inner-message{
+    border: 1px solid black;
+    width: 80%;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.inner-message-user{
+    margin-left: 20%;
+    background-color: darkseagreen;
+}
+
+#message-textarea{
+    width: 100%;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.new-message-container{
+    margin-top: 20px;
+
+}
+
+#message-submit{
+    background-color: darkseagreen;
+    height: fit-content;
+    width: fit-content;
+    font-weight: bold;
+    font-size: larger;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px 30px;
+    margin: 10px 10px 10px 0;
+}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Wirtualne Biuro Informacji Turystycznej</title>
+{% endblock %}
+
+{% block body %}
+<body>
+    <h1> Chatbot WiBIT</h1>
+
+    <div class="row justify-content-center">
+
+        <div class="message-chatbot col-11 col-md-9 col-lg-7">
+            <h4>WiBIT</h4>
+            <div class="inner-message-chatbot inner-message">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut lobortis dui. Praesent placerat iaculis mauris.
+            </div>
+        </div>
+
+        <div class="message-user col-11 col-md-9 col-lg-7">
+            <h4>{{ user_name }}</h4>
+            <div class="inner-message-user inner-message">
+                Vestibulum ut lobortis dui. Praesent placerat iaculis mauris. Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
+            </div>
+        </div>
+
+        <div class="message-chatbot col-11 col-md-9 col-lg-7">
+            <h4>WiBIT</h4>
+            <div class="inner-message-chatbot inner-message">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut lobortis dui. Praesent placerat iaculis mauris.
+                Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
+            </div>
+        </div>
+
+        <div class="message-chatbot col-11 col-md-9 col-lg-7">
+            <h4>WiBIT</h4>
+            <div class="inner-message-chatbot inner-message">
+                Vestibulum ut lobortis dui. Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
+            </div>
+        </div>
+
+        <div class="message-user new-message-container col-11 col-md-9 col-lg-7">
+            <h4>{{ user_name }}</h4>
+            <form method="POST">
+                <textarea id="message-textarea" name="user_text" rows="3"></textarea>
+                <input id="message-submit" type="submit" value="Prześlij">
+            </form>
+        </div>
+
+    </div>
+
+</body>
+{% endblock %}
