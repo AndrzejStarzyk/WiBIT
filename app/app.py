@@ -2,13 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for
 from datetime import date, timedelta
 
 from display_route import create_map
-from recommending_v2.categories.categories import categories
+from recommending_v2.categories.category import categories
+from recommending_v2.model.user import User
 from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 
 app = Flask(__name__)
 
-eval_recommender = EvalRecommender()
+user = User()
+eval_recommender = EvalRecommender(user)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -32,7 +34,6 @@ def show_duration():
     ]
     if request.method == 'POST':
         selected_option = request.form.get('duration_dropdown')
-        eval_recommender.set_pois_limit(int(selected_option) * 3 + 10)
         eval_recommender.days = int(selected_option)
         return redirect(url_for('show_start_date'))
 
@@ -77,13 +78,12 @@ async def show_suggested():
     res = render_template("default_page.html")
     if request.method == 'GET':
         try:
-            eval_recommender.set_pois_limit(7)
             eval_recommender.create_schedule()
             recommended = eval_recommender.get_recommended()
 
             m = create_map(recommended)
             m.get_root().render()
-            res = render_template("suggested_page.html", places=recommended.pois,
+            res = render_template("suggested_page.html", places=recommended.get_pois(),
                                   map_header=m.get_root().header.render(),
                                   map_html=m.get_root().html.render(),
                                   map_script=m.get_root().script.render())
@@ -116,7 +116,7 @@ async def show_suggested():
         recommended = eval_recommender.get_recommended()
         m = create_map(recommended)
         m.get_root().render()
-        res = render_template("suggested_page.html", places=recommended.pois,
+        res = render_template("suggested_page.html", places=recommended.get_pois(),
                               map_header=m.get_root().header.render(),
                               map_html=m.get_root().html.render(),
                               map_script=m.get_root().script.render())

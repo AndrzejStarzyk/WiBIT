@@ -1,0 +1,10 @@
+{
+  "user_id":,
+  "preferences": [
+    {
+      "constraint_type": "attraction/category",
+      "value": "W137304445 (id/code)",
+      "weight": 5
+    }
+  ]
+}

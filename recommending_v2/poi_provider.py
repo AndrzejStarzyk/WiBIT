@@ -1,15 +1,22 @@
-from OSMPythonTools.nominatim import Nominatim
-from OSMPythonTools.overpass import overpassQueryBuilder, Overpass
+from typing import List
+
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from recommending_v2.model.point_of_interest import PointOfInterest
+from recommending_v2.utils import dist
+
+max_dist = 2000
 
 
-class Provider:
+class PoiProvider:
     def __init__(self):
-        self.pois = []
+        self.pois: List[PointOfInterest] = []
+        self.groups: List[List[int]] = []
+        self.poi_to_group: dict[int: int] = {}
+
         self.fetched = False
+        self.divided = False
         self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
     def fetch_pois(self):
@@ -22,7 +29,6 @@ class Provider:
 
         db = client["wibit"]
         collection = db["cracow-attractions-v2"]
-
 
         """overpass = Overpass()
         nominatim = Nominatim()
@@ -72,13 +78,55 @@ class Provider:
 
         self.fetched = True
 
+    def divide_places(self):
+        if not self.fetched:
+            self.fetch_pois()
+
+        n = len(self.pois)
+        visited = [False for _ in range(n)]
+
+        def dfs(v):
+            visited[v] = True
+            self.groups[curr_group].append(v)
+            self.poi_to_group.setdefault(v, curr_group)
+            for u in range(n):
+                d = dist(self.pois[v], self.pois[u])
+                if u != v and not visited[u] and d <= max_dist:
+                    dfs(u)
+
+        curr_group = -1
+        for i in range(n):
+            if not visited[i]:
+                curr_group += 1
+                self.groups.append([])
+                dfs(i)
+
     def get_places(self):
         if not self.fetched:
             self.fetch_pois()
         return self.pois
 
+    def get_groups(self):
+        if not self.fetched:
+            self.fetch_pois()
+        if not self.divided:
+            self.divide_places()
+        return self.groups
+
+    def get_poi_to_group_mapping(self):
+        if not self.fetched:
+            self.fetch_pois()
+        if not self.divided:
+            self.divide_places()
+        return self.poi_to_group
+
 
 if __name__ == "__main__":
-    provider = Provider()
-    places = provider.get_places()
-    print(places[0])
+    provider = PoiProvider()
+    provider.divide_places()
+    for x in provider.groups:
+        if len(x) < 30:
+            for y in x:
+                print(provider.pois[y].name, provider.pois[y].xid)
+        print("--------------------------------------------------------------------")
+    print(len(provider.groups))

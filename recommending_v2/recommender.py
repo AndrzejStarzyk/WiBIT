@@ -1,16 +1,12 @@
-import datetime
-import math
 from typing import List, Tuple, Union
-from datetime import timedelta, datetime
 
-from recommending_v2.poi_provider import Provider
+from recommending_v2.evaluator import Evaluator
+from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.model.user import User
 from recommending_v2.model.default_trip import DefaultTrip
 from recommending_v2.model.constraint import Constraint
-from recommending_v2.model.point_of_interest import PointOfInterest
 from recommending_v2.model.trajectory import Trajectory
 from recommending_v2.model.schedule import Schedule
-from recommending_v2.estimated_visiting import categories
 
 deg_to_m = 40075014 / 360
 short_dist = 500
@@ -18,23 +14,10 @@ walking_speed = 0.5
 driving_speed = 4
 
 
-def get_estimated_visiting_time(kinds: List[str]):
-    time = timedelta()
-    total = 0
-    for i in categories:
-        if i.get('code') in kinds:
-            time += i.get('visiting_time')
-    if total == 0:
-        return time
-
-    return time / total
-
-
 class Recommender:
-    def __init__(self):
-        self.places_provider: Provider = Provider()
-        self.places: List[PointOfInterest] = self.places_provider.get_places()
-        self.user: User = User()
+    def __init__(self, user: User):
+        self.user: User = user
+        self.evaluator: Evaluator = Evaluator(self.user)
         self.cold_start: bool = True
         self.pois_limit: int = 100
         self.dates: List[str] = []
@@ -59,15 +42,32 @@ class Recommender:
             trip = DefaultTrip()
             return trip.get_trip()
         else:
-            self.user.decay_weights()
-            evaluated_places: List[Tuple[int, int]] = [(i, self.user.evaluate(self.places[i])) for i in
-                                                       range(len(self.places))]
-            evaluated_places.sort(key=lambda x: x[1], reverse=True)
+            trajectory = Trajectory()
+            for day in self.schedule.schedule:
+                best_pois = self.evaluator.extract_best_trajectory(day)
+                trajectory: Trajectory = build_trajectory(day, best_pois)
+                self.schedule.add_trajectory(trajectory)
 
-            self.fill_schedule([i[0] for i in evaluated_places if self.places[i[0]].opening_hours is not None])
+            return trajectory
 
-            return self.trajectory_from_schedule()
 
+if __name__ == "__main__":
+    a = [0, 1, 2]
+    print(a[0:0])
+
+"""
+
+def get_estimated_visiting_time(kinds: List[str]):
+    time = timedelta()
+    total = 0
+    for i in categories:
+        if i.get('code') in kinds:
+            time += i.get('visiting_time')
+    if total == 0:
+        return time
+
+    return time / total
+    
     def fill_schedule(self, idxs: List[int]):
         trajectory = Trajectory([self.places[idx] for idx in idxs[0:self.pois_limit]])
         best_path: List[Tuple[PointOfInterest, bool]] = [(i, False) for i in pretty_path(trajectory)]
@@ -191,7 +191,4 @@ def pretty_path(trajectory: Trajectory) -> List[PointOfInterest]:
 
     return [trajectory.pois[i] for i in res]
 
-
-if __name__ == "__main__":
-    a = [0, 1, 2]
-    print(a[0:0])
+"""
