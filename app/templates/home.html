@@ -4,14 +4,15 @@
 {% endblock %}
 
 {% block body %}
-<div class="user-top-bar">
-    <div class="user-login">
+<div class="user-top-bar row">
+    <div class="col-md-0 col-lg-4 col-xl-6 col-xxl-7"></div>
+    <div class="user-login row justify-content-center col-md-12 col-lg-8 col-xl-6 col-xxl-5">
         {% if user_name %}
-            Zalogowano jako: {{ user_name }}
-            <a href="{{url_for('logout')}}"> Wyloguj się </a>
-            <a href="{{url_for('user_main_page')}}"> Panel użytkownika </a>
+            <div class="col-md-11 col-lg-4"> Zalogowano jako: {{ user_name }} </div>
+            <div class="col-md-11 col-lg-4"> <a href="{{url_for('logout')}}"> Wyloguj się </a>  </div>
+            <div class="col-md-11 col-lg-4"> <a href="{{url_for('user_main_page')}}"> Panel użytkownika </a>  </div>
         {% else %}
-            <a href="{{url_for('login')}}"> Zaloguj się </a>
+            <div class="col-md-11 col-lg-4"><a href="{{url_for('login')}}"> Zaloguj się </a>  </div>
         {% endif %}
 
     </div>

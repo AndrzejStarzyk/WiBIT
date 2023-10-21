@@ -162,7 +162,7 @@ body{
 
 .user-top-bar{
     width: 100%;
-    margin-bottom: 20px;
+    margin: 20px;
     text-align: right;
 }
 
@@ -177,8 +177,9 @@ body{
     margin: 30px 0 10px 0;
 }
 
-.user-login * {
-    margin: 0 10px;
+.user-login div{
+    margin: 10px 0;
+    text-align: center;
 }
 
 .user-login a {
