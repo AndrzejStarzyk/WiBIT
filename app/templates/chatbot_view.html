@@ -7,36 +7,28 @@
 <body>
     <h1> Chatbot WiBIT</h1>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center chatbot-block">
 
-        <div class="message-chatbot col-11 col-md-9 col-lg-7">
-            <h4>WiBIT</h4>
-            <div class="inner-message-chatbot inner-message">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut lobortis dui. Praesent placerat iaculis mauris.
-            </div>
-        </div>
+        {% for message in messages %}
+            {% if message.author == 'bot' %}
+                <div class="message-chatbot col-11 col-md-9 col-lg-7">
+                    <h4>WiBIT</h4>
+                    <div class="inner-message-chatbot inner-message">
+                        {{ message.text }}
+                    </div>
+                </div>
+            {% endif %}
 
-        <div class="message-user col-11 col-md-9 col-lg-7">
-            <h4>{{ user_name }}</h4>
-            <div class="inner-message-user inner-message">
-                Vestibulum ut lobortis dui. Praesent placerat iaculis mauris. Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
-            </div>
-        </div>
+            {% if message.author == 'user' %}
+                <div class="message-user col-11 col-md-9 col-lg-7">
+                    <h4>{{ user_name }}</h4>
+                    <div class="inner-message-user inner-message">
+                        {{ message.text }}
+                    </div>
+                </div>
+            {% endif %}
 
-        <div class="message-chatbot col-11 col-md-9 col-lg-7">
-            <h4>WiBIT</h4>
-            <div class="inner-message-chatbot inner-message">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut lobortis dui. Praesent placerat iaculis mauris.
-                Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
-            </div>
-        </div>
-
-        <div class="message-chatbot col-11 col-md-9 col-lg-7">
-            <h4>WiBIT</h4>
-            <div class="inner-message-chatbot inner-message">
-                Vestibulum ut lobortis dui. Donec maximus ultrices felis, at aliquam tortor auctor efficitur.
-            </div>
-        </div>
+        {% endfor %}
 
         <div class="message-user new-message-container col-11 col-md-9 col-lg-7">
             <h4>{{ user_name }}</h4>

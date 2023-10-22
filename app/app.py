@@ -13,6 +13,8 @@ from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
+from chatbot.chatbot_agent import ChatbotAgent
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -22,6 +24,8 @@ login_manager.init_app(app)
 
 eval_recommender = EvalRecommender()
 mongo_utils = MongoUtils()
+
+chatbot_agent = ChatbotAgent()
 
 users = mongo_utils.get_collection('users')
 user_name = None
@@ -231,9 +235,14 @@ async def show_suggested():
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
+    if request.method == "POST":
+        new_message = request.form['user_text']
+        chatbot_agent.add_user_message(new_message)
+
     chat_user = 'Użytkownik'
-    # TODO - replace chat user with logged user name
-    return render_template("chatbot_view.html", user_name=chat_user)
+    if current_user.is_authenticated:
+        chat_user = current_user.login
+    return render_template("chatbot_view.html", user_name=chat_user, messages=chatbot_agent.get_all_messages())
 
 
 @app.route('/user-panel', methods=['GET'])
