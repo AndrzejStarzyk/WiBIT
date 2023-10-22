@@ -4,7 +4,21 @@
 {% endblock %}
 
 {% block body %}
-<body>
+<div class="user-top-bar row">
+    <div class="col-md-0 col-lg-4 col-xl-6 col-xxl-7"></div>
+    <div class="user-login row justify-content-center col-md-12 col-lg-8 col-xl-6 col-xxl-5">
+        {% if user_name %}
+            <div class="col-md-11 col-lg-4"> Zalogowano jako: {{ user_name }} </div>
+            <div class="col-md-11 col-lg-4"> <a href="{{url_for('logout')}}"> Wyloguj się </a>  </div>
+            <div class="col-md-11 col-lg-4"> <a href="{{url_for('user_main_page')}}"> Panel użytkownika </a>  </div>
+        {% else %}
+            <div class="col-md-11 col-lg-4"><a href="{{url_for('login')}}"> Zaloguj się </a>  </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<div>
     <h1> Witamy w wirtualnym biurze informacji turystycznej </h1>
 
     <div class="row justify-content-center">
@@ -22,5 +36,5 @@
 
     </div>
 
-</body>
+</div>
 {% endblock %}

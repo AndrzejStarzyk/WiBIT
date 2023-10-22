@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Login</title>
+{% endblock %}
+
+{% block body %}
+<div class="auth-form">
+    <h1>Logowanie</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }} <br>
+        Nazwa użytkownika <br>
+        {{ form.username }} <br>
+        Hasło <br>
+        {{ form.password }} <br>
+        {{ form.submit }} <br>
+    </form>
+
+    {% if alert_message %}
+        <div class="auth-alert">{{ alert_message }}</div>
+    {% endif %}
+
+    <div class="auth-proposition-link">
+        Jeśli nie masz jeszcze konta
+        <a href="{{url_for('registration')}}"> zarejestruj się </a>
+    </div>
+
+</div>
+
+{% endblock %}

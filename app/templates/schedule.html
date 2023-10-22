@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-<body>
+<div>
     <form id="schedule-form" class="centered-form" method="POST">
         {% for date in dates %}
         <div class="one-line">
@@ -18,6 +18,6 @@
         {% endfor %}
         <input type="submit" value="dalej" class="base-button">
     </form>
-</body>
+</div>
 {% endblock %}
 
