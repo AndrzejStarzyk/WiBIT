@@ -19,7 +19,12 @@ class PoiProvider:
         self.divided = False
         self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
+        self.fetch_pois()
+        self.divide_places()
+
     def fetch_pois(self):
+        if self.fetched:
+            return
         client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
         try:
             client.admin.command('ping')
@@ -79,6 +84,8 @@ class PoiProvider:
         self.fetched = True
 
     def divide_places(self):
+        if self.divided:
+            return
         if not self.fetched:
             self.fetch_pois()
 
@@ -100,6 +107,8 @@ class PoiProvider:
                 curr_group += 1
                 self.groups.append([])
                 dfs(i)
+
+        self.divided = True
 
     def get_places(self):
         if not self.fetched:

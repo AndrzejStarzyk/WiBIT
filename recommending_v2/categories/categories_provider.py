@@ -7,7 +7,7 @@ from pyvis.network import Network
 
 from recommending_v2.categories.category import Category
 
-very_low_score = -100
+very_low_score = 0
 
 
 class CategoriesProvider:
@@ -100,17 +100,17 @@ class CategoriesProvider:
         total_dist = 0
         only_nones = True
         for pref in preferences:
-            avg_dist = 0
+            sum_dist = 0
             for cat in categories:
                 dist = self.distance(pref, cat)
                 if dist is not None:
-                    avg_dist += dist
+                    sum_dist += dist
                     only_nones = False
 
-            total_dist += avg_dist / len(categories)
+            total_dist += sum_dist / len(categories)
         if only_nones:
             return very_low_score
-        return -1 * total_dist / len(preferences)
+        return total_dist / len(preferences)
 
     def show_graph(self):
         if not self.categories_fetched:

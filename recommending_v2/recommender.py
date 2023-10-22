@@ -8,11 +8,6 @@ from recommending_v2.model.constraint import Constraint
 from recommending_v2.model.trajectory import Trajectory
 from recommending_v2.model.schedule import Schedule
 
-deg_to_m = 40075014 / 360
-short_dist = 500
-walking_speed = 0.5
-driving_speed = 4
-
 
 class Recommender:
     def __init__(self, user: User):
@@ -45,7 +40,10 @@ class Recommender:
             trajectory = Trajectory()
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
+                for x in best_pois:
+                    print(x[0].name)
                 trajectory: Trajectory = build_trajectory(day, best_pois)
+                print(trajectory)
                 self.schedule.add_trajectory(trajectory)
 
             return trajectory

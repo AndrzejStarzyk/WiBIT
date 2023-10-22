@@ -20,3 +20,10 @@ class Trajectory:
 
     def get_pois(self):
         return list(map(lambda x: x.poi, self.events))
+
+    def __str__(self):
+        res = " "
+        for event in self.events:
+            res += event.poi.name + ", "
+        return res[0:-2]
+

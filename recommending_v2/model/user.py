@@ -10,6 +10,9 @@ class Preference(TypedDict):
     weight: int
 
 
+base_score = 0.1
+
+
 class User:
     def __init__(self):
         self.preferences: List[Preference] = []
@@ -23,7 +26,7 @@ class User:
         self.total_weights += weight
 
     def evaluate(self, poi: PointOfInterest) -> float:
-        res = 0
+        res = base_score
         for pref in self.preferences:
             res += pref['constraint'].evaluate(poi) * pref['weight']
         if self.total_weights != 0:

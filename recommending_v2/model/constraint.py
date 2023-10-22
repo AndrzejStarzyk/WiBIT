@@ -48,7 +48,6 @@ class AttractionConstraint(Constraint):
         self.weight = 100
 
     def evaluate(self, poi: PointOfInterest) -> int:
-
         if poi.xid in self.xid_list:
             if self.is_wanted:
                 return 1

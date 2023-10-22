@@ -8,6 +8,9 @@ from recommending_v2.model.point_of_interest import PointOfInterest
 from recommending_v2.poi_provider import PoiProvider
 
 
+default_estimated_time = timedelta(hours=1, minutes=30)
+
+
 class VisitingTimeProvider:
     def __init__(self):
         self.code_to_time: Dict[str, timedelta] = {}
@@ -45,7 +48,10 @@ class VisitingTimeProvider:
             avg_time += self.code_to_time[code]
             total += 1
 
-        avg_time /= total
+        if total != 0:
+            avg_time /= total
+        else:
+            avg_time = default_estimated_time
         return avg_time
 
 

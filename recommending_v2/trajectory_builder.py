@@ -9,7 +9,7 @@ from recommending_v2.utils import dist, estimated_time
 
 
 def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) -> Trajectory:
-    # TODO: edge cases
+    # TODO: edge cases, check every poi on list before finishing schedule and 2-opt again
     if len(pois_score) == 0:
         return Trajectory()
     graph = [[dist(i, j) for i, _ in pois_score] for j, _ in pois_score]
@@ -26,12 +26,15 @@ def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) 
     while curr + travel_time + next_visiting < day.end:
         trajectory.add_event(pois_score[better_path[n]][0], curr + travel_time, curr + travel_time + next_visiting)
         n += 1
-        if n >= len(graph):
+        if n >= len(path):
             break
 
         curr += travel_time + next_visiting
-        travel_time = estimated_time(graph[path[n - 1]][path[n]])
+        travel_time = timedelta(seconds=estimated_time(graph[path[n - 1]][path[n]]))
         next_visiting = visiting_time_provider.get_visiting_time(pois_score[better_path[n]][0])
+        print(curr)
+        print(travel_time)
+        print(next_visiting)
 
     return trajectory
 
@@ -94,7 +97,7 @@ def estimated_shp_from_mst(mst) -> List[int]:
                 deg[u] -= 1
                 deg[v] -= 1
                 is_bridge[u][v] = True
-                is_bridge[u][v] = True
+                is_bridge[v][u] = True
                 dfs(u)
         for u in range(dl):
             if mst[v][u] == 1 and deg[u] > 0:
@@ -109,23 +112,26 @@ def estimated_shp_from_mst(mst) -> List[int]:
 def opt_2(path, graph) -> List[int]:
     dl = len(path)
     improvement = True
-    while improvement:
+    n = 0
+    while improvement and n < 10:
         improvement = False
-        for v in range(dl - 2):
-            for u in range(v + 2, dl):
-                d = -graph[v][v + 1] - graph[u - 1][u] + graph[v][u - 1] + graph[v + 1][u]
-                if d < 0:
+        for i in range(dl - 3):
+            for j in range(i + 3, dl):
+                v = path[i]
+                v_next = path[i+1]
+                u = path[j]
+                u_prev = path[j-1]
+                d = -graph[v][v_next] - graph[u_prev][u] + graph[v][u_prev] + graph[v_next][u]
+                if d < -10:
                     improvement = True
-                    new_path = [path[i] for i in range(0, v)]
-                    new_path.append(v)
-                    for i in range(u - 1, v, -1):
-                        new_path.append(i)
-                    new_path.append(u)
-                    for i in range(u, len(path)):
-                        new_path.append(i)
-
+                    new_path = [path[k] for k in range(0, i+1)]
+                    for k in range(j - 1, i, -1):
+                        new_path.append(path[k])
+                    for m in range(j, len(path)):
+                        new_path.append(path[m])
                     path = new_path
 
+        n += 1
     return path
 
 
