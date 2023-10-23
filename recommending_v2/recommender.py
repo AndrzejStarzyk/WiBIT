@@ -32,21 +32,18 @@ class Recommender:
     def create_schedule(self):
         self.schedule = Schedule(self.days, self.dates, self.hours)
 
-    def get_recommended(self) -> Trajectory:
+    def get_recommended(self) -> Schedule:
         if self.cold_start:
-            trip = DefaultTrip()
-            return trip.get_trip()
+            trip = DefaultTrip().get_trip(self.schedule.schedule[0])
+            self.schedule.add_trajectory(trip)
+            return self.schedule
         else:
-            trajectory = Trajectory()
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
-                for x in best_pois:
-                    print(x[0].name)
                 trajectory: Trajectory = build_trajectory(day, best_pois)
-                print(trajectory)
                 self.schedule.add_trajectory(trajectory)
 
-            return trajectory
+            return self.schedule
 
 
 if __name__ == "__main__":

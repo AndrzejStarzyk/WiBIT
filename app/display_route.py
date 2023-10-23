@@ -11,19 +11,19 @@ def create_map(trajectory: Trajectory) -> folium.Map:
     if len(path) == 0:
         return m
     trail = []
-    for idx in range(len(path)):
+    for i in range(len(path)):
         folium.Marker(
-            location=(path[idx].poi.lat, path[idx].poi.lon),
+            location=(path[i].poi.lat, path[i].poi.lon),
             popup=render_template('popup.html',
-                                  name=path[idx].poi.name,
-                                  img=path[idx].poi.image,
-                                  website=path[idx].poi.website,
-                                  wiki=path[idx].poi.wiki,
-                                  start=path[idx].start,
-                                  end=path[idx].end,
-                                  icon=folium.Icon(color='red'))
+                                  name=path[i].poi.name,
+                                  img=path[i].poi.image,
+                                  website=path[i].poi.website,
+                                  wiki=path[i].poi.wiki,
+                                  start=path[i].start,
+                                  end=path[i].end),
+            icon=folium.Icon(color=color(i))
         ).add_to(m)
-        trail.append((path[idx].poi.lat, path[idx].poi.lon))
+        trail.append((path[i].poi.lat, path[i].poi.lon))
 
     if len(trail) > 0:
         folium.PolyLine(trail).add_to(m)
@@ -31,7 +31,14 @@ def create_map(trajectory: Trajectory) -> folium.Map:
     return m
 
 
+def color(i):
+    if i == 0:
+        return "orange"
+    else:
+        return 'blue'
+
+
 if __name__ == '__main__':
     a = [1, 2, 3]
-    for i in a[4: -1]:
-        print(i)
+    for i_ in a[4: -1]:
+        print(i_)

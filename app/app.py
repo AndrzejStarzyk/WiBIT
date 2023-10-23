@@ -114,12 +114,15 @@ async def show_suggested():
 
         eval_recommender.create_schedule()
         recommended = eval_recommender.get_recommended()
-        m = create_map(recommended)
-        m.get_root().render()
-        res = render_template("suggested_page.html", places=recommended.get_pois(),
-                              map_header=m.get_root().header.render(),
-                              map_html=m.get_root().html.render(),
-                              map_script=m.get_root().script.render())
+        maps = [create_map(trajectory) for trajectory in recommended.trajectories]
+        for m in maps:
+            m.get_root().render()
+        headers = [m.get_root().header.render() for m in maps]
+        trajectories_data = [(maps[i].get_root().html.render(),
+                              maps[i].get_root().script.render(),
+                              recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
+
+        res = render_template("suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
         return res
 
     return res
@@ -127,13 +130,3 @@ async def show_suggested():
 
 if __name__ == '__main__':
     app.run()
-
-"""
-    duration_options = [
-        {'name': 'Jedno popołudnie', 'time': 2},
-        {'name': 'Jeden dzień', 'time': 1},
-        {'name': 'Weekend (2-3 dni)', 'time': 8},
-        {'name': '4-5 dni', 'time': 15},
-        {'name': 'Cały tydzień', 'time': 20},
-    ]
-"""

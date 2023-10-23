@@ -2,7 +2,7 @@ from typing import List, TypedDict
 
 from recommending_v2.model.constraint import Constraint, AttractionConstraint
 from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.default_trip import DefaultTrip
+from recommending_v2.model.default_trip import get_default_places_xid
 
 
 class Preference(TypedDict):
@@ -18,8 +18,8 @@ class User:
         self.preferences: List[Preference] = []
         self.total_weights: int = 0
 
-        for poi in DefaultTrip().get_trip().get_pois():
-            self.add_constraint(AttractionConstraint([poi.xid]), 15)
+        for xid in get_default_places_xid():
+            self.add_constraint(AttractionConstraint([xid]), 15)
 
     def add_constraint(self, constraint: Constraint, weight: int):
         self.preferences.append({'constraint': constraint, 'weight': weight})

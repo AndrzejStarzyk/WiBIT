@@ -1,8 +1,10 @@
 from datetime import timedelta, datetime
+from typing import List
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
+from recommending_v2.model.schedule import Day
 from recommending_v2.model.trajectory import Trajectory
 from recommending_v2.model.point_of_interest import PointOfInterest
 
@@ -58,13 +60,17 @@ trip2 = [
     ("N1332080339", timedelta(hours=2))]
 
 
+def get_default_places_xid() -> List[str]:
+    return list(map(lambda x: x[0], trip2))
+
+
 class DefaultTrip:
     def __init__(self):
         self.trip: Trajectory = Trajectory()
         self.places_fetched: bool = False
         self.uri: str = "mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
-    def get_trip(self) -> Trajectory:
+    def get_trip(self, day: Day) -> Trajectory:
         client = MongoClient(self.uri, server_api=ServerApi('1'))
 
         try:
@@ -75,9 +81,8 @@ class DefaultTrip:
 
         db = client["wibit"]
         collection = db["cracow-attractions-v2"]
-
-        start = datetime(day=15, month=8, year=2023, hour=10)
-        travel = timedelta(minutes=20)
+        travel = timedelta(minutes=15)
+        start = day.start
         for xid, time in trip2:
             place = collection.find_one({"xid": xid})
             if place is not None:

@@ -32,9 +32,6 @@ def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) 
         curr += travel_time + next_visiting
         travel_time = timedelta(seconds=estimated_time(graph[path[n - 1]][path[n]]))
         next_visiting = visiting_time_provider.get_visiting_time(pois_score[better_path[n]][0])
-        print(curr)
-        print(travel_time)
-        print(next_visiting)
 
     return trajectory
 

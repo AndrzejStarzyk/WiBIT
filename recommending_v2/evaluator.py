@@ -44,12 +44,10 @@ class Evaluator:
                 curr_time += self.visiting_time_provider.get_visiting_time(self.places[place_id_score[i][0]])
                 i += 1
 
-            print(score, place_id_score)
             if score > best_score:
                 best_score = score
                 best_list = [place_id_score[j] for j in range(i)]
-        print("-----------------------------------------------------------")
-        print(best_score, best_list)
+
         for idx, _ in best_list:
             self.already_recommended[idx] = True
 
