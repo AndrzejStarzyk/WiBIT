@@ -2,18 +2,18 @@ from flask import Flask, render_template, request, redirect, url_for
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
-from models.user import User
-from models.mongo_utils import MongoUtils
 from wtforms.validators import ValidationError
 
 from display_route import create_map
 from recommending_v2.categories.category import categories
-from recommending_v2.model.user import User
+from recommending_v2.model.user import User as Algo_User
 from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
+from models.user import User
+from models.mongo_utils import MongoUtils
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -21,8 +21,8 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-user = User()
-eval_recommender = EvalRecommender(user)
+user_algo = Algo_User()
+eval_recommender = EvalRecommender(user_algo)
 mongo_utils = MongoUtils()
 
 users = mongo_utils.get_collection('users')
