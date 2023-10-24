@@ -4,11 +4,11 @@
 {% endblock %}
 
 {% block body %}
-<body>
+<div>
     <form method="POST" class="centered-form">
         <label for="start_date"> Wybierz datę rozpoczęcia wycieczki</label>
         <input type="date" id="start_date" name="start_date" value="{{tomorrow}}">
         <input type="submit" value="dalej" class="base-button">
     </form>
-</body>
+</div>
 {% endblock %}
