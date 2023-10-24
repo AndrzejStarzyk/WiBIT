@@ -1,0 +1,20 @@
+{
+  "_id": ,
+  "user_id": ,
+  "nr_days":,
+  "days": [
+    {
+      "schedule": {
+        "date":,
+        "start":,
+        "end":
+      },
+      "trajectory": [
+        {
+          "poi_id": ,
+          "from": ,
+          "to":
+        },
+      ]
+    }]
+}

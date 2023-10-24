@@ -1,7 +1,22 @@
+from datetime import timedelta
+
+
+class Category:
+    def __init__(self, name: str, code: str, visiting_hours: int, visiting_minutes: int, graph_id: int):
+        self.name = name
+        self.code = code
+        self.visiting_time = timedelta(hours=visiting_hours, minutes=visiting_minutes)
+        self.graph_id = graph_id
+
+
 categories = [
     {
         "name": "Obiekty rozrywkowe",
         "code": "attraction",
+        "visiting_time": {
+            "hours": 0,
+            "minutes": 30
+        },
         "sub_categories": [
             {
                 "name": "Parki rozrywki",
@@ -22,6 +37,10 @@ categories = [
     {
         "name": "Obiekty sportowe",
         "code": "sport",
+        "visiting_time": {
+            "hours": 2,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Ścianki wspinaczkowe",
@@ -36,6 +55,10 @@ categories = [
     {
         "name": "Atrakcje naturalne",
         "code": "natural",
+        "visiting_time": {
+            "hours": 1,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Źródła",
@@ -53,6 +76,10 @@ categories = [
     {
         "name": "Obiekty przemysłowe",
         "code": "industrial_facilities",
+        "visiting_time": {
+            "hours": 2,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Stacje kolejowe",
@@ -74,6 +101,10 @@ categories = [
     {
         "name": "Obiekty religijne",
         "code": "religion",
+        "visiting_time": {
+            "hours": 1,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Kościoły",
@@ -99,6 +130,10 @@ categories = [
     {
         "name": "Obiekty archeologiczne",
         "code": "archeaology",
+        "visiting_time": {
+            "hours": 1,
+            "minutes": 0
+        },
         "sub_categories": [{
             "name": "Obiekty archeologiczne",
             "code": "archaeology"
@@ -107,6 +142,10 @@ categories = [
         "name": "Obiekty historyczno-militarne",
         "code": "historical_places",
         "additional_codes": ["fortifications"],
+        "visiting_time": {
+            "hours": 2,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Zamki",
@@ -131,6 +170,10 @@ categories = [
     {
         "name": "Miejsca pochówku",
         "code": "burial_places",
+        "visiting_time": {
+            "hours": 0,
+            "minutes": 30
+        },
         "sub_categories": [
             {
                 "name": "Cmentarze",
@@ -146,6 +189,10 @@ categories = [
     {
         "name": "Środowisko miejskie",
         "code": "urban_environment",
+        "visiting_time": {
+            "hours": 0,
+            "minutes": 15
+        },
         "sub_categories": [
             {
                 "name": "Murale",
@@ -164,6 +211,10 @@ categories = [
     {
         "name": "Muzea",
         "code": "museums",
+        "visiting_time": {
+            "hours": 2,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Muzea archeologiczne",
@@ -191,6 +242,10 @@ categories = [
     {
         "name": "Muzea przyrodnicze",
         "code": "architecture",
+        "visiting_time": {
+            "hours": 2,
+            "minutes": 0
+        },
         "sub_categories": [
             {
                 "name": "Planetaria",
@@ -205,6 +260,10 @@ categories = [
     {
         "name": "Architektura",
         "code": "architecture",
+        "visiting_time": {
+            "hours": 0,
+            "minutes": 15
+        },
         "sub_categories": [
             {
                 "name": "Drapacze chmur",
@@ -219,17 +278,25 @@ categories = [
                 "name": "Mosty",
                 "code": "bridges"
             }]},
-{
+    {
         "name": "Miejsca pamięci",
         "code": "memorials",
+        "visiting_time": {
+            "hours": 0,
+            "minutes": 10
+        },
         "sub_categories": [
             {
                 "name": "Pomniki",
                 "code": "monuments"
             }, {
                 "name": "Kopce/kurhan",
-                "code": "tumuluses"   # barrows instead?
+                "code": "tumuluses"  # barrows instead?
             },
         ]
     }
 ]
+
+if __name__ == "__main__":
+    a = timedelta(minutes=30)
+    print(a/3)

@@ -7,7 +7,8 @@ from models.mongo_utils import MongoUtils
 from wtforms.validators import ValidationError
 
 from display_route import create_map
-from recommending_v2.categories.categories import categories
+from recommending_v2.categories.category import categories
+from recommending_v2.model.user import User
 from recommending_v2.recommender import Recommender as EvalRecommender
 from recommending_v2.model.constraint import *
 from models.constants import SECRET_KEY
@@ -20,7 +21,8 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-eval_recommender = EvalRecommender()
+user = User()
+eval_recommender = EvalRecommender(user)
 mongo_utils = MongoUtils()
 
 users = mongo_utils.get_collection('users')
@@ -136,7 +138,6 @@ def show_duration():
     ]
     if request.method == 'POST':
         selected_option = request.form.get('duration_dropdown')
-        eval_recommender.set_pois_limit(int(selected_option) * 3 + 10)
         eval_recommender.days = int(selected_option)
         return redirect(url_for('show_start_date'))
 
@@ -181,13 +182,12 @@ async def show_suggested():
     res = render_template("default_page.html")
     if request.method == 'GET':
         try:
-            eval_recommender.set_pois_limit(7)
             eval_recommender.create_schedule()
             recommended = eval_recommender.get_recommended()
 
             m = create_map(recommended)
             m.get_root().render()
-            res = render_template("suggested_page.html", places=recommended.pois,
+            res = render_template("suggested_page.html", places=recommended.get_pois(),
                                   map_header=m.get_root().header.render(),
                                   map_html=m.get_root().html.render(),
                                   map_script=m.get_root().script.render())
@@ -218,12 +218,15 @@ async def show_suggested():
 
         eval_recommender.create_schedule()
         recommended = eval_recommender.get_recommended()
-        m = create_map(recommended)
-        m.get_root().render()
-        res = render_template("suggested_page.html", places=recommended.pois,
-                              map_header=m.get_root().header.render(),
-                              map_html=m.get_root().html.render(),
-                              map_script=m.get_root().script.render())
+        maps = [create_map(trajectory) for trajectory in recommended.trajectories]
+        for m in maps:
+            m.get_root().render()
+        headers = [m.get_root().header.render() for m in maps]
+        trajectories_data = [(maps[i].get_root().html.render(),
+                              maps[i].get_root().script.render(),
+                              recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
+
+        res = render_template("suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
         return res
 
     return res
@@ -238,13 +241,3 @@ def user_main_page():
 
 if __name__ == '__main__':
     app.run()
-
-"""
-    duration_options = [
-        {'name': 'Jedno popołudnie', 'time': 2},
-        {'name': 'Jeden dzień', 'time': 1},
-        {'name': 'Weekend (2-3 dni)', 'time': 8},
-        {'name': '4-5 dni', 'time': 15},
-        {'name': 'Cały tydzień', 'time': 20},
-    ]
-"""

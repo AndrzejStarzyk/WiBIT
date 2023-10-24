@@ -1,6 +1,68 @@
 from datetime import timedelta
 
-categories = [
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from typing import Dict
+
+from recommending_v2.model.point_of_interest import PointOfInterest
+from recommending_v2.poi_provider import PoiProvider
+
+
+default_estimated_time = timedelta(hours=1, minutes=30)
+
+
+class VisitingTimeProvider:
+    def __init__(self):
+        self.code_to_time: Dict[str, timedelta] = {}
+        self.fetched = False
+        self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+
+    def fetch_visiting_times(self):
+        client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
+        try:
+            client.admin.command('ping')
+            print("Successfully connected to MongoDB!")
+        except Exception as e:
+            print(e)
+
+        db = client["wibit"]
+        collection = db["categories"]
+
+        categories = collection.find()
+
+        for cat in categories:
+            visiting_time = cat.get("visiting_time")
+            self.code_to_time.setdefault(cat.get("code"),
+                                         timedelta(hours=visiting_time.get("hours"), minutes=visiting_time.get("minutes")))
+
+        self.fetched = True
+
+    def get_visiting_time(self, poi: PointOfInterest) -> timedelta:
+        if not self.fetched:
+            self.fetch_visiting_times()
+        avg_time: timedelta = timedelta()
+        total = 0
+        for code in poi.kinds:
+            if code not in self.code_to_time:
+                continue
+            avg_time += self.code_to_time[code]
+            total += 1
+
+        if total != 0:
+            avg_time /= total
+        else:
+            avg_time = default_estimated_time
+        return avg_time
+
+
+if __name__ == "__main__":
+    poi_provider = PoiProvider()
+    poi_provider.fetch_pois()
+    provider = VisitingTimeProvider()
+    print(poi_provider.pois[0])
+    print(provider.get_visiting_time(poi_provider.pois[0]))
+
+"""categories = [
     {
         "name": "Atrakcje naturalne",
         "code": "natural",
@@ -228,4 +290,4 @@ categories = [
             }
         ]
     }
-]
+]"""

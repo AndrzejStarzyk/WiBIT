@@ -62,6 +62,10 @@ body{
 }
 
 /* suggested trip page */
+.maps_container{
+    padding: 10vh 15% 0 15%;
+}
+
 .one-line{
     display: flex;
     width: 100%;

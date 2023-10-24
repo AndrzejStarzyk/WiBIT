@@ -1,14 +1,7 @@
 from typing import List, Tuple
 from datetime import date, time, datetime
 
-from recommending_v2.model.point_of_interest import PointOfInterest
-
-
-class Event:
-    def __init__(self, start: time, end: time, poi: PointOfInterest):
-        self.start: time = start
-        self.end: time = end
-        self.poi: PointOfInterest = poi
+from recommending_v2.model.trajectory import Trajectory
 
 
 class Day:
@@ -21,10 +14,6 @@ class Day:
         self.start: datetime = datetime.combine(date_, start)
         self.end: datetime = datetime.combine(date_, end)
         self.weekday: int = date_.weekday()
-        self.events: List[Event] = []
-
-    def add_event(self, start: time, end: time, poi: PointOfInterest):
-        self.events.append(Event(start, end, poi))
 
 
 class Schedule:
@@ -37,3 +26,7 @@ class Schedule:
         else:
             schedule = [Day(dates[i], hours[i][0], hours[i][1]) for i in range(self.days)]
         self.schedule: List[Day] = schedule
+        self.trajectories: List[Trajectory] = []
+
+    def add_trajectory(self, trajectory: Trajectory):
+        self.trajectories.append(trajectory)
