@@ -3,8 +3,8 @@ from typing import List
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.utils import dist
+from algorythm_models.point_of_interest import PointOfInterest
+from utils import dist
 
 max_dist = 2000
 

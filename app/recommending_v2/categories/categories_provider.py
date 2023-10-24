@@ -5,7 +5,7 @@ from pymongo.server_api import ServerApi
 
 from pyvis.network import Network
 
-from recommending_v2.categories.category import Category
+from category import Category
 
 very_low_score = 0
 

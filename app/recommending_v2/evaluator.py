@@ -1,10 +1,10 @@
 from typing import List, Tuple
 
-from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.schedule import Day
-from recommending_v2.model.user import User
-from recommending_v2.poi_provider import PoiProvider
+from categories.estimated_visiting import VisitingTimeProvider
+from algorythm_models.point_of_interest import PointOfInterest
+from algorythm_models.schedule import Day
+from algorythm_models.user_in_algorythm import User
+from poi_provider import PoiProvider
 
 
 class Evaluator:
@@ -57,6 +57,6 @@ class Evaluator:
 if __name__ == "__main__":
     evaluator = Evaluator(User())
     d = Day("2023-10-15", "10:00", "18:00")
-    #for p in evaluator.places:
-    #    print(p.opening_hours.is_open(d.weekday, d.start.time(), d.end.time()))
-    #print(evaluator.extract_best_trajectory(d))
+    # for p in evaluator.places:
+    #     print(p.opening_hours.is_open(d.weekday, d.start.time(), d.end.time()))
+    # print(evaluator.extract_best_trajectory(d))

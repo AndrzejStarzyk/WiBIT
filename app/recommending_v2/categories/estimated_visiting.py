@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from typing import Dict
 
-from recommending_v2.model.point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 from recommending_v2.poi_provider import PoiProvider
 
 

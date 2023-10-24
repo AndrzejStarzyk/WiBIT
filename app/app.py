@@ -6,9 +6,9 @@ from wtforms.validators import ValidationError
 
 from display_route import create_map
 from recommending_v2.categories.category import categories
-from recommending_v2.model.user import User as Algo_User
+from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender as EvalRecommender
-from recommending_v2.model.constraint import *
+from recommending_v2.algorythm_models.constraint import *
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm

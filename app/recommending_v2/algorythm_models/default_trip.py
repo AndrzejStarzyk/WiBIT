@@ -1,12 +1,12 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import List
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.schedule import Day
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.model.point_of_interest import PointOfInterest
+from schedule import Day
+from trajectory import Trajectory
+from point_of_interest import PointOfInterest
 
 trip = {
     "trip": [

@@ -1,8 +1,8 @@
 from typing import List, TypedDict
 
-from recommending_v2.model.constraint import Constraint, AttractionConstraint
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.default_trip import get_default_places_xid
+from constraint import Constraint, AttractionConstraint
+from point_of_interest import PointOfInterest
+from default_trip import get_default_places_xid
 
 
 class Preference(TypedDict):

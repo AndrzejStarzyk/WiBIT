@@ -1,11 +1,11 @@
 from datetime import timedelta, datetime
 from typing import List, Tuple
 
-from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.schedule import Day
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.utils import dist, estimated_time
+from categories.estimated_visiting import VisitingTimeProvider
+from algorythm_models.point_of_interest import PointOfInterest
+from algorythm_models.schedule import Day
+from algorythm_models.trajectory import Trajectory
+from utils import dist, estimated_time
 
 
 def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) -> Trajectory:

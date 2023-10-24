@@ -1,12 +1,12 @@
 from typing import List, Tuple, Union
 
-from recommending_v2.evaluator import Evaluator
-from recommending_v2.trajectory_builder import build_trajectory
-from recommending_v2.model.user import User
-from recommending_v2.model.default_trip import DefaultTrip
-from recommending_v2.model.constraint import Constraint
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.model.schedule import Schedule
+from evaluator import Evaluator
+from trajectory_builder import build_trajectory
+from algorythm_models.user_in_algorythm import User
+from algorythm_models.default_trip import DefaultTrip
+from algorythm_models.constraint import Constraint
+from algorythm_models.trajectory import Trajectory
+from algorythm_models.schedule import Schedule
 
 
 class Recommender:
