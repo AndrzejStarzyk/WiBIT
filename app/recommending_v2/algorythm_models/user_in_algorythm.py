@@ -19,7 +19,7 @@ class User:
         self.total_weights: int = 0
 
         for xid in get_default_places_xid():
-            self.add_constraint(AttractionConstraint([xid]), 15)
+            self.add_constraint(AttractionConstraint([xid]), 12)
 
     def add_constraint(self, constraint: Constraint, weight: int):
         self.preferences.append({'constraint': constraint, 'weight': weight})

@@ -2,11 +2,12 @@ from datetime import timedelta
 
 
 class Category:
-    def __init__(self, name: str, code: str, visiting_hours: int, visiting_minutes: int, graph_id: int):
+    def __init__(self, name: str, code: str, visiting_hours: int, visiting_minutes: int, graph_id: int, is_main: bool):
         self.name = name
         self.code = code
         self.visiting_time = timedelta(hours=visiting_hours, minutes=visiting_minutes)
         self.graph_id = graph_id
+        self.is_main = is_main
 
 
 categories = [
@@ -14,8 +15,8 @@ categories = [
         "name": "Obiekty rozrywkowe",
         "code": "attraction",
         "visiting_time": {
-            "hours": 0,
-            "minutes": 30
+            "hours": 2,
+            "minutes": 0
         },
         "sub_categories": [
             {
@@ -56,7 +57,7 @@ categories = [
         "name": "Atrakcje naturalne",
         "code": "natural",
         "visiting_time": {
-            "hours": 1,
+            "hours": 2,
             "minutes": 0
         },
         "sub_categories": [
@@ -77,7 +78,7 @@ categories = [
         "name": "Obiekty przemysłowe",
         "code": "industrial_facilities",
         "visiting_time": {
-            "hours": 2,
+            "hours": 3,
             "minutes": 0
         },
         "sub_categories": [
@@ -129,15 +130,11 @@ categories = [
             }]},
     {
         "name": "Obiekty archeologiczne",
-        "code": "archeaology",
+        "code": "archaeology",
         "visiting_time": {
             "hours": 1,
-            "minutes": 0
-        },
-        "sub_categories": [{
-            "name": "Obiekty archeologiczne",
-            "code": "archaeology"
-        }]},
+            "minutes": 30
+        }},
     {
         "name": "Obiekty historyczno-militarne",
         "code": "historical_places",
@@ -209,10 +206,10 @@ categories = [
                 "code": "gardens_and_parks"
             }]},
     {
-        "name": "Muzea",
+        "name": "Muzea i wystawy",
         "code": "museums",
         "visiting_time": {
-            "hours": 2,
+            "hours": 3,
             "minutes": 0
         },
         "sub_categories": [
@@ -240,10 +237,10 @@ categories = [
                 "code": "fashion_museums"
             }]},
     {
-        "name": "Muzea przyrodnicze",
-        "code": "architecture",
+        "name": "Muzea, parki i obiekty związane z przyrodą",
+        "code": "nature_museums",
         "visiting_time": {
-            "hours": 2,
+            "hours": 3,
             "minutes": 0
         },
         "sub_categories": [
@@ -269,7 +266,7 @@ categories = [
                 "name": "Drapacze chmur",
                 "code": "skyscrapers"
             }, {
-                "name": "Wieże (zegarowe, widokowe",
+                "name": "Wieże (zegarowe, widokowe)",
                 "code": "towers"
             }, {
                 "name": "Budynki historyczne",
@@ -283,7 +280,7 @@ categories = [
         "code": "memorials",
         "visiting_time": {
             "hours": 0,
-            "minutes": 10
+            "minutes": 20
         },
         "sub_categories": [
             {

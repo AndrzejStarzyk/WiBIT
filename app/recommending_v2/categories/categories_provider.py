@@ -13,12 +13,11 @@ very_low_score = 0
 class CategoriesProvider:
     def __init__(self):
         self.categories_list: List[Category] = []
-        self.categories_dict: dict[str: int] = {}
-        self.categories_ids: List[int] = []
+        self.code_to_graph_id: dict[str: int] = {}
+        self.category_ids: List[int] = []
         self.categories_graph: List[List[Tuple[int, int]]] = []
         self.categories_distances: List[List[Tuple[int, int]]] = []
-        self.max_score = 0
-        self.min_score = 0
+
         self.categories_fetched = False
         self.distances_computed = False
         self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
@@ -42,32 +41,36 @@ class CategoriesProvider:
         categories = collection2.find()
 
         for cat in categories:
+            self.category_ids.append(cat.get("id"))
+            self.categories_graph.append([])
+            self.code_to_graph_id[cat.get("code")] = len(self.category_ids) - 1
+
+            if cat.get('additional_codes') is None:
+                continue
+            for code in cat.get('additional_codes'):
+                self.code_to_graph_id[code] = len(self.category_ids) - 1
+
+        for edge in edges:
+            v = self.category_ids.index(edge.get("from_id"))
+            u = self.category_ids.index(edge.get("to_id"))
+            self.categories_graph[v].append((u, edge.get("weight")))
+            self.categories_graph[u].append((v, edge.get("weight")))
+
+        categories.rewind()
+        for cat in categories:
             self.categories_list.append(Category(
                 cat.get("name"),
                 cat.get("code"),
                 cat.get("visiting_time").get("hours"),
                 cat.get("visiting_time").get("minutes"),
-                cat.get("id")
+                cat.get("id"),
+                len(self.categories_graph[self.category_ids.index(cat.get("id"))]) > 1
             ))
-            self.categories_ids.append(cat.get("id"))
-            self.categories_graph.append([])
-            self.categories_dict[cat.get("code")] = len(self.categories_ids) - 1
-
-            if cat.get('additional_codes') is None:
-                continue
-            for code in cat.get('additional_codes'):
-                self.categories_dict[code] = len(self.categories_ids) - 1
-
-        for edge in edges:
-            self.categories_graph[self.categories_ids.index(edge.get("from_id"))] \
-                .append((self.categories_ids.index(edge.get("to_id")), edge.get("weight")))
-            self.categories_graph[self.categories_ids.index(edge.get("to_id"))] \
-                .append((self.categories_ids.index(edge.get("from_id")), edge.get("weight")))
 
         self.categories_fetched = True
 
     def compute_shortest_paths(self):
-        n = len(self.categories_ids)
+        n = len(self.category_ids)
         self.categories_distances = [[inf for _ in range(n)] for _ in range(n)]
         for u in range(n):
             self.categories_distances[u][u] = 0
@@ -84,10 +87,10 @@ class CategoriesProvider:
         self.distances_computed = True
 
     def distance(self, cat1, cat2):
-        if cat1 not in self.categories_dict.keys() or cat2 not in self.categories_dict.keys():
+        if cat1 not in self.code_to_graph_id.keys() or cat2 not in self.code_to_graph_id.keys():
             return None
-        idx1 = self.categories_dict.get(cat1)
-        idx2 = self.categories_dict.get(cat2)
+        idx1 = self.code_to_graph_id.get(cat1)
+        idx2 = self.code_to_graph_id.get(cat2)
         return self.categories_distances[idx1][idx2]
 
     def compute_score(self, preferences: List[str], categories: List[str]) -> float:
@@ -112,16 +115,36 @@ class CategoriesProvider:
             return very_low_score
         return total_dist / len(preferences)
 
+    def get_categories(self):
+        if not self.categories_fetched:
+            self.fetch_categories()
+        return self.categories_list
+
+    def get_main_categories(self):
+        if not self.categories_fetched:
+            self.fetch_categories()
+        return list(filter(lambda x: x.is_main, self.categories_list))
+
+    def get_subcategories(self, main_categories=None):
+        if not self.categories_fetched:
+            self.fetch_categories()
+        if main_categories is None:
+            return list(filter(lambda x: not x.is_main, self.categories_list))
+        ids = [self.code_to_graph_id[code] for code, checked in main_categories if checked == "on"]
+        return list(
+            filter(lambda x: not x.is_main and self.categories_graph[self.code_to_graph_id[x.code]][0][0] in ids,
+                   self.categories_list))
+
     def show_graph(self):
         if not self.categories_fetched:
             self.fetch_categories()
         N = Network()
-        for cat in range(len(self.categories_ids)):
-            N.add_node(self.categories_ids[cat], self.categories_list[cat].name, size=8)
+        for cat in range(len(self.category_ids)):
+            N.add_node(self.category_ids[cat], self.categories_list[cat].name, size=8)
 
         for u in range(len(self.categories_graph)):
             for v, _ in self.categories_graph[u]:
-                N.add_edge(self.categories_ids[u], self.categories_ids[v])
+                N.add_edge(self.category_ids[u], self.category_ids[v])
 
         N.toggle_physics(True)
         N.show_buttons(True)
