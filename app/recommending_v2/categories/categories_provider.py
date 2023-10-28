@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from numpy import inf
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -125,12 +125,12 @@ class CategoriesProvider:
             self.fetch_categories()
         return list(filter(lambda x: x.is_main, self.categories_list))
 
-    def get_subcategories(self, main_categories=None):
+    def get_subcategories(self, main_categories: Union[None, List[str]]=None):
         if not self.categories_fetched:
             self.fetch_categories()
         if main_categories is None:
             return list(filter(lambda x: not x.is_main, self.categories_list))
-        ids = [self.code_to_graph_id[code] for code, checked in main_categories if checked == "on"]
+        ids = [self.code_to_graph_id[code] for code in main_categories]
         return list(
             filter(lambda x: not x.is_main and self.categories_graph[self.code_to_graph_id[x.code]][0][0] in ids,
                    self.categories_list))

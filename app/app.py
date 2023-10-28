@@ -26,7 +26,6 @@ categories_provider = CategoriesProvider()
 default_trip = DefaultTrip()
 recommender = Recommender(algo_user)
 
-
 mongo_utils = MongoUtils()
 users = mongo_utils.get_collection('users')
 user_name = None
@@ -177,7 +176,7 @@ def show_schedule(start: str):
 @login_required
 def show_categories():
     if request.method == 'POST':
-        categories = categories_provider.get_subcategories(request.form.items())
+        categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
         return render_template("choose_page.html", input_categories=categories, redirect='/suggested')
     categories = categories_provider.get_main_categories()
     return render_template("choose_page.html", input_categories=categories, redirect='/categories')
@@ -185,16 +184,33 @@ def show_categories():
 
 @app.route('/default_trip', methods=['GET'])
 def show_default_trip():
+    print("default")
     res = render_template("default_page.html")
     try:
         trajectory = default_trip.get_trip(None)
         m = create_map(trajectory)
         m.get_root().render()
         map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
-        res = render_template("suggested_page.html", trajectories_data=map_data, map_headers=[m.get_root().header.render()])
+        res = render_template("suggested_page.html", trajectories_data=map_data,
+                              map_headers=[m.get_root().header.render()])
     except FileExistsError:
         print("Index file no found")
 
+    return res
+
+
+def render_suggested_template():
+    recommender.create_schedule()
+    recommended = recommender.get_recommended()
+    maps = [create_map(trajectory) for trajectory in recommended.trajectories]
+    for m in maps:
+        m.get_root().render()
+    headers = [m.get_root().header.render() for m in maps]
+    trajectories_data = [(maps[i].get_root().html.render(),
+                          maps[i].get_root().script.render(),
+                          recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
+
+    res = render_template("suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
     return res
 
 
@@ -214,7 +230,7 @@ async def show_suggested():
             elif item[0].startswith('replace'):
                 recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
-                init_pref.append(item[1])
+                init_pref.append(item[0][4:0])
             elif item[0].startswith('datetime'):
                 if item[0] == 'datetime_start':
                     pass
@@ -224,18 +240,7 @@ async def show_suggested():
         if len(init_pref) > 0:
             recommender.add_constraint(CategoryConstraint(init_pref))
 
-        recommender.create_schedule()
-        recommended = recommender.get_recommended()
-        maps = [create_map(trajectory) for trajectory in recommended.trajectories]
-        for m in maps:
-            m.get_root().render()
-        headers = [m.get_root().header.render() for m in maps]
-        trajectories_data = [(maps[i].get_root().html.render(),
-                              maps[i].get_root().script.render(),
-                              recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
-
-        res = render_template("suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
-        return res
+        return render_suggested_template()
 
     return res
 

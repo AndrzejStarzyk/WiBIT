@@ -10,7 +10,7 @@
         <div class="container">
             {% for category in input_categories %}
                 <div class="item">
-                    <input class="not-displayed select-checkbox" name="{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
+                    <input class="not-displayed select-checkbox" name="cat_{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
                     <label class="base-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
                 </div>
             {% endfor %}
