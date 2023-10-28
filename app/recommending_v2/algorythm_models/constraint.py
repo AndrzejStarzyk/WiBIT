@@ -17,6 +17,8 @@ class Constraint:
     def get_decay(self) -> int:
         return 1
 
+    def to_json(self):
+        return {}
 
 class TripConstraint:
     def __init__(self):
@@ -38,6 +40,13 @@ class CategoryConstraint(Constraint):
 
     def get_weight(self):
         return self.weight
+
+    def to_json(self):
+        return {
+            "constraint_type": "category",
+            "value": self.codes,
+            "weight": self.weight
+        }
 
 
 class AttractionConstraint(Constraint):
@@ -63,6 +72,13 @@ class AttractionConstraint(Constraint):
 
     def get_weight(self):
         return self.weight
+
+    def to_json(self):
+        return {
+            "constraint_type": "attraction",
+            "value": self.xid_list,
+            "weight": self.weight
+        }
 
 
 class TimeConstraint(TripConstraint):

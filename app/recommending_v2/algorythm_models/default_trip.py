@@ -80,7 +80,7 @@ class DefaultTrip:
 
         try:
             client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
+            print("Successfully connected to MongoDB from default trip provider!")
         except Exception as e:
             print(e)
 

@@ -17,11 +17,13 @@ class VisitingTimeProvider:
         self.fetched = False
         self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
+        self.fetch_visiting_times()
+
     def fetch_visiting_times(self):
         client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
         try:
             client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
+            print("Successfully connected to MongoDB from visiting time provider!")
         except Exception as e:
             print(e)
 

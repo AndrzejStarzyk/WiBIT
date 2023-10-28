@@ -1,6 +1,8 @@
 from typing import List, Tuple, Union
 
+from estimated_visiting import VisitingTimeProvider
 from evaluator import Evaluator
+from poi_provider import PoiProvider
 from trajectory_builder import build_trajectory
 from algorythm_models.user_in_algorythm import User
 from algorythm_models.default_trip import DefaultTrip
@@ -10,9 +12,10 @@ from algorythm_models.schedule import Schedule
 
 
 class Recommender:
-    def __init__(self, user: User):
+    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
         self.user: User = user
-        self.evaluator: Evaluator = Evaluator(self.user)
+        self.visiting_time_provider = visiting_time_provider
+        self.evaluator: Evaluator = Evaluator(self.user, poi_provider, visiting_time_provider)
         self.cold_start: bool = True
         self.pois_limit: int = 100
         self.dates: List[str] = []
@@ -40,7 +43,7 @@ class Recommender:
         else:
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
-                trajectory: Trajectory = build_trajectory(day, best_pois)
+                trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
                 self.schedule.add_trajectory(trajectory)
 
             return self.schedule

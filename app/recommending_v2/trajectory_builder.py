@@ -9,7 +9,7 @@ from algorythm_models.trajectory import Trajectory
 from utils import dist, estimated_time
 
 
-def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) -> Trajectory:
+def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]], time_provider: VisitingTimeProvider) -> Trajectory:
     # TODO: edge cases, check every poi on list before finishing schedule and 2-opt again
     if len(pois_score) == 0:
         return Trajectory()
@@ -19,7 +19,7 @@ def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) 
     path = estimated_shp_from_mst(mst_graph)
     better_path = opt_2(path, graph)
 
-    visiting_time_provider = VisitingTimeProvider()
+    visiting_time_provider = time_provider
     trajectory = Trajectory()
 
     curr: datetime = day.start

@@ -28,7 +28,7 @@ class PoiProvider:
         client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
         try:
             client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
+            print("Successfully connected to MongoDB from places provider!")
         except Exception as e:
             print(e)
 

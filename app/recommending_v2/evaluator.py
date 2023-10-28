@@ -8,15 +8,15 @@ from poi_provider import PoiProvider
 
 
 class Evaluator:
-    def __init__(self, user: User):
+    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
         self.user = user
-        self.places_provider: PoiProvider = PoiProvider()
+        self.places_provider: PoiProvider = poi_provider
         self.places: List[PointOfInterest] = self.places_provider.get_places()
         self.groups = self.places_provider.get_groups()
         self.poi_to_group = self.places_provider.get_poi_to_group_mapping()
         self.already_recommended: List[bool] = [False for _ in range(len(self.places))]
 
-        self.visiting_time_provider = VisitingTimeProvider()
+        self.visiting_time_provider = visiting_time_provider
 
     def evaluate(self, day: Day, group_id: int) -> List[Tuple[int, float]]:
         evaluated_places: List[Tuple[int, float]] = [(i, self.user.evaluate(self.places[i])) for i in

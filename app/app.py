@@ -5,6 +5,8 @@ from flask_login import login_user, LoginManager, login_required, logout_user, c
 from wtforms.validators import ValidationError
 
 from display_route import create_map
+from estimated_visiting import VisitingTimeProvider
+from poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
@@ -23,8 +25,10 @@ login_manager.init_app(app)
 
 algo_user = Algo_User()
 categories_provider = CategoriesProvider()
+poi_provider = PoiProvider()
+visiting_time_provider = VisitingTimeProvider()
 default_trip = DefaultTrip()
-recommender = Recommender(algo_user)
+recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
 
 mongo_utils = MongoUtils()
 users = mongo_utils.get_collection('users')
