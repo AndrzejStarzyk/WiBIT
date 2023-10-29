@@ -1,83 +1,63 @@
 from datetime import timedelta, datetime
+from queue import PriorityQueue
 from typing import List, Tuple
 
-from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.model.schedule import Day
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.utils import dist, estimated_time
+from categories.estimated_visiting import VisitingTimeProvider
+from algorythm_models.point_of_interest import PointOfInterest
+from algorythm_models.schedule import Day
+from algorythm_models.trajectory import Trajectory
+from utils import dist, estimated_time
 
 
-def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]]) -> Trajectory:
+def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]], time_provider: VisitingTimeProvider) -> Trajectory:
     # TODO: edge cases, check every poi on list before finishing schedule and 2-opt again
     if len(pois_score) == 0:
         return Trajectory()
+
     graph = [[dist(i, j) for i, _ in pois_score] for j, _ in pois_score]
     mst_graph = get_mst(graph)
     path = estimated_shp_from_mst(mst_graph)
     better_path = opt_2(path, graph)
 
-    visiting_time_provider = VisitingTimeProvider()
+    visiting_time_provider = time_provider
     trajectory = Trajectory()
-    n = 0
+
     curr: datetime = day.start
     travel_time: timedelta = timedelta()
     next_visiting: timedelta = visiting_time_provider.get_visiting_time(pois_score[better_path[0]][0])
-    while curr + travel_time + next_visiting < day.end:
-        trajectory.add_event(pois_score[better_path[n]][0], curr + travel_time, curr + travel_time + next_visiting)
-        n += 1
-        if n >= len(path):
-            break
+    for n in range(len(path)):
+        if curr + travel_time + next_visiting < day.end:
+            trajectory.add_event(pois_score[better_path[n]][0], curr + travel_time, curr + travel_time + next_visiting)
 
-        curr += travel_time + next_visiting
-        travel_time = timedelta(seconds=estimated_time(graph[path[n - 1]][path[n]]))
-        next_visiting = visiting_time_provider.get_visiting_time(pois_score[better_path[n]][0])
+            curr += travel_time + next_visiting
+            travel_time = timedelta(seconds=estimated_time(graph[path[n - 1]][path[n]]))
+            next_visiting = visiting_time_provider.get_visiting_time(pois_score[better_path[n]][0])
 
     return trajectory
 
 
 def get_mst(graph) -> List[List[int]]:
-    root = [i for i in range(len(graph))]
-    rank = [0 for _ in range(len(graph))]
-    mst = [[0 for _ in range(len(graph))] for _ in range(len(graph))]
+    dl = len(graph)
+    mst = [[0 for _ in range(len(graph))] for _ in range(dl)]
+    visited = [False for _ in range(dl)]
+    queue = PriorityQueue()
 
-    def find(x) -> int:
-        if x == root[x]:
-            return x
-        root[x] = find(root[x])
-        return root[x]
+    visited[0] = True
+    for u in range(dl):
+        if graph[0][u] > 0:
+            queue.put((graph[0][u], (0, u)))
+    vertices_left = dl - 1
 
-    def union(x, y):
-        root_x = find(x)
-        root_y = find(y)
-        if root_x == root_y:
-            return
-        if rank[root_x] > rank[root_y]:
-            root[root_y] = root_x
-        elif rank[root_y] > rank[root_x]:
-            root[root_y] = root_x
-        else:
-            root[root_x] = root_y
-            rank[root_y] += 1
-
-    edges = []
-    for row in range(len(graph)):
-        for col in range(len(graph)):
-            edges.append((graph[row][col], row, col))
-    edges.sort(key=lambda x: x[0])
-    v_left = len(graph)
-    for d, u, v in edges:
-        if find(u) == find(v):
-            continue
-        mst[u][v] = 1
-        mst[v][u] = 1
-        if rank[u] == 0:
-            v_left -= 1
-        if rank[v] == 0:
-            v_left -= 1
-        union(u, v)
-        if v_left == 0:
-            break
+    while vertices_left > 0:
+        w, (v, u) = queue.get()
+        if not visited[u]:
+            visited[u] = True
+            vertices_left -= 1
+            mst[v][u] = 1
+            mst[u][v] = 1
+            for t in range(dl):
+                if t != u and not visited[t]:
+                    queue.put((graph[u][t], (u, t)))
     return mst
 
 
@@ -133,5 +113,5 @@ def opt_2(path, graph) -> List[int]:
 
 
 if __name__ == "__main__":
-    for _i in range(5, 1, -1):
-        print(_i)
+    (a, b), c = ((1, 2), 3)
+    print(a, b, c)

@@ -3,8 +3,8 @@ from typing import List
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.point_of_interest import PointOfInterest
-from recommending_v2.utils import dist
+from algorythm_models.point_of_interest import PointOfInterest
+from utils import dist
 
 max_dist = 2000
 
@@ -28,7 +28,7 @@ class PoiProvider:
         client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
         try:
             client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
+            print("Successfully connected to MongoDB from places provider!")
         except Exception as e:
             print(e)
 

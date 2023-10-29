@@ -1,12 +1,13 @@
-from datetime import timedelta, datetime
-from typing import List
+import datetime
+from datetime import timedelta, date
+from typing import List, Union, Tuple
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from recommending_v2.model.schedule import Day
-from recommending_v2.model.trajectory import Trajectory
-from recommending_v2.model.point_of_interest import PointOfInterest
+from schedule import Day
+from trajectory import Trajectory
+from point_of_interest import PointOfInterest
 
 trip = {
     "trip": [
@@ -64,29 +65,32 @@ def get_default_places_xid() -> List[str]:
     return list(map(lambda x: x[0], trip2))
 
 
+today = Day(date.today().isoformat(), "10:00", "10:00")
+
+
 class DefaultTrip:
     def __init__(self):
-        self.trip: Trajectory = Trajectory()
-        self.places_fetched: bool = False
+        self.places: List[Tuple[PointOfInterest, timedelta]] = []
         self.uri: str = "mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
-    def get_trip(self, day: Day) -> Trajectory:
+        self.fetch_trip()
+
+    def fetch_trip(self):
         client = MongoClient(self.uri, server_api=ServerApi('1'))
 
         try:
             client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
+            print("Successfully connected to MongoDB from default trip provider!")
         except Exception as e:
             print(e)
 
         db = client["wibit"]
         collection = db["cracow-attractions-v2"]
-        travel = timedelta(minutes=15)
-        start = day.start
+
         for xid, time in trip2:
             place = collection.find_one({"xid": xid})
             if place is not None:
-                self.trip.add_event(PointOfInterest(name=place.get('name'),
+                self.places.append((PointOfInterest(name=place.get('name'),
                                                     lon=place.get('point').get('lon'),
                                                     lat=place.get('point').get('lat'),
                                                     kinds=place.get('kinds'),
@@ -94,8 +98,20 @@ class DefaultTrip:
                                                     website=place.get('url'),
                                                     wiki=place.get('wikipedia'),
                                                     img=place.get('image'),
-                                                    opening_hours=place.get('opening_hours')),
-                                    start, start + travel)
-                start += travel + time
+                                                    opening_hours=place.get('opening_hours')), time))
 
-        return self.trip
+    def get_trip(self, day: Union[Day, None]):
+        if day is None:
+            day = today
+        trajectory = Trajectory()
+        travel = timedelta(minutes=15)
+        start = day.start
+        for place, time in self.places:
+            trajectory.add_event(place, start, start + travel)
+            start += travel + time
+        return trajectory
+
+
+if __name__ == "__main__":
+    d = datetime.date.today()
+    print(d.isoformat())

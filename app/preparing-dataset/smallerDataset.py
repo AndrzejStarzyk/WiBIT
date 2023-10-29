@@ -146,7 +146,7 @@ def deleteStrangePlaces():
                        "Nóż"]
 
     for name in names_to_delete:
-        collection.delete_one({"name" : name})
+        collection.delete_one({"name": name})
 
 
 deleteStrangePlaces()

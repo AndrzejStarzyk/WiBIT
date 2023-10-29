@@ -1,7 +1,7 @@
 from datetime import time, datetime
 from typing import List
 
-from recommending_v2.model.point_of_interest import PointOfInterest
+from point_of_interest import PointOfInterest
 
 
 class Event:
@@ -18,8 +18,11 @@ class Trajectory:
     def add_event(self, poi: PointOfInterest, from_time: datetime, to_time: datetime):
         self.events.append(Event(from_time.time(), to_time.time(), poi))
 
-    def get_pois(self):
+    def get_pois(self) -> List[PointOfInterest]:
         return list(map(lambda x: x.poi, self.events))
+
+    def get_events(self) -> List[Event]:
+        return self.events
 
     def __str__(self):
         res = " "

@@ -1,6 +1,6 @@
 import folium
 from flask import render_template
-from recommending_v2.model.trajectory import Trajectory
+from recommending_v2.algorythm_models.trajectory import Trajectory
 
 map_center = (50.0619474, 19.9368564)
 

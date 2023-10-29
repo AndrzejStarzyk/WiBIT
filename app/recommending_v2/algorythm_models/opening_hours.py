@@ -1,5 +1,5 @@
 from typing import List, Union
-from datetime import date, time
+from datetime import time
 
 
 class BeginningOrEnding:
