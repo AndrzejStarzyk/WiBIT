@@ -40,13 +40,41 @@
 
 
                     <h3> Dodatkowe opcje </h3>
-                    <input class="base-button suggested-form-button" type="submit"
-                           form="save-form" value="Zapisz wycieczkę" name="button_approve">
                     <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
                 </form>
 
             </div>
         </div>
         {% endfor %}
+
+        <div class="row">
+            <div class="big-map col-12 col-lg-8">
+            </div>
+
+            <div class="col-12 col-lg-4">
+                    <form id="save-trip-form">
+                        <label>Zapisz wycieczkę</label>
+                        <input type="submit" class="base-button suggested-form-button" value="Zapisz wycieczkę">
+                    </form>
+            <div class="col-12 col-lg-4">
+        </div>
     </div>
+
+<script>
+    $(document).ready(function () {
+        $('#save-trip-form').submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/save-trip',
+                success: function (data) {
+                    alert('Zapisano pomyślnie');
+                },
+                error: function () {
+                    alert('Błąd podczas zapisywania');
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -1,45 +1,36 @@
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
+from datetime import datetime
 
-from objectid import PydanticObjectId
+from recommending_v2.algorythm_models.mongo_trip_models import ScheduleMongo, PoiMongo, DayMongo, TripDaysMongo
 from schedule import Schedule
-
-mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
-
-# TODO: _id of trip
+from models.mongo_utils import MongoUtils
 
 
 def save_trip(user_id, schedule: Schedule):
-    client = MongoClient(mongodb_uri, server_api=ServerApi('1'))
-    try:
-        client.admin.command('ping')
-        print("Successfully connected to MongoDB from save trip!")
-    except Exception as e:
-        print(e)
+    mongo_utils = MongoUtils()
+    trips = mongo_utils.get_collection('trips')
 
-    db = client["wibit"]
-    users = db["users"]
+    for event in schedule.trajectories[0].get_events():
+        print(event.start)
+        print(type(event.start))
 
-    user = users.find_one()
-    if user is None:
-        return
+    trip = TripDaysMongo(
+        user_id=user_id,
+        days=[DayMongo(
+            schedule=ScheduleMongo(
+                date=schedule.schedule[i].date_str,
+                start=schedule.schedule[i].start,
+                end=schedule.schedule[i].end
+            ),
+            trajectory=[
+                PoiMongo(
+                    poi_id=event.poi.xid,
+                    plan_from=datetime.combine(datetime.date(schedule.schedule[i].start), event.start),
+                    plan_to=datetime.combine(datetime.date(schedule.schedule[i].start), event.end),
+                ) for event in schedule.trajectories[i].get_events()]
+        ) for i in range(schedule.days)]
+    )
 
-    days = [{
-                "schedule": {
-                    "date": schedule.schedule[i].date_str,
-                    "start":schedule.schedule[i].start,
-                    "end":schedule.schedule[i].end
-                },
-                "trajectory": [{
-                    "poi_id": event.poi.xid,
-                    "from": event.start,
-                    "to": event.end
-                } for event in schedule.trajectories[i].get_events()]} for i in range(schedule.days)]
+    print(trip.to_bson())
 
-    users.aggregate([
-        {"$match": {"_id": PydanticObjectId(user_id)}},
-        {"$set": {"trips": {"$concatArrays": [{
-            "user_id": user_id,
-            "nr_days": schedule.days,
-            "days": days
-            }]}}}])
+    trips.insert_one(trip.to_bson())
+

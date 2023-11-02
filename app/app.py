@@ -11,6 +11,7 @@ from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
+from recommending_v2.save_trip import save_trip
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
@@ -247,6 +248,14 @@ async def show_suggested():
         return render_suggested_template()
 
     return res
+
+
+@app.route('/save-trip', methods=['POST'])
+@login_required
+def save_trip_route():
+    save_trip(current_user.id, recommender.get_recommended())
+    # TODO - prevent screen change
+    return redirect(url_for('show_home'))
 
 
 @app.route('/user-panel', methods=['GET'])
