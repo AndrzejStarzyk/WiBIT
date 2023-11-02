@@ -11,7 +11,8 @@ from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.save_trip import save_trip
+from recommending_v2.algorythm_models.schedule import Schedule
+from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
@@ -221,6 +222,19 @@ def render_suggested_template():
     return res
 
 
+def render_saved_trip(schedule: Schedule):
+    maps = [create_map(trajectory) for trajectory in schedule.trajectories]
+    for m in maps:
+        m.get_root().render()
+    headers = [m.get_root().header.render() for m in maps]
+    trajectories_data = [(maps[i].get_root().html.render(),
+                          maps[i].get_root().script.render(),
+                          schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
+
+    res = render_template("saved_trip_page.html", trajectories_data=trajectories_data, map_headers=headers)
+    return res
+
+
 @app.route('/suggested', methods=['POST'])
 @login_required
 async def show_suggested():
@@ -271,7 +285,7 @@ def user_main_page():
 @login_required
 def saved_trips_page():
     user_trips_cursor = trips.find({'user_id': current_user.id})
-    trips_minis = []
+    trip_minis = []
 
     for raw_trip in user_trips_cursor:
         trip = TripDaysMongo(**raw_trip)
@@ -282,9 +296,11 @@ def saved_trips_page():
             'attractions_num': sum([len(trip.days[i].trajectory) for i in range(len(trip.days))])
         }
 
-        trips_minis.append(trip_mini)
+        trip_minis.append(trip_mini)
 
-    return render_template('saved_trips.html', trips=trips_minis)
+    trip_minis.reverse()
+
+    return render_template('saved_trips.html', trips=trip_minis)
 
 
 @app.route('/saved-trip', methods=['GET'])
@@ -301,7 +317,9 @@ def saved_trip_page():
         return 'Trip not found!'
         # TODO - custom error page with communicat (to use with 404 or situations like this)
 
-    return str(raw_trip)
+    trip = TripDaysMongo(**raw_trip)
+
+    return render_saved_trip(schedule_from_saved_trip(trip))
 
 
 if __name__ == '__main__':
