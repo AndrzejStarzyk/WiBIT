@@ -195,5 +195,20 @@ body{
 }
 
 .user-login a:hover{
-    color: blue;
+    color: royalblue;
+}
+
+.saved-trip-banner{
+    text-align: center;
+    text-decoration: none;
+    padding: 10px;
+    font-size: medium;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px 5px;
+}
+
+.saved-trip-banner:hover{
+    color: royalblue;
 }

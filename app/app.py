@@ -12,6 +12,7 @@ from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.save_trip import save_trip
+from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
@@ -33,6 +34,7 @@ recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
 
 mongo_utils = MongoUtils()
 users = mongo_utils.get_collection('users')
+trips = mongo_utils.get_collection('trips')
 user_name = None
 
 
@@ -250,12 +252,12 @@ async def show_suggested():
     return res
 
 
+# this is only API-endpoint
 @app.route('/save-trip', methods=['POST'])
 @login_required
 def save_trip_route():
     save_trip(current_user.id, recommender.get_recommended())
-    # TODO - prevent screen change
-    return redirect(url_for('show_home'))
+    return 'saved'
 
 
 @app.route('/user-panel', methods=['GET'])
@@ -263,6 +265,43 @@ def user_main_page():
     if current_user.is_authenticated:
         return render_template("user_main_page.html", user_name=current_user.login)
     return redirect(url_for('login'))
+
+
+@app.route('/saved', methods=['GET'])
+@login_required
+def saved_trips_page():
+    user_trips_cursor = trips.find({'user_id': current_user.id})
+    trips_minis = []
+
+    for raw_trip in user_trips_cursor:
+        trip = TripDaysMongo(**raw_trip)
+        trip_mini = {
+            'trip_id': trip.id,
+            'date_start': trip.days[0].schedule.date,
+            'date_end': trip.days[-1].schedule.date,
+            'attractions_num': sum([len(trip.days[i].trajectory) for i in range(len(trip.days))])
+        }
+
+        trips_minis.append(trip_mini)
+
+    return render_template('saved_trips.html', trips=trips_minis)
+
+
+@app.route('/saved-trip', methods=['GET'])
+@login_required
+def saved_trip_page():
+    trip_id = request.args.get('trip_id')
+
+    raw_trip = trips.find_one({
+        '_id': PydanticObjectId(trip_id),
+        'user_id': current_user.id
+    })
+
+    if not raw_trip:
+        return 'Trip not found!'
+        # TODO - custom error page with communicat (to use with 404 or situations like this)
+
+    return str(raw_trip)
 
 
 if __name__ == '__main__':

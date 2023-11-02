@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Saved trips</title>
+{% endblock %}
+
+{% block body %}
+    <h2> Zapisane wycieczki </h2>
+    <div class="row justify-content-center" >
+        {% for trip in trips %}
+        <a href="{{ url_for('saved_trip_page', trip_id=trip.trip_id) }}" class="saved-trip-banner col-11 col-md-5 col-lg-3">
+            <p>{{ trip.date_start }} - {{ trip.date_end }}</p>
+            <p>{{ trip.attractions_num }} atrakcji</p>
+        </a>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
