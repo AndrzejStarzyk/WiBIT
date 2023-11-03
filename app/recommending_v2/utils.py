@@ -1,6 +1,6 @@
 from math import sqrt
 
-from algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 
 deg_to_m = 40075014 / 360  # m/deg
 short_dist = 500  # m

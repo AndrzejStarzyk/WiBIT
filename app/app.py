@@ -5,8 +5,8 @@ from flask_login import login_user, LoginManager, login_required, logout_user, c
 from wtforms.validators import ValidationError
 
 from display_route import create_map
-from estimated_visiting import VisitingTimeProvider
-from poi_provider import PoiProvider
+from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *

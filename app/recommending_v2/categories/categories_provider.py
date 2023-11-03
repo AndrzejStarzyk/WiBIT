@@ -2,10 +2,9 @@ from typing import List, Tuple, Union
 from numpy import inf
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
 from pyvis.network import Network
 
-from category import Category
+from recommending_v2.categories.category import Category
 
 very_low_score = 0
 

@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from datetime import date, time, datetime
 
-from trajectory import Trajectory
+from recommending_v2.algorythm_models.trajectory import Trajectory
 
 
 class Day:

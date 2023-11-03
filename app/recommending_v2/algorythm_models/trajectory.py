@@ -1,7 +1,7 @@
 from datetime import time, datetime
 from typing import List
 
-from point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 
 
 class Event:

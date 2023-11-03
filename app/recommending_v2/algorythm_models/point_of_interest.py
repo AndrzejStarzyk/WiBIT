@@ -1,6 +1,6 @@
 from typing import List
 
-from opening_hours import OpeningHours, parse_opening_hours
+from recommending_v2.algorythm_models.opening_hours import OpeningHours, parse_opening_hours
 
 
 class PointOfInterest:
