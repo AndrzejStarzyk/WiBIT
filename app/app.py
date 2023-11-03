@@ -23,16 +23,16 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-algo_user = Algo_User()
-categories_provider = CategoriesProvider()
-poi_provider = PoiProvider()
-visiting_time_provider = VisitingTimeProvider()
-default_trip = DefaultTrip()
-recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
-
 mongo_utils = MongoUtils()
 users = mongo_utils.get_collection('users')
 user_name = None
+
+algo_user = Algo_User()
+categories_provider = CategoriesProvider(mongo_utils)
+poi_provider = PoiProvider(mongo_utils)
+visiting_time_provider = VisitingTimeProvider(mongo_utils)
+default_trip = DefaultTrip(mongo_utils)
+recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
 
 @login_manager.user_loader
@@ -225,6 +225,7 @@ async def show_suggested():
 
     if request.method == "POST":
         init_pref = []
+        print(list(request.form.items()))
         for item in request.form.items():
             if item[0].startswith('button'):
                 continue
@@ -234,7 +235,7 @@ async def show_suggested():
             elif item[0].startswith('replace'):
                 recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
-                init_pref.append(item[0][4:0])
+                init_pref.append(item[0][4:])
             elif item[0].startswith('datetime'):
                 if item[0] == 'datetime_start':
                     pass
@@ -242,7 +243,8 @@ async def show_suggested():
                     pass
 
         if len(init_pref) > 0:
-            recommender.add_constraint(CategoryConstraint(init_pref))
+            print(init_pref)
+            recommender.add_constraint(CategoryConstraint(init_pref, mongo_utils))
 
         return render_suggested_template()
 

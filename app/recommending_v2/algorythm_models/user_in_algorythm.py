@@ -19,19 +19,20 @@ class User:
         self.total_weights: int = 0
 
         for xid in get_default_places_xid():
-            self.add_constraint(AttractionConstraint([xid]), 12)
+            self.add_constraint(AttractionConstraint([xid]), 10)
 
     def add_constraint(self, constraint: Constraint, weight: int):
         self.preferences.append({'constraint': constraint, 'weight': weight})
         self.total_weights += weight
 
     def evaluate(self, poi: PointOfInterest) -> float:
-        res = base_score
+        res = 0
         for pref in self.preferences:
             res += pref['constraint'].evaluate(poi) * pref['weight']
         if self.total_weights != 0:
             res /= self.total_weights
 
+        res += base_score
         return res
 
     def decay_weights(self):   # TODO: check if decaying weights can drop below 0

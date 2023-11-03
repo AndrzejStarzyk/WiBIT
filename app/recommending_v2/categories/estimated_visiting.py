@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from typing import Dict
 
+from mongo_utils import MongoUtils
 from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 from recommending_v2.poi_provider import PoiProvider
 
@@ -12,23 +13,16 @@ default_estimated_time = timedelta(hours=1, minutes=30)
 
 
 class VisitingTimeProvider:
-    def __init__(self):
+    def __init__(self, db_connection: MongoUtils):
+        self.db_connection = db_connection
+
         self.code_to_time: Dict[str, timedelta] = {}
         self.fetched = False
-        self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
         self.fetch_visiting_times()
 
     def fetch_visiting_times(self):
-        client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
-        try:
-            client.admin.command('ping')
-            print("Successfully connected to MongoDB from visiting time provider!")
-        except Exception as e:
-            print(e)
-
-        db = client["wibit"]
-        collection = db["categories"]
+        collection = self.db_connection.get_collection("categories")
 
         categories = collection.find()
 

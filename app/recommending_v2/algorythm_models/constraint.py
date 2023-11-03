@@ -8,7 +8,7 @@ class Constraint:
     def __init__(self):
         pass
 
-    def evaluate(self, poi: PointOfInterest):
+    def evaluate(self, poi: PointOfInterest) -> float:
         pass
 
     def get_weight(self) -> int:
@@ -20,23 +20,16 @@ class Constraint:
     def to_json(self):
         return {}
 
-class TripConstraint:
-    def __init__(self):
-        pass
-
-    def evaluate(self, poi: PointOfInterest):
-        pass
-
 
 class CategoryConstraint(Constraint):
-    def __init__(self, codes: List[str]):
+    def __init__(self, codes: List[str], db_connection):
         super().__init__()
         self.codes: List[str] = codes
-        self.provider: CategoriesProvider = CategoriesProvider()
+        self.provider: CategoriesProvider = CategoriesProvider(db_connection)
         self.weight = 20
 
     def evaluate(self, poi: PointOfInterest) -> float:
-        return self.provider.compute_score(poi.kinds, self.codes)
+        return self.provider.compute_score(self.codes, poi.kinds)
 
     def get_weight(self):
         return self.weight
@@ -81,7 +74,22 @@ class AttractionConstraint(Constraint):
         }
 
 
-class TimeConstraint(TripConstraint):
-    def __init__(self, datetime):
-        super().__init__()
-        print(datetime)
+class GeneralConstraint:
+    def __init__(self):
+        pass
+
+    def evaluate(self, poi: List[PointOfInterest]):
+        pass
+
+    def get_weight(self) -> int:
+        pass
+
+    def get_decay(self) -> int:
+        return 1
+
+    def to_json(self):
+        return {}
+
+
+class ProximityConstraint(GeneralConstraint):
+    pass

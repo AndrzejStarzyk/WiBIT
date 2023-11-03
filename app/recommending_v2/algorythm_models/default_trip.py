@@ -2,9 +2,7 @@ import datetime
 from datetime import timedelta, date
 from typing import List, Union, Tuple
 
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-
+from mongo_utils import MongoUtils
 from schedule import Day
 from trajectory import Trajectory
 from point_of_interest import PointOfInterest
@@ -69,23 +67,14 @@ today = Day(date.today().isoformat(), "10:00", "10:00")
 
 
 class DefaultTrip:
-    def __init__(self):
+    def __init__(self, db_connection: MongoUtils):
+        self.db_connection = db_connection
         self.places: List[Tuple[PointOfInterest, timedelta]] = []
-        self.uri: str = "mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
         self.fetch_trip()
 
     def fetch_trip(self):
-        client = MongoClient(self.uri, server_api=ServerApi('1'))
-
-        try:
-            client.admin.command('ping')
-            print("Successfully connected to MongoDB from default trip provider!")
-        except Exception as e:
-            print(e)
-
-        db = client["wibit"]
-        collection = db["cracow-attractions-v2"]
+        collection = self.db_connection.get_collection("cracow-attractions-v2")
 
         for xid, time in trip2:
             place = collection.find_one({"xid": xid})
