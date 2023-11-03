@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
@@ -57,6 +57,21 @@ def update_user_name():
 def show_home():
     update_user_name()
     return render_template("home.html", user_name=user_name)
+
+
+@app.errorhandler(401)
+def page_not_found(error):
+    return render_template('error_template/unauth_error.html'), 401
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('error_template/default_error.html', communicate='404 - szukana strona nie istnieje'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('error_template/default_error.html', communicate='500 - wystąpił problem z serwerem'), 500
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -283,7 +298,7 @@ def user_main_page():
 
 @app.route('/saved', methods=['GET'])
 @login_required
-def saved_trips_page():
+def all_saved_trips():
     user_trips_cursor = trips.find({'user_id': current_user.id})
     trip_minis = []
 
@@ -314,8 +329,7 @@ def saved_trip_page():
     })
 
     if not raw_trip:
-        return 'Trip not found!'
-        # TODO - custom error page with communicat (to use with 404 or situations like this)
+        abort(404)
 
     trip = TripDaysMongo(**raw_trip)
 

@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block body %}
-<body>
-    <div class="maps_container">
+ <div class="maps_container">
+     <h1> Zapisana wycieczka</h1>
         {% for map_html, map_script, places in trajectories_data %}
         <div class="row">
             <div> Dzień {{ loop.index }}</div>
@@ -37,6 +37,21 @@
             </div>
         </div>
         {% endfor %}
+
+        <div class="row">
+            <div class="col-12 col-lg-8"></div>
+
+            <div class="col-12 col-lg-4">
+
+                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
+                    Zapisane wycieczki
+                </a>
+
+                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
+                    Strona główna
+                </a>
+            </div>
+        </div>
 
         <!-- some other functions like trip export can be added here -->
     </div>

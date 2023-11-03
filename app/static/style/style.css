@@ -16,6 +16,11 @@ h1, h2, h3{
     margin-left: 5px;
     margin-right: 5px;
 }
+@media only screen and (max-width: 992px) {
+    .main-page-option {
+        margin-top: 20px;
+    }
+}
 
 body{
     padding: 20px;
@@ -201,6 +206,8 @@ body{
 }
 
 .user-login a {
+    display: block;
+    width: 100%;
     color: black;
     text-decoration: none;
     border: 1px solid black;
@@ -229,5 +236,23 @@ body{
 }
 
 .saved-trip-banner:hover{
+    color: royalblue;
+}
+
+.trip-additional-button{
+    display:block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    padding: 10px;
+    font-size: medium;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px 5px;
+}
+
+.trip-additional-button:hover{
+    text-decoration: none;
     color: royalblue;
 }

@@ -51,10 +51,18 @@
             <div class="col-12 col-lg-8"></div>
 
             <div class="col-12 col-lg-4">
-                    <form id="save-trip-form">
-                        <h3> Dodatkowe opcje </h3>
-                        <input type="submit" class="base-button suggested-form-button" value="Zapisz wycieczkę">
-                    </form>
+                <form id="save-trip-form">
+                    <h3> Dodatkowe opcje </h3>
+                    <input type="submit" class="trip-additional-button" value="Zapisz wycieczkę">
+                </form>
+
+                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
+                    Zapisane wycieczki
+                </a>
+
+                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
+                    Strona główna
+                </a>
             </div>
         </div>
     </div>
