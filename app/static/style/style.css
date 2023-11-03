@@ -66,6 +66,14 @@ body{
     padding: 10vh 15% 0 15%;
 }
 
+
+@media only screen and (max-width: 768px) {
+    .maps_container{
+        padding: 10vh 15px 0 15px;
+    }
+}
+
+
 .one-line{
     display: flex;
     width: 100%;
@@ -95,6 +103,12 @@ body{
 .trip-place-name-small{
     text-align: right;
     width: 70%;
+    padding: 16px 0 6px 0;
+}
+
+.trip-place-name-wide{
+    text-align: center;
+    width: 100%;
     padding: 16px 0 6px 0;
 }
 
@@ -196,6 +210,11 @@ body{
 
 .user-login a:hover{
     color: royalblue;
+}
+
+#save-trip-form{
+    text-align: center;
+
 }
 
 .saved-trip-banner{

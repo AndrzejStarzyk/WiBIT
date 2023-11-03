@@ -28,13 +28,7 @@
                 <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
                     {% for place in places %}
                     <div class="one-line">
-                        <p class="trip-place-name-small"> {{place.name}} </p>
-                        <input id="remove_{{place.xid}}" form="opinion-form" class="not-displayed remove-checkbox" type="radio"
-                               name="remove_{{place.xid}}" value="{{place.xid}}">
-                        <label class="base-label" for="remove_{{place.xid}}"> <span>USUŃ</span> </label>
-                        <input id="replace_{{place.xid}}" form="opinion-form" class="not-displayed replace-checkbox" type="checkbox"
-                               name="replace_{{place.xid}}" value="{{place.xid}}">
-                        <label class="base-label" for="replace_{{place.xid}}"> <span>WYMIEŃ</span> </label>
+                        <p class="trip-place-name-wide"> {{place.name}} </p>
                     </div>
                     {% endfor %}
 
