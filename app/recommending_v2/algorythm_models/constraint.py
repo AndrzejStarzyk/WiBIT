@@ -1,7 +1,13 @@
+from enum import Enum
 from typing import List
 from point_of_interest import PointOfInterest
 
 from recommending_v2.categories.categories_provider import CategoriesProvider
+
+
+class ConstraintType(Enum):
+    Category = "category"
+    Attraction = "attraction"
 
 
 class Constraint:
@@ -34,9 +40,15 @@ class CategoryConstraint(Constraint):
     def get_weight(self):
         return self.weight
 
+    def __str__(self):
+        res = "codes: "
+        for code in self.codes:
+            res += f"{code}, "
+        return res[0:-2]
+
     def to_json(self):
         return {
-            "constraint_type": "category",
+            "constraint_type": ConstraintType.Category.value,
             "value": self.codes,
             "weight": self.weight
         }
@@ -57,18 +69,18 @@ class AttractionConstraint(Constraint):
                 return -1
         return 0
 
-    def __str__(self):
-        res = "xid list: "
-        for xid in self.xid_list:
-            res += f"xid:{xid}, "
-        return res[0:-2]
-
     def get_weight(self):
         return self.weight
 
+    def __str__(self):
+        res = "xid list: "
+        for xid in self.xid_list:
+            res += f"{xid}, "
+        return res[0:-2]
+
     def to_json(self):
         return {
-            "constraint_type": "attraction",
+            "constraint_type": ConstraintType.Attraction.value,
             "value": self.xid_list,
             "weight": self.weight
         }
@@ -93,3 +105,7 @@ class GeneralConstraint:
 
 class ProximityConstraint(GeneralConstraint):
     pass
+
+
+if __name__ == '__main__':
+    print(ConstraintType.Category.value)

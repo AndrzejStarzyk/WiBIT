@@ -1,32 +1,35 @@
 from typing import List
 
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
-
-from constraint import Constraint
+from constraint import Constraint, CategoryConstraint
+from mongo_utils import MongoUtils
 from objectid import PydanticObjectId
 
-mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
+def save_preferences(user_id, constraints: List[Constraint], db_connection: MongoUtils):
+    users = db_connection.get_collection("users")
 
-def save_preferences(user_id, constraints: List[Constraint]):
-    client = MongoClient(mongodb_uri, server_api=ServerApi('1'))
-    try:
-        client.admin.command('ping')
-        print("Successfully connected to MongoDB from save preferences!")
-    except Exception as e:
-        print(e)
-
-    db = client["wibit"]
-    users = db["users"]
-
-    user = users.find_one()
+    user = users.find_one({"_id": PydanticObjectId(user_id)})
     if user is None:
         return
 
-    users.aggregate([
-        {"$match": {"_id": PydanticObjectId(user_id)}},
-        {"$set": {"preferences": {"$concatArrays": [{
-          "user_id": PydanticObjectId(user_id),
-          "preferences": [constraint.to_json() for constraint in constraints]
-        }]}}}])
+    users.update_one(
+        {"_id": PydanticObjectId(user_id)},
+        [{"$set": {"preferences": [constraint.to_json() for constraint in constraints]}}]
+    )
+
+
+def get_preferences_json(user_id, db_connection: MongoUtils):
+    users = db_connection.get_collection("users")
+    user = users.find_one({"_id": PydanticObjectId(user_id)})
+    if user is None:
+        return
+
+    if 'preferences' in user:
+        res = user['preferences']
+        return res
+    return []
+
+
+if __name__ == '__main__':
+    db = MongoUtils()
+    save_preferences('65380a296f6d2ff66d8f2d4b', [CategoryConstraint(['amusement_parks'], db)], db)

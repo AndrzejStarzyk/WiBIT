@@ -43,6 +43,8 @@ class Recommender:
             self.schedule.add_trajectory(trip)
             return self.schedule
         else:
+            print(self.user)
+            self.evaluator.setup()
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
                 print("--------------------------------------------------------")

@@ -197,3 +197,11 @@ body{
 .user-login a:hover{
     color: blue;
 }
+
+/* edit preferences */
+
+
+#subcategories{
+    display: flex;
+    flex-direction: column;
+}

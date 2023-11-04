@@ -22,7 +22,7 @@ def create_map(trajectory: Trajectory) -> folium.Map:
     for i in range(len(path)):
         folium.Marker(
             location=(path[i].poi.lat, path[i].poi.lon),
-            popup=render_template('popup.html',
+            popup=render_template('map/popup.html',
                                   name=path[i].poi.name,
                                   img=path[i].poi.image,
                                   website=path[i].poi.website,

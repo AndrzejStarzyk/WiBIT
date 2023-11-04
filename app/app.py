@@ -16,6 +16,7 @@ from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
+from save_preferences import save_preferences, get_preferences_json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -128,6 +129,37 @@ def logout():
     return redirect(url_for('show_home'))
 
 
+@app.route('/preferences', methods=['GET', 'POST'])
+@login_required
+def edit_preferences():
+    user_preferences = get_preferences_json(current_user.id, mongo_utils)
+    if request.method == 'POST':
+        new_preferences: List[str] = []
+        for item in request.form.items():
+            if item[0].startswith('button'):
+                continue
+            elif item[0].startswith('cat'):
+                new_preferences.append(item[0][4:])
+
+        if len(new_preferences) > 0:
+            save_preferences(current_user.id, [CategoryConstraint(new_preferences, mongo_utils)], mongo_utils)
+        return redirect(url_for('user_main_page'))
+
+    selected_codes = []
+    for pref in user_preferences:
+        if pref['constraint_type'] == ConstraintType.Category.value:
+            for code in pref['value']:
+                selected_codes.append(code)
+
+    categories = [{
+        'main': cat,
+        'selected': cat.code in selected_codes,
+        'sub': [{'category': sub, 'selected': sub.code in selected_codes} for sub in
+                categories_provider.get_subcategories([cat.code])]
+    } for cat in categories_provider.get_main_categories()]
+    return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
+
+
 @app.route('/duration', methods=['GET', 'POST'])
 @login_required
 def show_duration():
@@ -143,7 +175,7 @@ def show_duration():
         recommender.days = int(selected_option)
         return redirect(url_for('show_start_date'))
 
-    return render_template('visit_duration_form.html', options=duration_options)
+    return render_template('creating_trip/visit_duration_form.html', options=duration_options)
 
 
 @app.route('/start_date', methods=['GET', 'POST'])
@@ -152,7 +184,7 @@ def show_start_date():
     if request.method == 'POST':
         start_date = request.form.get('start_date')
         return redirect(url_for('show_schedule', start=start_date))
-    return render_template("choose_start_date.html", tomorrow=date.today() + timedelta(days=1))
+    return render_template("creating_trip/choose_start_date.html", tomorrow=date.today() + timedelta(days=1))
 
 
 @app.route('/schedule/<start>', methods=['GET', 'POST'])
@@ -173,7 +205,7 @@ def show_schedule(start: str):
         dates.append(tmp.isoformat())
 
     recommender.dates = dates
-    return render_template("schedule.html", dates=dates)
+    return render_template("creating_trip/schedule.html", dates=dates)
 
 
 @app.route('/categories', methods=['GET', 'POST'])
@@ -181,9 +213,9 @@ def show_schedule(start: str):
 def show_categories():
     if request.method == 'POST':
         categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
-        return render_template("choose_page.html", input_categories=categories, redirect='/suggested')
+        return render_template("creating_trip/choose_page.html", input_categories=categories, redirect='/suggested')
     categories = categories_provider.get_main_categories()
-    return render_template("choose_page.html", input_categories=categories, redirect='/categories')
+    return render_template("creating_trip/choose_page.html", input_categories=categories, redirect='/categories')
 
 
 @app.route('/default_trip', methods=['GET'])
@@ -195,7 +227,7 @@ def show_default_trip():
         m = create_map(trajectory)
         m.get_root().render()
         map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
-        res = render_template("suggested_page.html", trajectories_data=map_data,
+        res = render_template("creating_trip/suggested_page.html", trajectories_data=map_data,
                               map_headers=[m.get_root().header.render()])
     except FileExistsError:
         print("Index file no found")
@@ -214,7 +246,7 @@ def render_suggested_template():
                           maps[i].get_root().script.render(),
                           recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
 
-    res = render_template("suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
+    res = render_template("creating_trip/suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
     return res
 
 
@@ -225,7 +257,6 @@ async def show_suggested():
 
     if request.method == "POST":
         init_pref = []
-        print(list(request.form.items()))
         for item in request.form.items():
             if item[0].startswith('button'):
                 continue
@@ -243,7 +274,6 @@ async def show_suggested():
                     pass
 
         if len(init_pref) > 0:
-            print(init_pref)
             recommender.add_constraint(CategoryConstraint(init_pref, mongo_utils))
 
         return render_suggested_template()
