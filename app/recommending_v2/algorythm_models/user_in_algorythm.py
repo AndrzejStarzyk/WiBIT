@@ -50,6 +50,7 @@ class User:
                 for code in pref.constraint.codes:
                     res.append(code)
         return res
+
     def __str__(self):
         res = ""
         for pref in self.preferences:

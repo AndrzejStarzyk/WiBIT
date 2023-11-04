@@ -256,7 +256,7 @@ async def show_suggested():
     res = render_template("default_page.html")
 
     if request.method == "POST":
-        init_pref = []
+        temporary_pref = []
         for item in request.form.items():
             if item[0].startswith('button'):
                 continue
@@ -266,16 +266,21 @@ async def show_suggested():
             elif item[0].startswith('replace'):
                 recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
-                init_pref.append(item[0][4:])
+                temporary_pref.append(item[0][4:])
             elif item[0].startswith('datetime'):
                 if item[0] == 'datetime_start':
                     pass
                 if item[0] == 'datetime_end':
                     pass
 
-        if len(init_pref) > 0:
-            recommender.add_constraint(CategoryConstraint(init_pref, mongo_utils))
-
+        if len(temporary_pref) > 0:
+            recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
+        user_pref = get_preferences_json(current_user.id, mongo_utils)
+        for pref in user_pref:
+            if pref['constraint_type'] == ConstraintType.Category.value:
+                recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+            if pref['constraint_type'] == ConstraintType.Attraction.value:
+                recommender.add_constraint(AttractionConstraint(pref['value']))
         return render_suggested_template()
 
     return res

@@ -21,7 +21,7 @@ class Constraint:
         pass
 
     def get_decay(self) -> int:
-        return 1
+        return 4
 
     def to_json(self):
         return {}
