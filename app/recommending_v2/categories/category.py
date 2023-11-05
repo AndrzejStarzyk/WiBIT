@@ -138,7 +138,7 @@ categories = [
     {
         "name": "Obiekty historyczno-militarne",
         "code": "historical_places",
-        "additional_codes": ["fortifications"],
+        "additional_codes": ["fortifications", "historic"],
         "visiting_time": {
             "hours": 2,
             "minutes": 0
@@ -288,7 +288,7 @@ categories = [
                 "code": "monuments"
             }, {
                 "name": "Kopce/kurhan",
-                "code": "tumuluses"  # barrows instead?
+                "code": "tumuluses"
             },
         ]
     }

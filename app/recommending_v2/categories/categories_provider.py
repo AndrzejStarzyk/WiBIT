@@ -1,42 +1,40 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Dict
 from numpy import inf
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+
 from pyvis.network import Network
 
-from recommending_v2.categories.category import Category
+from category import Category
+from mongo_utils import MongoUtils
 
 very_low_score = 0
+subcategory_match_score = 2
+main_category_match_score = 1
 
 
 class CategoriesProvider:
-    def __init__(self):
+    def __init__(self, db_connection: MongoUtils):
+        self.db_connection = db_connection
+
         self.categories_list: List[Category] = []
-        self.code_to_graph_id: dict[str: int] = {}
+        self.code_to_graph_id: Dict[str: int] = {}
         self.category_ids: List[int] = []
-        self.categories_graph: List[List[Tuple[int, int]]] = []
-        self.categories_distances: List[List[Tuple[int, int]]] = []
+        self.categories_graph: List[List[Tuple[int, int]]] = []  # adjacency lists with weights
+        self.categories_distances: List[List[Tuple[int, int]]] = []  # graph matrix with shortest distances
+
+        self.additional_codes_mappings: Dict[str, str] = {}
 
         self.categories_fetched = False
         self.distances_computed = False
-        self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
         self.fetch_categories()
         self.compute_shortest_paths()
 
     def fetch_categories(self):
-        client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
-        try:
-            client.admin.command('ping')
-            print("Successfully connected to MongoDB from categories provider!")
-        except Exception as e:
-            print(e)
 
-        db = client["wibit"]
-        collection = db["categories-graph"]
+        collection = self.db_connection.get_collection("categories-graph")
         edges = collection.find()
 
-        collection2 = db["categories"]
+        collection2 = self.db_connection.get_collection("categories")
         categories = collection2.find()
 
         for cat in categories:
@@ -65,6 +63,10 @@ class CategoriesProvider:
                 cat.get("id"),
                 len(self.categories_graph[self.category_ids.index(cat.get("id"))]) > 1
             ))
+            additional = cat.get("additional_codes")
+            if additional is not None:
+                for code in additional:
+                    self.additional_codes_mappings[code] = cat.get("code")
 
         self.categories_fetched = True
 
@@ -92,27 +94,93 @@ class CategoriesProvider:
         idx2 = self.code_to_graph_id.get(cat2)
         return self.categories_distances[idx1][idx2]
 
-    def compute_score(self, preferences: List[str], categories: List[str]) -> float:
+    def compute_score(self, preferences: List[str], kinds: List[str]) -> float:
         if not self.distances_computed:
             self.compute_shortest_paths()
 
-        if len(preferences) == 0 or len(categories) == 0:
+        if len(preferences) == 0 or len(kinds) == 0:
             return very_low_score
+        print(preferences)
+        print(kinds)
+        score = 0
+        categories: List[str] = list(map(lambda x: x.code, self.get_categories()))
+        subcategories: List[str] = list(map(lambda x: x.code, self.get_subcategories()))
 
-        total_dist = 0
-        only_nones = True
+        set_pref: set = set()
+        set_cat: set = set()
+
         for pref in preferences:
-            sum_dist = 0
-            for cat in categories:
-                dist = self.distance(pref, cat)
-                if dist is not None:
-                    sum_dist += dist
-                    only_nones = False
+            if pref in self.additional_codes_mappings.keys():
+                set_pref.add(self.additional_codes_mappings[pref])
+            elif pref in categories:
+                set_pref.add(pref)
+        for cat in kinds:
+            if cat in self.additional_codes_mappings.keys():
+                set_cat.add(self.additional_codes_mappings[cat])
+            elif cat in categories:
+                set_cat.add(cat)
 
-            total_dist += sum_dist / len(categories)
-        if only_nones:
-            return very_low_score
-        return total_dist / len(preferences)
+        union = set_cat & set_pref
+        for i in union:
+            if i in subcategories:
+                score += subcategory_match_score
+                set_cat.remove(i)
+                set_pref.remove(i)
+        union.clear()
+
+        for i in set_cat.copy():
+            if i in subcategories:
+                set_cat.remove(i)
+                for j in self.get_super_of_categories(i):
+                    set_cat.add(j)
+
+        for i in set_pref.copy():
+            if i in subcategories:
+                set_pref.remove(i)
+                for j in self.get_super_of_categories(i):
+                    set_pref.add(j)
+
+        union = set_cat & set_pref
+        for i in union:
+            score += main_category_match_score
+            set_cat.remove(i)
+            set_pref.remove(i)
+
+        total_weight = 0
+        total = 0
+        for i in set_cat:
+            i_id = self.code_to_graph_id[i]
+            for j in set_pref:
+                j_id = self.code_to_graph_id[j]
+                for k, w in self.categories_graph[i_id]:
+                    if k == j_id:
+                        total_weight += w
+                        total += 1
+
+        if total != 0:
+            score += 1 / (1 + total_weight / total)
+        print(score)
+        return score
+
+    def get_super_of_categories(self, code: str, check_shortcuts: bool = True) -> List[str]:
+        if not self.categories_fetched:
+            self.fetch_categories()
+
+        cat_id = self.code_to_graph_id[code]
+        cat = self.categories_list[cat_id]
+        if cat.is_main:
+            return [code]
+
+        res: List[str] = []
+        main_categories: List[str] = list(map(lambda x: x.code, self.get_main_categories()))
+        for v, w in self.categories_graph[cat_id]:
+            neighbour = self.categories_list[v].code
+            if check_shortcuts:
+                for k in self.get_super_of_categories(neighbour, False):
+                    res.append(k)
+            elif neighbour in main_categories:
+                res.append(neighbour)
+        return res
 
     def get_categories(self):
         if not self.categories_fetched:
@@ -124,7 +192,7 @@ class CategoriesProvider:
             self.fetch_categories()
         return list(filter(lambda x: x.is_main, self.categories_list))
 
-    def get_subcategories(self, main_categories: Union[None, List[str]]=None):
+    def get_subcategories(self, main_categories: Union[None, List[str]] = None):
         if not self.categories_fetched:
             self.fetch_categories()
         if main_categories is None:
@@ -139,7 +207,7 @@ class CategoriesProvider:
             self.fetch_categories()
         N = Network()
         for cat in range(len(self.category_ids)):
-            N.add_node(self.category_ids[cat], self.categories_list[cat].name, size=8)
+            N.add_node(self.category_ids[cat], self.categories_list[cat].code, size=8)
 
         for u in range(len(self.categories_graph)):
             for v, _ in self.categories_graph[u]:
@@ -152,5 +220,6 @@ class CategoriesProvider:
 
 
 if __name__ == "__main__":
-    cp = CategoriesProvider()
+    cp = CategoriesProvider(MongoUtils())
     cp.show_graph()
+

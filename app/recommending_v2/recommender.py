@@ -12,9 +12,11 @@ from recommending_v2.algorythm_models.schedule import Schedule
 
 
 class Recommender:
-    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
+    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider,
+                 default_trip: DefaultTrip):
         self.user: User = user
         self.visiting_time_provider = visiting_time_provider
+        self.default_trip = default_trip
         self.evaluator: Evaluator = Evaluator(self.user, poi_provider, visiting_time_provider)
         self.cold_start: bool = True
         self.pois_limit: int = 100
@@ -37,13 +39,19 @@ class Recommender:
 
     def get_recommended(self) -> Schedule:
         if self.cold_start:
-            trip = DefaultTrip().get_trip(self.schedule.schedule[0])
+            trip = self.default_trip.get_trip(self.schedule.schedule[0])
             self.schedule.add_trajectory(trip)
             return self.schedule
         else:
+            print(self.user)
+            self.evaluator.setup()
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
+                print("--------------------------------------------------------")
+                for i, s in best_pois:
+                    print(i.name, s)
                 trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
+                self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))
                 self.schedule.add_trajectory(trajectory)
 
             return self.schedule

@@ -256,3 +256,11 @@ body{
     text-decoration: none;
     color: royalblue;
 }
+
+/* edit preferences */
+
+
+#subcategories{
+    display: flex;
+    flex-direction: column;
+}

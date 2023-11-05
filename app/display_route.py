@@ -7,15 +7,23 @@ map_center = (50.0619474, 19.9368564)
 
 
 def create_map(trajectory: Trajectory) -> folium.Map:
+    path = trajectory.get_events()
     m = folium.Map(location=map_center, zoom_start=12)
-    path = trajectory.events
     if len(path) == 0:
         return m
+
+    total_lat = 0
+    total_lon = 0
+    for event in path:
+        total_lat += event.poi.lat
+        total_lon += event.poi.lon
+    m = folium.Map(location=(total_lat/len(path), total_lon/len(path)), zoom_start=12)
+    
     trail = []
     for i in range(len(path)):
         folium.Marker(
             location=(path[i].poi.lat, path[i].poi.lon),
-            popup=render_template('popup.html',
+            popup=render_template('map/popup.html',
                                   name=path[i].poi.name,
                                   img=path[i].poi.image,
                                   website=path[i].poi.website,

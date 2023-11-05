@@ -1,38 +1,30 @@
 from typing import List
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
-from recommending_v2.utils import dist
+from algorythm_models.point_of_interest import PointOfInterest
+from mongo_utils import MongoUtils
+from utils import dist
 
 max_dist = 2000
 
 
 class PoiProvider:
-    def __init__(self):
+    def __init__(self, db_connection: MongoUtils):
+        self.db_connection = db_connection
+
         self.pois: List[PointOfInterest] = []
         self.groups: List[List[int]] = []
         self.poi_to_group: dict[int: int] = {}
 
         self.fetched = False
         self.divided = False
-        self.mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 
         self.fetch_pois()
-        self.divide_places()
 
     def fetch_pois(self):
         if self.fetched:
             return
-        client = MongoClient(self.mongodb_uri, server_api=ServerApi('1'))
-        try:
-            client.admin.command('ping')
-            print("Successfully connected to MongoDB from places provider!")
-        except Exception as e:
-            print(e)
 
-        db = client["wibit"]
-        collection = db["cracow-attractions-v2"]
+        collection = self.db_connection.get_collection("cracow-attractions-v3")
 
         """overpass = Overpass()
         nominatim = Nominatim()

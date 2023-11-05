@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from datetime import date, time, datetime
 
 from recommending_v2.algorythm_models.trajectory import Trajectory
 
 
 class Day:
-    def __init__(self, date_str: str, start: str | datetime, end: str | datetime):
+    def __init__(self, date_str: str, start: Union[str, datetime], end: Union[str, datetime]):
         if isinstance(start, str):
             start = time.fromisoformat(f"{start[0:2]}:{start[3:5]}:00")
 
