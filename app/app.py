@@ -14,12 +14,13 @@ from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
+from recommending_v2.save_preferences import save_preferences, get_preferences_json
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
-from save_preferences import save_preferences, get_preferences_json
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY

@@ -1,8 +1,8 @@
 from typing import List
 
-from constraint import Constraint, CategoryConstraint
+from recommending_v2.algorythm_models.constraint import Constraint, CategoryConstraint
 from mongo_utils import MongoUtils
-from objectid import PydanticObjectId
+from models.objectid import PydanticObjectId
 
 
 def save_preferences(user_id, constraints: List[Constraint], db_connection: MongoUtils):

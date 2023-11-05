@@ -1,8 +1,8 @@
 from typing import List
 
-from algorythm_models.point_of_interest import PointOfInterest
-from mongo_utils import MongoUtils
-from utils import dist
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from models.mongo_utils import MongoUtils
+from recommending_v2.utils import dist
 
 max_dist = 2000
 
