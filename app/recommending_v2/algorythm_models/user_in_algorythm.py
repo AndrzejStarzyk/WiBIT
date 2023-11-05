@@ -1,8 +1,8 @@
 from typing import List
 
-from constraint import Constraint, AttractionConstraint, CategoryConstraint
-from point_of_interest import PointOfInterest
-from default_trip import get_default_places_xid
+from recommending_v2.algorythm_models.constraint import Constraint, AttractionConstraint, CategoryConstraint
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.default_trip import get_default_places_xid
 
 
 class Preference:

@@ -3,8 +3,8 @@ from numpy import inf
 
 from pyvis.network import Network
 
-from category import Category
-from mongo_utils import MongoUtils
+from recommending_v2.categories.category import Category
+from models.mongo_utils import MongoUtils
 
 very_low_score = 0
 subcategory_match_score = 2
