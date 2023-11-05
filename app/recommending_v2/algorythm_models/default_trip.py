@@ -5,9 +5,9 @@ from typing import List, Union, Tuple
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from schedule import Day
-from trajectory import Trajectory
-from point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.schedule import Day
+from recommending_v2.algorythm_models.trajectory import Trajectory
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 
 trip = {
     "trip": [

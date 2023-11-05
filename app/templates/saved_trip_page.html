@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Suggested trip</title>
+    {% for map_header in map_headers  %}
+        {{map_header|safe}}
+    {% endfor %}
+{% endblock %}
+
+{% block body %}
+ <div class="maps_container">
+     <h1> Zapisana wycieczka</h1>
+        {% for map_html, map_script, places in trajectories_data %}
+        <div class="row">
+            <div> Dzień {{ loop.index }}</div>
+            <div class="big-map col-12 col-lg-8">
+                {% for map_header in map_headers  %}
+                    {{ map_html|safe }}
+                {% endfor %}
+
+                <script>
+                    {{ map_script|safe }}
+                </script>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <h2> Trasa wycieczki </h2>
+                <form id="save-form" class="not-displayed" action="/" method="post"> </form>
+                <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
+                    {% for place in places %}
+                    <div class="one-line">
+                        <p class="trip-place-name-wide"> {{place.name}} </p>
+                    </div>
+                    {% endfor %}
+
+                </form>
+
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-12 col-lg-8"></div>
+
+            <div class="col-12 col-lg-4">
+
+                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
+                    Zapisane wycieczki
+                </a>
+
+                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
+                    Strona główna
+                </a>
+            </div>
+        </div>
+
+        <!-- some other functions like trip export can be added here -->
+    </div>
+
+{% endblock %}

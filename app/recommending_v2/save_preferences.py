@@ -3,8 +3,8 @@ from typing import List
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-from constraint import Constraint
-from objectid import PydanticObjectId
+from recommending_v2.algorythm_models.constraint import Constraint
+from models.objectid import PydanticObjectId
 
 mongodb_uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
 

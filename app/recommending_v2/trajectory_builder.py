@@ -2,11 +2,11 @@ from datetime import timedelta, datetime
 from queue import PriorityQueue
 from typing import List, Tuple
 
-from categories.estimated_visiting import VisitingTimeProvider
-from algorythm_models.point_of_interest import PointOfInterest
-from algorythm_models.schedule import Day
-from algorythm_models.trajectory import Trajectory
-from utils import dist, estimated_time
+from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.schedule import Day
+from recommending_v2.algorythm_models.trajectory import Trajectory
+from recommending_v2.utils import dist, estimated_time
 
 
 def build_trajectory(day: Day, pois_score: List[Tuple[PointOfInterest, float]], time_provider: VisitingTimeProvider) -> Trajectory:
