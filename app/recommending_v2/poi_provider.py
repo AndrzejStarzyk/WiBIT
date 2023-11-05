@@ -24,7 +24,7 @@ class PoiProvider:
         if self.fetched:
             return
 
-        collection = self.db_connection.get_collection("cracow-attractions-v2")
+        collection = self.db_connection.get_collection("cracow-attractions-v3")
 
         """overpass = Overpass()
         nominatim = Nominatim()

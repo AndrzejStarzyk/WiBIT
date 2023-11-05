@@ -221,9 +221,5 @@ class CategoriesProvider:
 
 if __name__ == "__main__":
     cp = CategoriesProvider(MongoUtils())
-    # cp.show_graph()
-    p = ['amusement_parks']
-    c = ["cultural", "museums", "interesting_places", "museums_of_science_and_technology", "amusements",
-         "aviation_museums", "amusement_parks", "military_museums"]
-    # print(cp.compute_score(p, c))
-    print(cp.g)
+    cp.show_graph()
+
