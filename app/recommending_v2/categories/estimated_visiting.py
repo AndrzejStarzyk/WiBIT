@@ -1,7 +1,5 @@
 from datetime import timedelta
 
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
 from typing import Dict
 
 from mongo_utils import MongoUtils

@@ -22,7 +22,8 @@ class Evaluator:
         self.poi_evaluated = False
 
     def evaluate(self):
-        self.evaluated_places: List[Tuple[int, float]] = [(i, self.user.evaluate(self.places[i])) for i in range(len(self.places))]
+        self.evaluated_places: List[Tuple[int, float]] = [(i, self.user.evaluate(self.places[i])) for i in
+                                                          range(len(self.places))]
 
         self.evaluated_places.sort(key=lambda x: x[1], reverse=True)
         print("---------------------------------------------------")
@@ -39,7 +40,8 @@ class Evaluator:
         curr_time = day.start
         while i < len(place_id_score) and curr_time < day.end:
             poi: PointOfInterest = self.places[place_id_score[i][0]]
-            if poi.opening_hours.is_open(day.weekday, day.start.time(), day.end.time()) and poi.xid not in self.already_recommended:
+            if poi.opening_hours.is_open(day.weekday, day.start.time(),
+                                         day.end.time()) and poi.xid not in self.already_recommended:
                 score += place_id_score[i][1]
                 curr_time += self.visiting_time_provider.get_visiting_time(poi)
             i += 1
@@ -53,7 +55,6 @@ class Evaluator:
     def setup(self):
         self.already_recommended = []
         self.evaluate()
-
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
 from models.objectid import PydanticObjectId
 
@@ -19,13 +19,13 @@ class PoiMongo(BaseModel):
 
 class DayMongo(BaseModel):
     schedule: ScheduleMongo
-    trajectory: list[PoiMongo]
+    trajectory: List[PoiMongo]
 
 
 class TripDaysMongo(BaseModel):
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     user_id: PydanticObjectId
-    days: list[DayMongo]
+    days: List[DayMongo]
 
     def to_bson(self):
         data = self.dict(by_alias=True, exclude_none=True)
