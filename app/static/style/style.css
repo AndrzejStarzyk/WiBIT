@@ -16,6 +16,11 @@ h1, h2, h3{
     margin-left: 5px;
     margin-right: 5px;
 }
+@media only screen and (max-width: 992px) {
+    .main-page-option {
+        margin-top: 20px;
+    }
+}
 
 body{
     padding: 20px;
@@ -66,6 +71,14 @@ body{
     padding: 10vh 15% 0 15%;
 }
 
+
+@media only screen and (max-width: 768px) {
+    .maps_container{
+        padding: 10vh 15px 0 15px;
+    }
+}
+
+
 .one-line{
     display: flex;
     width: 100%;
@@ -95,6 +108,12 @@ body{
 .trip-place-name-small{
     text-align: right;
     width: 70%;
+    padding: 16px 0 6px 0;
+}
+
+.trip-place-name-wide{
+    text-align: center;
+    width: 100%;
     padding: 16px 0 6px 0;
 }
 
@@ -187,6 +206,8 @@ body{
 }
 
 .user-login a {
+    display: block;
+    width: 100%;
     color: black;
     text-decoration: none;
     border: 1px solid black;
@@ -195,7 +216,45 @@ body{
 }
 
 .user-login a:hover{
-    color: blue;
+    color: royalblue;
+}
+
+#save-trip-form{
+    text-align: center;
+
+}
+
+.saved-trip-banner{
+    text-align: center;
+    text-decoration: none;
+    padding: 10px;
+    font-size: medium;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px 5px;
+}
+
+.saved-trip-banner:hover{
+    color: royalblue;
+}
+
+.trip-additional-button{
+    display:block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    padding: 10px;
+    font-size: medium;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px 5px;
+}
+
+.trip-additional-button:hover{
+    text-decoration: none;
+    color: royalblue;
 }
 
 /* edit preferences */

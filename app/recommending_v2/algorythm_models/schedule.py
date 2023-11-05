@@ -1,13 +1,17 @@
 from typing import List, Tuple
 from datetime import date, time, datetime
 
-from trajectory import Trajectory
+from recommending_v2.algorythm_models.trajectory import Trajectory
 
 
 class Day:
-    def __init__(self, date_str: str, start: str, end: str):
-        start = time.fromisoformat(f"{start[0:2]}:{start[3:5]}:00")
-        end = time.fromisoformat(f"{end[0:2]}:{end[3:5]}:00")
+    def __init__(self, date_str: str, start: str | datetime, end: str | datetime):
+        if isinstance(start, str):
+            start = time.fromisoformat(f"{start[0:2]}:{start[3:5]}:00")
+
+        if isinstance(end, str):
+            end = time.fromisoformat(f"{end[0:2]}:{end[3:5]}:00")
+
         date_ = date.fromisoformat(date_str)
 
         self.date_str: str = date_str

@@ -1,25 +1,40 @@
 from datetime import datetime
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from typing import Optional
-from flask_login import UserMixin
 
 from models.objectid import PydanticObjectId
 
 
-class User(UserMixin, BaseModel):
-    id: Optional[PydanticObjectId] = Field(None, alias="_id")
-    user_id: int
-    login: str
-    password: Optional[str]
-    date_added: Optional[datetime] = datetime.utcnow()
-    date_updated: Optional[datetime] = datetime.utcnow()
+class ScheduleMongo(BaseModel):
+    date: str
+    start: datetime
+    end: datetime
 
-    def to_json(self):
-        return jsonable_encoder(self, exclude_none=True)
+
+class PoiMongo(BaseModel):
+    poi_id: str
+    plan_from: datetime
+    plan_to: datetime
+
+
+class DayMongo(BaseModel):
+    schedule: ScheduleMongo
+    trajectory: list[PoiMongo]
+
+
+class TripDaysMongo(BaseModel):
+    id: Optional[PydanticObjectId] = Field(None, alias="_id")
+    user_id: PydanticObjectId
+    days: list[DayMongo]
 
     def to_bson(self):
         data = self.dict(by_alias=True, exclude_none=True)
         if data.get("_id") is None:
             data.pop("_id", None)
         return data
+
+
+
+
+
+

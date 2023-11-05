@@ -1,14 +1,14 @@
 from typing import List, Tuple, Union
 
-from estimated_visiting import VisitingTimeProvider
-from evaluator import Evaluator
-from poi_provider import PoiProvider
-from trajectory_builder import build_trajectory
-from algorythm_models.user_in_algorythm import User
-from algorythm_models.default_trip import DefaultTrip
-from algorythm_models.constraint import Constraint
-from algorythm_models.trajectory import Trajectory
-from algorythm_models.schedule import Schedule
+from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
+from recommending_v2.evaluator import Evaluator
+from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.trajectory_builder import build_trajectory
+from recommending_v2.algorythm_models.user_in_algorythm import User
+from recommending_v2.algorythm_models.default_trip import DefaultTrip
+from recommending_v2.algorythm_models.constraint import Constraint
+from recommending_v2.algorythm_models.trajectory import Trajectory
+from recommending_v2.algorythm_models.schedule import Schedule
 
 
 class Recommender:

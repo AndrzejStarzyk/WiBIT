@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
-from point_of_interest import PointOfInterest
 
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 from recommending_v2.categories.categories_provider import CategoriesProvider
 
 

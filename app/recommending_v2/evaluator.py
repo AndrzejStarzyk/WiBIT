@@ -1,10 +1,10 @@
 from typing import List, Tuple
 
-from categories.estimated_visiting import VisitingTimeProvider
-from algorythm_models.point_of_interest import PointOfInterest
-from algorythm_models.schedule import Day
-from algorythm_models.user_in_algorythm import User
-from poi_provider import PoiProvider
+from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
+from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.algorythm_models.schedule import Day
+from recommending_v2.algorythm_models.user_in_algorythm import User
+from recommending_v2.poi_provider import PoiProvider
 
 
 class Evaluator:

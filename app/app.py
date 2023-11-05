@@ -1,16 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from wtforms.validators import ValidationError
 
 from display_route import create_map
-from estimated_visiting import VisitingTimeProvider
-from poi_provider import PoiProvider
+from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
+from recommending_v2.algorythm_models.schedule import Schedule
+from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
+from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
@@ -26,6 +29,7 @@ login_manager.init_app(app)
 
 mongo_utils = MongoUtils()
 users = mongo_utils.get_collection('users')
+trips = mongo_utils.get_collection('trips')
 user_name = None
 
 algo_user = Algo_User()
@@ -54,6 +58,21 @@ def update_user_name():
 def show_home():
     update_user_name()
     return render_template("home.html", user_name=user_name)
+
+
+@app.errorhandler(401)
+def page_not_found(error):
+    return render_template('error_template/unauth_error.html'), 401
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('error_template/default_error.html', communicate='404 - szukana strona nie istnieje'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('error_template/default_error.html', communicate='500 - wystąpił problem z serwerem'), 500
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -250,6 +269,19 @@ def render_suggested_template():
     return res
 
 
+def render_saved_trip(schedule: Schedule):
+    maps = [create_map(trajectory) for trajectory in schedule.trajectories]
+    for m in maps:
+        m.get_root().render()
+    headers = [m.get_root().header.render() for m in maps]
+    trajectories_data = [(maps[i].get_root().html.render(),
+                          maps[i].get_root().script.render(),
+                          schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
+
+    res = render_template("saved_trip_page.html", trajectories_data=trajectories_data, map_headers=headers)
+    return res
+
+
 @app.route('/suggested', methods=['POST'])
 @login_required
 async def show_suggested():
@@ -286,11 +318,59 @@ async def show_suggested():
     return res
 
 
+# this is only API-endpoint
+@app.route('/save-trip', methods=['POST'])
+@login_required
+def save_trip_route():
+    save_trip(current_user.id, recommender.get_recommended())
+    return 'saved'
+
+
 @app.route('/user-panel', methods=['GET'])
 def user_main_page():
     if current_user.is_authenticated:
         return render_template("user_main_page.html", user_name=current_user.login)
     return redirect(url_for('login'))
+
+
+@app.route('/saved', methods=['GET'])
+@login_required
+def all_saved_trips():
+    user_trips_cursor = trips.find({'user_id': current_user.id})
+    trip_minis = []
+
+    for raw_trip in user_trips_cursor:
+        trip = TripDaysMongo(**raw_trip)
+        trip_mini = {
+            'trip_id': trip.id,
+            'date_start': trip.days[0].schedule.date,
+            'date_end': trip.days[-1].schedule.date,
+            'attractions_num': sum([len(trip.days[i].trajectory) for i in range(len(trip.days))])
+        }
+
+        trip_minis.append(trip_mini)
+
+    trip_minis.reverse()
+
+    return render_template('saved_trips.html', trips=trip_minis)
+
+
+@app.route('/saved-trip', methods=['GET'])
+@login_required
+def saved_trip_page():
+    trip_id = request.args.get('trip_id')
+
+    raw_trip = trips.find_one({
+        '_id': PydanticObjectId(trip_id),
+        'user_id': current_user.id
+    })
+
+    if not raw_trip:
+        abort(404)
+
+    trip = TripDaysMongo(**raw_trip)
+
+    return render_saved_trip(schedule_from_saved_trip(trip))
 
 
 if __name__ == '__main__':
