@@ -25,14 +25,14 @@
             <div class="col-12 col-lg-4">
                 <h2> Trasa wycieczki </h2>
                 <form id="save-form" class="not-displayed" action="/static" method="post"> </form>
-                <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
+                <form id="opinion-form_{{loop.index}}" class="suggested-form" action="/suggest_again/{{loop.index}}" method="post">
                     {% for place in places %}
                     <div class="one-line">
                         <p class="trip-place-name-small"> {{place.name}} </p>
-                        <input id="remove_{{place.xid}}" form="opinion-form" class="not-displayed remove-checkbox" type="radio"
+                        <input id="remove_{{place.xid}}" form="opinion-form_{{loop.index}}" class="not-displayed remove-checkbox" type="radio"
                                name="remove_{{place.xid}}" value="{{place.xid}}">
                         <label class="base-label" for="remove_{{place.xid}}"> <span>USUŃ</span> </label>
-                        <input id="replace_{{place.xid}}" form="opinion-form" class="not-displayed replace-checkbox" type="checkbox"
+                        <input id="replace_{{place.xid}}" form="opinion-form_{{loop.index}}" class="not-displayed replace-checkbox" type="checkbox"
                                name="replace_{{place.xid}}" value="{{place.xid}}">
                         <label class="base-label" for="replace_{{place.xid}}"> <span>WYMIEŃ</span> </label>
                     </div>

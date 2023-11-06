@@ -12,8 +12,6 @@ class Evaluator:
         self.user = user
         self.places_provider: PoiProvider = poi_provider
         self.places: List[PointOfInterest] = self.places_provider.get_places()
-        # self.groups = self.places_provider.get_groups()
-        # self.poi_to_group = self.places_provider.get_poi_to_group_mapping()
         self.already_recommended: List[str] = []
 
         self.visiting_time_provider = visiting_time_provider

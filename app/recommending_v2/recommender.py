@@ -19,7 +19,6 @@ class Recommender:
         self.default_trip = default_trip
         self.evaluator: Evaluator = Evaluator(self.user, poi_provider, visiting_time_provider)
         self.cold_start: bool = True
-        self.pois_limit: int = 100
         self.dates: List[str] = []
         self.days: int = 0
         self.hours: List[Tuple[str, str]] = []
@@ -43,19 +42,23 @@ class Recommender:
             self.schedule.add_trajectory(trip)
             return self.schedule
         else:
-            print(self.user)
             self.evaluator.setup()
             for day in self.schedule.schedule:
                 best_pois = self.evaluator.extract_best_trajectory(day)
-                print("--------------------------------------------------------")
-                for i, s in best_pois:
-                    print(i.name, s)
                 trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
                 self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))
                 self.schedule.add_trajectory(trajectory)
 
             return self.schedule
 
+    def recommend_again(self, day_nr: int) -> Schedule:
+        if day_nr < 0 or day_nr >= len(self.schedule.dates):
+            return self.schedule
+        self.evaluator.evaluate()
+        best_pois = self.evaluator.extract_best_trajectory(self.schedule.schedule[day_nr])
+        trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_nr], best_pois, self.visiting_time_provider)
+        self.schedule.replace_trajectory(trajectory, day_nr)
+        return self.schedule
 
 if __name__ == "__main__":
     a = [0, 1, 2]
