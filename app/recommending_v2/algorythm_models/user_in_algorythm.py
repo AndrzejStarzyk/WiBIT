@@ -30,7 +30,6 @@ class User:
         res = 0
         for pref in self.preferences:
             res += pref.constraint.evaluate(poi) * pref.weight
-        print(poi.name)
         res /= self.total_weights
         res += base_score
         return res

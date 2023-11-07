@@ -277,17 +277,8 @@ async def show_suggested():
         for item in request.form.items():
             if item[0].startswith('button'):
                 continue
-            elif item[0].startswith('remove'):
-                recommender.add_constraint(AttractionConstraint([item[1]], False))
-            elif item[0].startswith('replace'):
-                recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
                 temporary_pref.append(item[0][4:])
-            elif item[0].startswith('datetime'):
-                if item[0] == 'datetime_start':
-                    pass
-                if item[0] == 'datetime_end':
-                    pass
 
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
@@ -306,14 +297,21 @@ async def show_suggested():
 
 @app.route('/suggest_again/<int:day_nr>', methods=['POST'])
 def suggest_again(day_nr: int):
+    only_remove = True
+    to_remove = []
     for item in request.form.items():
         if item[0].startswith('button'):
             continue
         elif item[0].startswith('remove'):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
+            to_remove.append(item[1])
         elif item[0].startswith('replace'):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
-    recommended = recommender.recommend_again(day_nr-1)
+            only_remove = False
+    if only_remove:
+        recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+    else:
+        recommended = recommender.recommend_again(day_nr-1)
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
 

@@ -24,27 +24,24 @@ class Evaluator:
                                                           range(len(self.places))]
 
         self.evaluated_places.sort(key=lambda x: x[1], reverse=True)
-        print("---------------------------------------------------")
-        for i, s in self.evaluated_places:
-            print(self.places[i].name, s)
         self.user.decay_weights()
         self.poi_evaluated = True
 
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
         place_id_score: List[Tuple[int, float]] = self.evaluated_places
 
-        score: float = 0.0
+        res = []
         i = 0
         curr_time = day.start
         while i < len(place_id_score) and curr_time < day.end:
             poi: PointOfInterest = self.places[place_id_score[i][0]]
             if poi.opening_hours.is_open(day.weekday, day.start.time(),
                                          day.end.time()) and poi.xid not in self.already_recommended:
-                score += place_id_score[i][1]
                 curr_time += self.visiting_time_provider.get_visiting_time(poi)
+                res.append((poi, place_id_score[i][1]))
             i += 1
 
-        return [(self.places[place_id_score[j][0]], place_id_score[j][1]) for j in range(i)]
+        return res
 
     def add_already_recommended(self, xids: List[str]):
         for xid in xids:

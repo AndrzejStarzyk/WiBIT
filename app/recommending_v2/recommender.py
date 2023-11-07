@@ -51,14 +51,30 @@ class Recommender:
 
             return self.schedule
 
-    def recommend_again(self, day_nr: int) -> Schedule:
-        if day_nr < 0 or day_nr >= len(self.schedule.dates):
+    def recommend_again(self, day_id: int) -> Schedule:
+        if day_id < 0 or day_id >= len(self.schedule.schedule):
             return self.schedule
         self.evaluator.evaluate()
-        best_pois = self.evaluator.extract_best_trajectory(self.schedule.schedule[day_nr])
-        trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_nr], best_pois, self.visiting_time_provider)
-        self.schedule.replace_trajectory(trajectory, day_nr)
+        best_pois = self.evaluator.extract_best_trajectory(self.schedule.schedule[day_id])
+        trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_id], best_pois, self.visiting_time_provider)
+        self.schedule.replace_trajectory(trajectory, day_id)
         return self.schedule
+
+    def remove_from_schedule(self, day_id, xids: List[str]) -> Schedule:
+        if day_id < 0 or day_id >= len(self.schedule.schedule):
+            return self.schedule
+        to_remove = []
+        trajectory = self.schedule.trajectories[day_id]
+        for xid in xids:
+            for event in trajectory.events:
+                if event.poi.xid == xid:
+                    to_remove.append(event)
+
+        for i in to_remove:
+            trajectory.events.remove(i)
+
+        return self.schedule
+
 
 if __name__ == "__main__":
     a = [0, 1, 2]
