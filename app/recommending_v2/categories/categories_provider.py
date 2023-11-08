@@ -100,8 +100,7 @@ class CategoriesProvider:
 
         if len(preferences) == 0 or len(kinds) == 0:
             return very_low_score
-        print(preferences)
-        print(kinds)
+
         score = 0
         categories: List[str] = list(map(lambda x: x.code, self.get_categories()))
         subcategories: List[str] = list(map(lambda x: x.code, self.get_subcategories()))
@@ -159,7 +158,7 @@ class CategoriesProvider:
 
         if total != 0:
             score += 1 / (1 + total_weight / total)
-        print(score)
+
         return score
 
     def get_super_of_categories(self, code: str, check_shortcuts: bool = True) -> List[str]:

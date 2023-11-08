@@ -34,3 +34,11 @@ class Schedule:
 
     def add_trajectory(self, trajectory: Trajectory):
         self.trajectories.append(trajectory)
+
+    def replace_trajectory(self, trajectory: Trajectory, i: int):
+        if i < 0 or i >= len(self.trajectories):
+            return
+
+        self.trajectories.remove(self.trajectories[i])
+        self.trajectories.insert(i, trajectory)
+

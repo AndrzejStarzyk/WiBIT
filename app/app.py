@@ -14,13 +14,12 @@ from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
-from recommending_v2.save_preferences import save_preferences, get_preferences_json
+from recommending_v2.save_preferences import save_preferences, get_preferences_json, delete_preferences
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -163,6 +162,8 @@ def edit_preferences():
 
         if len(new_preferences) > 0:
             save_preferences(current_user.id, [CategoryConstraint(new_preferences, mongo_utils)], mongo_utils)
+        else:
+            delete_preferences(current_user.id, mongo_utils)
         return redirect(url_for('user_main_page'))
 
     selected_codes = []
@@ -255,22 +256,7 @@ def show_default_trip():
     return res
 
 
-def render_suggested_template():
-    recommender.create_schedule()
-    recommended = recommender.get_recommended()
-    maps = [create_map(trajectory) for trajectory in recommended.trajectories]
-    for m in maps:
-        m.get_root().render()
-    headers = [m.get_root().header.render() for m in maps]
-    trajectories_data = [(maps[i].get_root().html.render(),
-                          maps[i].get_root().script.render(),
-                          recommended.trajectories[i].get_pois()) for i in range(len(recommended.trajectories))]
-
-    res = render_template("creating_trip/suggested_page.html", trajectories_data=trajectories_data, map_headers=headers)
-    return res
-
-
-def render_saved_trip(schedule: Schedule):
+def render_trip(schedule: Schedule, template: str):
     maps = [create_map(trajectory) for trajectory in schedule.trajectories]
     for m in maps:
         m.get_root().render()
@@ -279,7 +265,7 @@ def render_saved_trip(schedule: Schedule):
                           maps[i].get_root().script.render(),
                           schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
 
-    res = render_template("saved_trip_page.html", trajectories_data=trajectories_data, map_headers=headers)
+    res = render_template(template, trajectories_data=trajectories_data, map_headers=headers)
     return res
 
 
@@ -293,18 +279,8 @@ async def show_suggested():
         for item in request.form.items():
             if item[0].startswith('button'):
                 continue
-            elif item[0].startswith('remove'):
-                recommender.add_constraint(AttractionConstraint([item[1]], False))
-                recommender.pois_limit -= 1
-            elif item[0].startswith('replace'):
-                recommender.add_constraint(AttractionConstraint([item[1]], False))
             elif item[0].startswith('cat'):
                 temporary_pref.append(item[0][4:])
-            elif item[0].startswith('datetime'):
-                if item[0] == 'datetime_start':
-                    pass
-                if item[0] == 'datetime_end':
-                    pass
 
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
@@ -314,9 +290,36 @@ async def show_suggested():
                 recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
             if pref['constraint_type'] == ConstraintType.Attraction.value:
                 recommender.add_constraint(AttractionConstraint(pref['value']))
-        return render_suggested_template()
+        recommender.create_schedule()
+        recommended = recommender.get_recommended()
+        return render_trip(recommended, "creating_trip/suggested_page.html")
 
     return res
+
+
+@app.route('/suggest_again/<int:day_nr>', methods=['POST'])
+def suggest_again(day_nr: int):
+    some_removed = False
+    some_replaced = False
+    to_remove = []
+    for item in request.form.items():
+        if item[0].startswith('button'):
+            continue
+        elif item[0].startswith('remove'):
+            recommender.add_constraint(AttractionConstraint([item[1]], False))
+            some_removed = True
+            to_remove.append(item[1])
+        elif item[0].startswith('replace'):
+            recommender.add_constraint(AttractionConstraint([item[1]], False))
+            some_replaced = True
+    if some_removed and not some_replaced:
+        recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+    elif not some_removed and not some_replaced:
+        recommender.modify_general_constraint()
+        recommended = recommender.recommend_again(day_nr-1)
+    else:
+        recommended = recommender.recommend_again(day_nr-1)
+    return render_trip(recommended, "creating_trip/suggested_page.html")
 
 
 # this is only API-endpoint
@@ -371,7 +374,7 @@ def saved_trip_page():
 
     trip = TripDaysMongo(**raw_trip)
 
-    return render_saved_trip(schedule_from_saved_trip(trip))
+    return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
 
 
 if __name__ == '__main__':
