@@ -14,7 +14,7 @@ from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
-from recommending_v2.save_preferences import save_preferences, get_preferences_json
+from recommending_v2.save_preferences import save_preferences, get_preferences_json, delete_preferences
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
@@ -162,6 +162,8 @@ def edit_preferences():
 
         if len(new_preferences) > 0:
             save_preferences(current_user.id, [CategoryConstraint(new_preferences, mongo_utils)], mongo_utils)
+        else:
+            delete_preferences(current_user.id, mongo_utils)
         return redirect(url_for('user_main_page'))
 
     selected_codes = []

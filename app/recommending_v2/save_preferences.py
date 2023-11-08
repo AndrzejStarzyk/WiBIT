@@ -18,6 +18,19 @@ def save_preferences(user_id, constraints: List[Constraint], db_connection: Mong
     )
 
 
+def delete_preferences(user_id, db_connection: MongoUtils):
+    users = db_connection.get_collection("users")
+
+    user = users.find_one({"_id": PydanticObjectId(user_id)})
+    if user is None:
+        return
+
+    users.update_one(
+        {"_id": PydanticObjectId(user_id)},
+        [{"$unset": "preferences"}]
+    )
+
+
 def get_preferences_json(user_id, db_connection: MongoUtils):
     users = db_connection.get_collection("users")
     user = users.find_one({"_id": PydanticObjectId(user_id)})
