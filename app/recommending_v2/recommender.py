@@ -6,7 +6,7 @@ from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.algorythm_models.user_in_algorythm import User
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.algorythm_models.constraint import Constraint
+from recommending_v2.algorythm_models.constraint import Constraint, GeneralConstraint, ProximityConstraint
 from recommending_v2.algorythm_models.trajectory import Trajectory
 from recommending_v2.algorythm_models.schedule import Schedule
 
@@ -33,6 +33,12 @@ class Recommender:
             self.cold_start = False
         self.user.add_constraint(constraint, constraint.get_weight())
 
+    def modify_general_constraint(self):
+        if len(self.user.general_constraints) == 0:
+            self.user.general_constraints.append(ProximityConstraint())
+        else:
+            self.user.general_constraints[0].modify()
+
     def create_schedule(self):
         self.schedule = Schedule(self.days, self.dates, self.hours)
 
@@ -56,7 +62,8 @@ class Recommender:
             return self.schedule
         self.evaluator.evaluate()
         best_pois = self.evaluator.extract_best_trajectory(self.schedule.schedule[day_id])
-        trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_id], best_pois, self.visiting_time_provider)
+        trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_id], best_pois,
+                                                  self.visiting_time_provider)
         self.schedule.replace_trajectory(trajectory, day_id)
         return self.schedule
 

@@ -297,19 +297,24 @@ async def show_suggested():
 
 @app.route('/suggest_again/<int:day_nr>', methods=['POST'])
 def suggest_again(day_nr: int):
-    only_remove = True
+    some_removed = False
+    some_replaced = False
     to_remove = []
     for item in request.form.items():
         if item[0].startswith('button'):
             continue
         elif item[0].startswith('remove'):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
+            some_removed = True
             to_remove.append(item[1])
         elif item[0].startswith('replace'):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
-            only_remove = False
-    if only_remove:
+            some_replaced = True
+    if some_removed and not some_replaced:
         recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+    elif not some_removed and not some_replaced:
+        recommender.modify_general_constraint()
+        recommended = recommender.recommend_again(day_nr-1)
     else:
         recommended = recommender.recommend_again(day_nr-1)
     return render_trip(recommended, "creating_trip/suggested_page.html")

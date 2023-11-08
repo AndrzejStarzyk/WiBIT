@@ -1,13 +1,15 @@
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 
 from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
 from recommending_v2.categories.categories_provider import CategoriesProvider
+from utils import dist
 
 
 class ConstraintType(Enum):
     Category = "category"
     Attraction = "attraction"
+    Proximity = "proximity"
 
 
 class Constraint:
@@ -61,12 +63,12 @@ class AttractionConstraint(Constraint):
         self.is_wanted: bool = is_wanted
         self.weight = 100
 
-    def evaluate(self, poi: PointOfInterest) -> int:
+    def evaluate(self, poi: PointOfInterest) -> float:
         if poi.xid in self.xid_list:
             if self.is_wanted:
-                return 1
+                return 1.0
             else:
-                return -1
+                return -1.0
         return 0
 
     def get_weight(self):
@@ -90,7 +92,10 @@ class GeneralConstraint:
     def __init__(self):
         pass
 
-    def evaluate(self, poi: List[PointOfInterest]):
+    def evaluate(self, pois_scores: List[Tuple[PointOfInterest, float]]) -> List[Tuple[PointOfInterest, float]]:
+        pass
+
+    def modify(self):
         pass
 
     def get_weight(self) -> int:
@@ -104,8 +109,42 @@ class GeneralConstraint:
 
 
 class ProximityConstraint(GeneralConstraint):
-    pass
+    def __init__(self, best_pois_nr=3, radius=500, rate=0.8):
+        super().__init__()
+        self.best_pois_nr = best_pois_nr
+        self.radius = radius
+        self.rate = rate
+
+        self.weight = 1
+
+        self.modifications = [500, 1000, 250, 2000]
+
+    def evaluate(self, pois_scores: List[Tuple[PointOfInterest, float]]) -> List[Tuple[PointOfInterest, float]]:
+        for i in range(min(self.best_pois_nr, len(pois_scores))):
+            poi, score = pois_scores[i]
+            for j in range(i + 1, len(pois_scores)):
+                poi_other, score_other = pois_scores[j]
+                if dist(poi, poi_other) < self.radius:
+                    pois_scores[j] = (poi_other, (1 - self.rate) * score_other + score * self.rate)
+        return pois_scores
+
+    def modify(self):
+        curr = 0
+        if self.radius in self.modifications:
+            curr = self.modifications.index(self.radius)
+
+        self.radius = self.modifications[(curr + 1) % len(self.modifications)]
+
+    def get_weight(self) -> int:
+        return self.weight
+
+    def to_json(self):
+        return {
+            "constraint_type": ConstraintType.Attraction.value,
+            "value": [self.best_pois_nr, self.radius, self.rate],
+            "weight": self.weight
+        }
 
 
 if __name__ == '__main__':
-    print(ConstraintType.Category.value)
+    a = (1, 2)

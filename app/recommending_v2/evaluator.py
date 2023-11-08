@@ -16,25 +16,27 @@ class Evaluator:
 
         self.visiting_time_provider = visiting_time_provider
 
-        self.evaluated_places: List[Tuple[int, float]] = []
+        self.evaluated_places: List[Tuple[PointOfInterest, float]] = []
         self.poi_evaluated = False
 
     def evaluate(self):
-        self.evaluated_places: List[Tuple[int, float]] = [(i, self.user.evaluate(self.places[i])) for i in
-                                                          range(len(self.places))]
+        self.evaluated_places: List[Tuple[PointOfInterest, float]] = [(i, self.user.evaluate(i)) for i in self.places]
 
         self.evaluated_places.sort(key=lambda x: x[1], reverse=True)
         self.user.decay_weights()
         self.poi_evaluated = True
 
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
-        place_id_score: List[Tuple[int, float]] = self.evaluated_places
-
+        place_id_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
+        #for poi, s in place_id_score:
+        #    res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
+        #    if len(res) > 0:
+        #        print(poi.name, s, res[0][1])
         res = []
         i = 0
         curr_time = day.start
         while i < len(place_id_score) and curr_time < day.end:
-            poi: PointOfInterest = self.places[place_id_score[i][0]]
+            poi: PointOfInterest = place_id_score[i][0]
             if poi.opening_hours.is_open(day.weekday, day.start.time(),
                                          day.end.time()) and poi.xid not in self.already_recommended:
                 curr_time += self.visiting_time_provider.get_visiting_time(poi)
