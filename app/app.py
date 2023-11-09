@@ -182,7 +182,6 @@ def edit_preferences():
 
 
 @app.route('/duration', methods=['GET', 'POST'])
-@login_required
 def show_duration():
     duration_options = [
         {'name': 'Jeden dzień', 'time': 1},
@@ -200,7 +199,6 @@ def show_duration():
 
 
 @app.route('/start_date', methods=['GET', 'POST'])
-@login_required
 def show_start_date():
     if request.method == 'POST':
         start_date = request.form.get('start_date')
@@ -209,7 +207,6 @@ def show_start_date():
 
 
 @app.route('/schedule/<start>', methods=['GET', 'POST'])
-@login_required
 def show_schedule(start: str):
     if request.method == 'POST':
         schedule_inputs = [[f"start_{i}", f"end_{i}"] for i in range(recommender.days)]
@@ -230,7 +227,6 @@ def show_schedule(start: str):
 
 
 @app.route('/categories', methods=['GET', 'POST'])
-@login_required
 def show_categories():
     if request.method == 'POST':
         categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
@@ -241,7 +237,6 @@ def show_categories():
 
 @app.route('/default_trip', methods=['GET'])
 def show_default_trip():
-    print("default")
     res = render_template("default_page.html")
     try:
         trajectory = default_trip.get_trip(None)
@@ -270,7 +265,6 @@ def render_trip(schedule: Schedule, template: str):
 
 
 @app.route('/suggested', methods=['POST'])
-@login_required
 async def show_suggested():
     res = render_template("default_page.html")
 
@@ -284,12 +278,13 @@ async def show_suggested():
 
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
-        user_pref = get_preferences_json(current_user.id, mongo_utils)
-        for pref in user_pref:
-            if pref['constraint_type'] == ConstraintType.Category.value:
-                recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
-            if pref['constraint_type'] == ConstraintType.Attraction.value:
-                recommender.add_constraint(AttractionConstraint(pref['value']))
+        if current_user.is_authenticated:
+            user_pref = get_preferences_json(current_user.id, mongo_utils)
+            for pref in user_pref:
+                if pref['constraint_type'] == ConstraintType.Category.value:
+                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+                if pref['constraint_type'] == ConstraintType.Attraction.value:
+                    recommender.add_constraint(AttractionConstraint(pref['value']))
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
@@ -302,6 +297,7 @@ def suggest_again(day_nr: int):
     some_removed = False
     some_replaced = False
     to_remove = []
+    print(list(request.form.items()))
     for item in request.form.items():
         if item[0].startswith('button'):
             continue
@@ -331,6 +327,7 @@ def save_trip_route():
 
 
 @app.route('/user-panel', methods=['GET'])
+@login_required
 def user_main_page():
     if current_user.is_authenticated:
         return render_template("user_main_page.html", user_name=current_user.login)

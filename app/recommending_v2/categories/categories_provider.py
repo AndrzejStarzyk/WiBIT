@@ -206,7 +206,7 @@ class CategoriesProvider:
             self.fetch_categories()
         N = Network()
         for cat in range(len(self.category_ids)):
-            N.add_node(self.category_ids[cat], self.categories_list[cat].code, size=8)
+            N.add_node(self.category_ids[cat], self.categories_list[cat].name, size=8)
 
         for u in range(len(self.categories_graph)):
             for v, _ in self.categories_graph[u]:
