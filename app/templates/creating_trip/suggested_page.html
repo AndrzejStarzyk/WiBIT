@@ -12,7 +12,7 @@
         {% for map_html, map_script, places in trajectories_data %}
         <div class="row">
             <div> Dzień {{ loop.index }}</div>
-            <div class="big-map col-12 col-lg-8">
+            <div class="big-map col-12 col-md-6 col-xl-8">
                 {% for map_header in map_headers  %}
                     {{ map_html|safe }}
                 {% endfor %}
@@ -22,7 +22,7 @@
                 </script>
             </div>
 
-            <div class="col-12 col-lg-4">
+            <div class="col-12 col-md-6 col-xl-4">
                 <h2> Trasa wycieczki </h2>
                 {% set outer_loop = loop %}
                 <form id="opinion-form_{{outer_loop.index}}" class="suggested-form" action="/suggest_again/{{loop.index}}" method="post">
@@ -48,17 +48,26 @@
         {% endfor %}
 
         <div class="row">
-            <div class="col-12 col-lg-8"></div>
+            <div class="col-0 col-md-6 col-xl-8"></div>
 
-            <div class="col-12 col-lg-4">
+            <div class="col-12 col-md-6 col-xl-4">
+                {% if is_auth %}
+                <h3> Dodatkowe opcje </h3>
+
                 <form id="save-trip-form">
-                    <h3> Dodatkowe opcje </h3>
                     <input type="submit" class="trip-additional-button" value="Zapisz wycieczkę">
                 </form>
 
                 <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
                     Zapisane wycieczki
                 </a>
+                {% else %}
+                <div class="auth-proposition-link">
+                    Zalogowani użytkownicy mogą zapsać wycieczkę.
+                    <a href="{{url_for('login')}}"> Zaloguj się </a> lub <a href="{{url_for('registration')}}"> Zarejestruj się </a>
+                </div>
+
+                {% endif %}
 
                 <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
                     Strona główna

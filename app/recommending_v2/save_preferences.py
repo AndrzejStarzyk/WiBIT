@@ -1,7 +1,7 @@
 from typing import List
 
 from recommending_v2.algorythm_models.constraint import Constraint, CategoryConstraint
-from mongo_utils import MongoUtils
+from models.mongo_utils import MongoUtils
 from models.objectid import PydanticObjectId
 
 

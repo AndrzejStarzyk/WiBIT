@@ -260,7 +260,7 @@ def render_trip(schedule: Schedule, template: str):
                           maps[i].get_root().script.render(),
                           schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
 
-    res = render_template(template, trajectories_data=trajectories_data, map_headers=headers)
+    res = render_template(template, trajectories_data=trajectories_data, map_headers=headers, is_auth=current_user.is_authenticated)
     return res
 
 
@@ -278,6 +278,7 @@ async def show_suggested():
 
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
+
         if current_user.is_authenticated:
             user_pref = get_preferences_json(current_user.id, mongo_utils)
             for pref in user_pref:

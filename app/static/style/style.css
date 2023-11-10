@@ -68,7 +68,7 @@ body{
 
 /* suggested trip page */
 .maps_container{
-    padding: 10vh 15% 0 15%;
+    padding: 10vh 10% 0 10%;
 }
 
 
@@ -198,6 +198,7 @@ body{
 
 .auth-proposition-link{
     margin: 30px 0 10px 0;
+    text-align: center;
 }
 
 .user-login div{
