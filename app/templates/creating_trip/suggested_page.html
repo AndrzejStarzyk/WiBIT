@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Suggested trip</title>
+    {% for map_header in map_headers  %}
+        {{map_header|safe}}
+    {% endfor %}
+{% endblock %}
+
+{% block body %}
+<body>
+    <div class="maps_container">
+        {% for map_html, map_script, places in trajectories_data %}
+        <div class="row">
+            <div> Dzień {{ loop.index }}</div>
+            <div class="big-map col-12 col-md-6 col-xl-8">
+                {% for map_header in map_headers  %}
+                    {{ map_html|safe }}
+                {% endfor %}
+
+                <script>
+                    {{ map_script|safe }}
+                </script>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <h2> Trasa wycieczki </h2>
+                {% set outer_loop = loop %}
+                <form id="opinion-form_{{outer_loop.index}}" class="suggested-form" action="/suggest_again/{{loop.index}}" method="post">
+                    {% for place in places %}
+                    <div class="one-line">
+                        <p class="trip-place-name-small"> {{place.name}} </p>
+                        <input id="remove_{{place.xid}}" form="opinion-form_{{outer_loop.index}}" class="not-displayed remove-checkbox" type="checkbox"
+                               name="remove_{{place.xid}}" value="{{place.xid}}">
+                        <label class="base-label" for="remove_{{place.xid}}"> <span>USUŃ</span> </label>
+                        <input id="replace_{{place.xid}}" form="opinion-form_{{outer_loop.index}}" class="not-displayed replace-checkbox" type="checkbox"
+                               name="replace_{{place.xid}}" value="{{place.xid}}">
+                        <label class="base-label" for="replace_{{place.xid}}"> <span>WYMIEŃ</span> </label>
+                    </div>
+                    {% endfor %}
+
+
+                    <h3> Dodatkowe opcje </h3>
+                    <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
+                </form>
+
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-0 col-md-6 col-xl-8"></div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+                {% if is_auth %}
+                <h3> Dodatkowe opcje </h3>
+
+                <form id="save-trip-form">
+                    <input type="submit" class="trip-additional-button" value="Zapisz wycieczkę">
+                </form>
+
+                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
+                    Zapisane wycieczki
+                </a>
+                {% else %}
+                <div class="auth-proposition-link">
+                    Zalogowani użytkownicy mogą zapsać wycieczkę.
+                    <a href="{{url_for('login')}}"> Zaloguj się </a> lub <a href="{{url_for('registration')}}"> Zarejestruj się </a>
+                </div>
+
+                {% endif %}
+
+                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
+                    Strona główna
+                </a>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function () {
+        $('#save-trip-form').submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/save-trip',
+                success: function (data) {
+                    alert('Zapisano pomyślnie');
+                },
+                error: function () {
+                    alert('Błąd podczas zapisywania');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

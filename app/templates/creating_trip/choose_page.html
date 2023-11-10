@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Choose page</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Wybór kategorii atrakcji turystycznych</h1>
+    <form class="form" id="category_form" action="{{redirect}}" method="POST">
+        <div class="container">
+            {% for category in input_categories %}
+                <div class="item">
+                    <input class="not-displayed select-checkbox" name="cat_{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
+                    <label class="base-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
+                </div>
+            {% endfor %}
+            <br>
+
+            <button class="base-button">Dalej</button>
+        </div>
+
+    </form >
+</div>
+{% endblock %}
+

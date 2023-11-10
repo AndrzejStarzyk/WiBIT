@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Edit preferences</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Wybór kategorii atrakcji turystycznych</h1>
+    <form class="form" id="category_form" action="{{redirect}}" method="POST">
+        <div class="container">
+            {% for cat in categories %}
+                <div class="one-line">
+                    <div class="main_category">
+                        {% if cat['selected'] %}
+                            <input class="not-displayed select-checkbox" name="cat_{{ cat['main']['code']}}"
+                                   id="{{ cat['main']['code']  }}" type="checkbox" checked>
+                        {% else %}
+                            <input class="not-displayed select-checkbox" name="cat_{{ cat['main']['code']}}"
+                                   id="{{ cat['main']['code']  }}" type="checkbox">
+                        {% endif %}
+
+                        <label class="base-label" for="{{ cat['main']['code']  }}">{{ cat['main']['name']  }}</label>
+                    </div>
+                    <div class="subcategories">
+                        {% for sub in cat['sub'] %}
+                            <div class="item">
+                                {% if sub['selected']%}
+                                    <input class="not-displayed select-checkbox" name="cat_{{ sub['category']['code']}}"
+                                        id="{{ sub['category']['code']  }}" type="checkbox" checked>
+                                {% else %}
+                                    <input class="not-displayed select-checkbox" name="cat_{{ sub['category']['code']}}"
+                                        id="{{ sub['category']['code']  }}" type="checkbox">
+                                {% endif %}
+
+                                <label class="base-label" for="{{ sub['category']['code']  }}">{{ sub['category']['name']  }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% endfor %}
+            <button class="base-button">Zapisz</button>
+            <a href="{{url_for('user_main_page')}}" class="main-page-option col-11 col-md-5 col-lg-3">
+                Powrót
+            </a>
+        </div>
+
+    </form >
+</div>
+{% endblock %}

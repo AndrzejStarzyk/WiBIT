@@ -1,9 +1,10 @@
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
-from typing import List, Optional
-from .objectid import PydanticObjectId
+from typing import Optional
 from flask_login import UserMixin
+
+from models.objectid import PydanticObjectId
 
 
 class User(UserMixin, BaseModel):

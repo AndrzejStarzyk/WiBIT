@@ -1,67 +1,38 @@
-from typing import List
-
 import folium
 from flask import render_template
-from recommending_v2.model.trajectory import Trajectory
+
+from recommending_v2.algorythm_models.trajectory import Trajectory
 
 map_center = (50.0619474, 19.9368564)
 
 
 def create_map(trajectory: Trajectory) -> folium.Map:
-    path = trajectory.pois
+    path = trajectory.get_events()
     m = folium.Map(location=map_center, zoom_start=12)
     if len(path) == 0:
         return m
+
+    total_lat = 0
+    total_lon = 0
+    for event in path:
+        total_lat += event.poi.lat
+        total_lon += event.poi.lon
+    m = folium.Map(location=(total_lat/len(path), total_lon/len(path)), zoom_start=12)
+    
     trail = []
-    if len(trajectory.extra_info) == len(path):
+    for i in range(len(path)):
         folium.Marker(
-            location=(path[0].lat, path[0].lon),
-            popup=render_template('popup.html',
-                                  name=path[0].name,
-                                  img=path[0].image,
-                                  website=path[0].website,
-                                  wiki=path[0].wiki,
-                                  date=trajectory.extra_info[0][0],
-                                  start=trajectory.extra_info[0][1],
-                                  end=trajectory.extra_info[0][2]),
-            icon=folium.Icon(color='orange')
+            location=(path[i].poi.lat, path[i].poi.lon),
+            popup=render_template('map/popup.html',
+                                  name=path[i].poi.name,
+                                  img=path[i].poi.image,
+                                  website=path[i].poi.website,
+                                  wiki=path[i].poi.wiki,
+                                  start=path[i].start,
+                                  end=path[i].end),
+            icon=folium.Icon(color=color(i))
         ).add_to(m)
-    else:
-        folium.Marker(
-            location=(path[0].lat, path[0].lon),
-            popup=render_template('popup.html',
-                                  name=path[0].name,
-                                  img=path[0].image,
-                                  website=path[0].website,
-                                  wiki=path[0].wiki),
-            icon=folium.Icon(color='orange')
-        ).add_to(m)
-    trail.append((path[0].lat, path[0].lon))
-    for idx in range(len(path)):
-        if len(trajectory.extra_info) == len(path):
-            folium.Marker(
-                location=(path[idx].lat, path[idx].lon),
-                popup=render_template('popup.html',
-                                      name=path[idx].name,
-                                      img=path[idx].image,
-                                      website=path[idx].website,
-                                      wiki=path[idx].wiki,
-                                      date=trajectory.extra_info[idx][0],
-                                      start=trajectory.extra_info[idx][1],
-                                      end=trajectory.extra_info[idx][2]),
-                icon=folium.Icon(color='red')
-            ).add_to(m)
-        else:
-            folium.Marker(
-                location=(path[idx].lat, path[idx].lon),
-                popup=render_template('popup.html',
-                                      name=path[idx].name,
-                                      img=path[idx].image,
-                                      website=path[idx].website,
-                                      wiki=path[idx].wiki),
-                icon=folium.Icon(color='red')
-            ).add_to(m)
-        trail.append((path[idx].lat, path[idx].lon))
+        trail.append((path[i].poi.lat, path[i].poi.lon))
 
     if len(trail) > 0:
         folium.PolyLine(trail).add_to(m)
@@ -69,7 +40,14 @@ def create_map(trajectory: Trajectory) -> folium.Map:
     return m
 
 
+def color(i):
+    if i == 0:
+        return "orange"
+    else:
+        return 'blue'
+
+
 if __name__ == '__main__':
     a = [1, 2, 3]
-    for i in a[4: -1]:
-        print(i)
+    for i_ in a[4: -1]:
+        print(i_)
