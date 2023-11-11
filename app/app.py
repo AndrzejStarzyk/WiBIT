@@ -264,7 +264,18 @@ def show_chatbot():
     chat_user = 'Użytkownik'
     if current_user.is_authenticated:
         chat_user = current_user.login
-    return render_template("chatbot_view.html", user_name=chat_user, messages=chatbot_agent.get_all_messages())
+    return render_template("chatbot_view.html",
+                           user_name=chat_user,
+                           messages=chatbot_agent.get_all_messages(),
+                           is_finished=chatbot_agent.is_finished)
+
+
+@app.route('/reset-chatbot', methods=['POST'])
+def restart_chatbot():
+    global chatbot_agent
+    chatbot_agent = ChatbotAgent()
+    return redirect(url_for('show_chatbot'))
+
 
 def render_trip(schedule: Schedule, template: str):
     maps = [create_map(trajectory) for trajectory in schedule.trajectories]

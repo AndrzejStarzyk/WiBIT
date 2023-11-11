@@ -11,6 +11,8 @@ class ChatbotAgent:
         self.user_information_text = ''
         self.trip_date_text = None
 
+        self.is_finished = False
+
         init_message = ("Witaj w wirtualnym biurze informacji turystycznej. "
                         "Powiedz mi więcej o tym, w jaki sposób lubisz odwiedzać nowe miejsca, "
                         "abym mógł pomóc Ci z wyborem atrakcji.")
@@ -69,6 +71,7 @@ class ChatbotAgent:
             self.add_bot_message(f"Podane preferencje: {self.user_information_text} "
                                  f"Podana data: {self.trip_date_text}")
 
+            self.is_finished = True
             self.end_conversation()
 
             # TODO - something like propose_trip(self.user_information_text, self.trip_date_text)

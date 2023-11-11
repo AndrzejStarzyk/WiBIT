@@ -44,11 +44,17 @@
         {% endfor %}
 
         <div class="message-user new-message-container col-11 col-md-9 col-lg-7">
-            <h4>{{ user_name }}</h4>
-            <form method="POST">
-                <textarea id="message-textarea" name="user_text" rows="3" required="required"></textarea>
-                <input id="message-submit" type="submit" value="Prześlij">
-            </form>
+            {% if is_finished %}
+                <form id="reset-chatbot-form" action="/reset-chatbot" method="post">
+                    <input class="message-submit" type="submit" value="Zacznij od początku">
+                </form>
+            {% else %}
+                <h4>{{ user_name }}</h4>
+                <form method="POST">
+                    <textarea id="message-textarea" name="user_text" rows="3" required="required"></textarea>
+                    <input class="message-submit" type="submit" value="Prześlij">
+                </form>
+            {% endif %}
         </div>
 
     </div>

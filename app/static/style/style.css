@@ -204,7 +204,7 @@ body{
     margin-top: 20px;
 }
 
-#message-submit {
+.message-submit {
     background-color: darkseagreen;
     height: fit-content;
     width: fit-content;
@@ -216,7 +216,7 @@ body{
     margin: 10px 10px 10px 0;
 }
 
-#message-submit:hover {
+.message-submit:hover {
     box-shadow: 2px 2px 4px black;
 }
 
