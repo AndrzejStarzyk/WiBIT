@@ -261,6 +261,9 @@ def show_chatbot():
         new_message = request.form['user_text']
         chatbot_agent.add_user_message(new_message)
 
+        if chatbot_agent.is_finished and current_user.is_authenticated:
+            chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+
     chat_user = 'Użytkownik'
     if current_user.is_authenticated:
         chat_user = current_user.login

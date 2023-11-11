@@ -1,5 +1,7 @@
 import random
+
 from chatbot.message import Message
+from chatbot.chatbot_models import TextPreferences
 
 
 class ChatbotAgent:
@@ -33,6 +35,15 @@ class ChatbotAgent:
         self.messages.append(Message('bot_final', "Oto wycieczka przygotowana specjalnie dla Ciebie, "
                                                   "mam nadzieję, że pomogłem."))
 
+    def save_text_prefs(self, mongo_utils, user_id=None):
+        texts_collection = mongo_utils.get_collection('text-inputs')
+        if user_id is not None:
+            to_save = TextPreferences(user_id=user_id,
+                                      preferences_text=self.user_information_text,
+                                      date_text=self.trip_date_text)
+
+            texts_collection.insert_one(to_save.to_bson())
+
     def generate_answer(self):
         user_input_len = 0
 
@@ -50,7 +61,7 @@ class ChatbotAgent:
 
             else:
                 more_text = ("Wciąż mam zbyt mało informacji, aby pomóc Ci zaplanować wycieczkę "
-                             "- pomóż mi lepiej poznać Twoje preferencje.")
+                             "- pomóż mi lepiej poznać Twoje preferencje i opowiedz o tym, co lubisz.")
 
             self.add_bot_message(more_text)
 
@@ -61,7 +72,7 @@ class ChatbotAgent:
                     self.user_information_text += message.text + ' '
 
             self.date_message_used = True
-            date_text = "Podaj mi planowany termin Twojej wycieczki."
+            date_text = "Kiedy odbędzie się i jak długo będzie trwała Twoja wycieczka?"
             self.add_bot_message(date_text)
 
         else:
