@@ -17,13 +17,26 @@
                         {{ message.text }}
                     </div>
                 </div>
-            {% endif %}
 
-            {% if message.author == 'user' %}
+            {% elif message.author == 'user' %}
                 <div class="message-user col-11 col-md-9 col-lg-7">
                     <h4>{{ user_name }}</h4>
                     <div class="inner-message-user inner-message">
                         {{ message.text }}
+                    </div>
+                </div>
+
+            {% elif message.author == 'bot_final' %}
+                <div class="message-chatbot col-11 col-md-9 col-lg-7">
+                    <h4>WiBIT</h4>
+                    <div class="inner-message-chatbot inner-message">
+                        <p> {{ message.text }} </p>
+                        <div>
+                            <a href="{{url_for('show_default_trip')}}" class="trip-additional-button button-in-chatbot">
+                                Pokaż moją wycieczkę
+                                <!-- Here should be url for newly created trip -->
+                            </a>
+                        </div>
                     </div>
                 </div>
             {% endif %}
@@ -33,7 +46,7 @@
         <div class="message-user new-message-container col-11 col-md-9 col-lg-7">
             <h4>{{ user_name }}</h4>
             <form method="POST">
-                <textarea id="message-textarea" name="user_text" rows="3"></textarea>
+                <textarea id="message-textarea" name="user_text" rows="3" required="required"></textarea>
                 <input id="message-submit" type="submit" value="Prześlij">
             </form>
         </div>
@@ -45,7 +58,6 @@
     function scrollToBottom() {
       var chatbotBlock = document.querySelector('.chatbot-block');
       chatbotBlock.scrollTop = chatbotBlock.scrollHeight;
-
     }
 
     scrollToBottom()

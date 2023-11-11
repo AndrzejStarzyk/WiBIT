@@ -202,7 +202,6 @@ body{
 
 .new-message-container{
     margin-top: 20px;
-
 }
 
 #message-submit {
@@ -215,7 +214,10 @@ body{
     border-radius: 5px;
     padding: 5px 30px;
     margin: 10px 10px 10px 0;
+}
 
+#message-submit:hover {
+    box-shadow: 2px 2px 4px black;
 }
 
 .auth-form{
@@ -310,11 +312,22 @@ body{
     color: royalblue;
 }
 
-/* edit preferences */
+.button-in-chatbot{
+    padding: 6px;
+    margin: 6px 6px 6px 10%;
+    width: 80%;
+    background-color: darkseagreen;
+    font-weight: bold;
+}
 
+.button-in-chatbot:hover {
+    color: black;
+    box-shadow: 2px 2px 4px black;
+}
+
+/* edit preferences */
 
 #subcategories{
     display: flex;
     flex-direction: column;
 }
->>>>>>> main
