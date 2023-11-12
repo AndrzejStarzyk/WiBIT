@@ -24,13 +24,13 @@
           <ul class="menu">
               {% if 'user_name' in session %}
               <li class="listelem"><div class="menu-user-label">Zalogowano jako: {{session['user_name']}}</div></li>
-              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link non-decorated-link">Strona główna</a></li>
-              <li class="listelem"><a href="{{url_for('user_main_page')}}" class="menu-link non-decorated-link">Panel użytkownika</a></li>
-              <li class="listelem"><a href="{{url_for('logout')}}" class="menu-link non-decorated-link">Wyloguj się</a></li>
+              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link">Strona główna</a></li>
+              <li class="listelem"><a href="{{url_for('user_main_page')}}" class="menu-link">Panel użytkownika</a></li>
+              <li class="listelem"><a href="{{url_for('logout')}}" class="menu-link">Wyloguj się</a></li>
               {% else %}
-              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link non-decorated-link">Strona główna</a></li>
-              <li class="listelem"><a href="{{url_for('registration')}}" class="menu-link non-decorated-link">Zarejestruj się</a></li>
-              <li class="listelem"><a href="{{url_for('login')}}" class="menu-link non-decorated-link">Zaloguj się</a></li>
+              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link">Strona główna</a></li>
+              <li class="listelem"><a href="{{url_for('registration')}}" class="menu-link">Zarejestruj się</a></li>
+              <li class="listelem"><a href="{{url_for('login')}}" class="menu-link">Zaloguj się</a></li>
               {% endif %}
           </ul>
 

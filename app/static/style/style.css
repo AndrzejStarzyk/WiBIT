@@ -7,6 +7,14 @@ h1, h2, h3{
     width: 100%;
 }
 
+input, select{
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 6px;
+    background-color: white;
+    font-size: large;
+}
+
 .title-header{
     margin: 10vh 0;
 }
@@ -34,6 +42,12 @@ h1, h2, h3{
     border: 1px solid black;
     border-radius: 5px;
     margin: 10px 5px 0 5px;
+}
+
+.main-page-option:hover{
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 /* default page */
@@ -113,6 +127,15 @@ h1, h2, h3{
     padding: 6px 20px 6px 20px;
     margin-left: 13px;
     text-align: center;
+    font-size: medium;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    min-width: 128px;
+}
+
+.base-button:hover{
+    box-shadow: 2px 2px 4px black;
 }
 
 .trip-place-name-small{
@@ -242,6 +265,16 @@ h1, h2, h3{
     border-radius: 5px;
 }
 
+.auth-form form input#submit{
+    background-color: white;
+    width: 228px;
+    text-align: center;
+}
+
+.auth-form form input#submit:hover{
+    box-shadow: 2px 2px 4px black;
+}
+
 .auth-alert{
     margin: 20px 0 20px 0;
     text-align: center;
@@ -270,7 +303,9 @@ h1, h2, h3{
 }
 
 .user-login a:hover{
-    color: royalblue;
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 .chatbot-block{
@@ -294,8 +329,14 @@ h1, h2, h3{
     margin: 10px 5px;
 }
 
+.saved-trip-banner p{
+    margin-bottom: 4px;
+}
+
 .saved-trip-banner:hover{
-    color: royalblue;
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 .trip-additional-button{
@@ -305,6 +346,7 @@ h1, h2, h3{
     text-decoration: none;
     padding: 10px;
     font-size: medium;
+    background-color: white;
     color: black;
     border: 1px solid black;
     border-radius: 5px;
@@ -313,7 +355,8 @@ h1, h2, h3{
 
 .trip-additional-button:hover{
     text-decoration: none;
-    color: royalblue;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 .button-in-chatbot{

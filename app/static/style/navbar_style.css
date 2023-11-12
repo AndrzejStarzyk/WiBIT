@@ -104,10 +104,14 @@
 }
 
 .menu-link{
-  width: 100%;
-  padding: 21px 10px 21px 10px;
-  text-align: center;
-  text-decoration: none;
+    width: 96%;
+    margin-left: 2%;
+    margin-right: 2%;
+    padding: 6px;
+    color: black;
+    text-decoration: none;
+    border: 1px solid black;
+    border-radius: 5px;
 }
 
 .menu-link p{
@@ -119,6 +123,7 @@
 .menu-link:hover{
   text-decoration: none;
   color: black;
+  box-shadow: 2px 2px 4px black;
 }
 
 #navbox:checked~ul.menu li{
@@ -131,22 +136,6 @@
 
 .header-short{
     font-size: 27px;
-}
-
-.non-decorated-link:hover{
-    text-decoration: none;
-    box-shadow: 2px 2px 4px black;
-}
-
-.non-decorated-link{
-    width: 96%;
-    margin-left: 2%;
-    margin-right: 2%;
-    padding: 6px;
-    color: black;
-    text-decoration: none;
-    border: 1px solid black;
-    border-radius: 5px;
 }
 
 .menu-user-label{
@@ -180,11 +169,7 @@
     width: 20%;
   }
 
-  .non-decorated-link:hover{
-    text-decoration: none;
-  }
-
-  .non-decorated-link{
+  .menu-link{
     padding: 10px;
     margin-top: 8px;
   }
