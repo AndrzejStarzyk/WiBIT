@@ -1,29 +1,39 @@
+body{
+    padding: 0;
+}
+
 h1, h2, h3{
     text-align: center;
     width: 100%;
 }
+
+.title-header{
+    margin: 10vh 0;
+}
+
+@media only screen and (max-width: 992px) {
+    .title-header{
+        margin: 5vh 0;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .title-header{
+        margin: 0 0 24px 0;
+    }
+}
+
 
 /* main page */
 .main-page-option{
     text-align: center;
     text-decoration: none;
     padding: 30px;
-    margin-top: 10vh;
     font-size: medium;
     color: black;
     border: 1px solid black;
     border-radius: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-@media only screen and (max-width: 992px) {
-    .main-page-option {
-        margin-top: 20px;
-    }
-}
-
-body{
-    padding: 20px;
+    margin: 10px 5px 0 5px;
 }
 
 /* default page */
@@ -230,12 +240,6 @@ body{
     border: 1px solid black;
     padding: 5px;
     border-radius: 5px;
-}
-
-.user-top-bar{
-    width: 100%;
-    margin: 20px;
-    text-align: right;
 }
 
 .auth-alert{

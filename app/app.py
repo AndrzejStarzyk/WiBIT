@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, session
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
@@ -53,8 +53,10 @@ def load_user(user_id):
 def update_user_name():
     global user_name
     if current_user.is_authenticated:
+        session['user_name'] = current_user.login
         user_name = current_user.login
     else:
+        session.pop('user_name', None)
         user_name = None
 
 
@@ -147,8 +149,7 @@ def registration():
 @login_required
 def logout():
     logout_user()
-    global user_name
-    user_name = None
+    update_user_name()
     return redirect(url_for('show_home'))
 
 
@@ -289,7 +290,9 @@ def render_trip(schedule: Schedule, template: str):
                           maps[i].get_root().script.render(),
                           schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
 
-    res = render_template(template, trajectories_data=trajectories_data, map_headers=headers, is_auth=current_user.is_authenticated)
+    res = render_template(template, trajectories_data=trajectories_data,
+                          map_headers=headers,
+                          is_auth=current_user.is_authenticated)
     return res
 
 
