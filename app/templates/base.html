@@ -6,6 +6,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/navbar_style.css') }}">
 
     {% block head %}{% endblock %}
 
@@ -13,6 +14,35 @@
   </head>
 
   <body>
+      <div class="navigation-bar">
+          <input type="checkbox" id="navbox">
+
+          <a class="menu-logo" href="{{url_for('show_home')}}">
+              <p class="header">WiBIT</p>
+          </a>
+
+          <ul class="menu">
+              {% if 'user_name' in session %}
+              <li class="listelem"><div class="menu-user-label">Zalogowano jako: {{session['user_name']}}</div></li>
+              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link">Strona główna</a></li>
+              <li class="listelem"><a href="{{url_for('user_main_page')}}" class="menu-link">Panel użytkownika</a></li>
+              <li class="listelem"><a href="{{url_for('logout')}}" class="menu-link">Wyloguj się</a></li>
+              {% else %}
+              <li class="listelem"><a href="{{url_for('show_home')}}" class="menu-link">Strona główna</a></li>
+              <li class="listelem"><a href="{{url_for('registration')}}" class="menu-link">Zarejestruj się</a></li>
+              <li class="listelem"><a href="{{url_for('login')}}" class="menu-link">Zaloguj się</a></li>
+              {% endif %}
+          </ul>
+
+          <label for="navbox" class="navlabel">
+              <div class="clickyelem">
+                  <div class="burger-button-part" id="firstline"></div>
+                  <div class="burger-button-part" id="secondline"></div>
+                  <div class="burger-button-part" id="thirdline"></div>
+              </div>
+          </label>
+
+      </div>
 
     {% block body %}{% endblock %}
 
