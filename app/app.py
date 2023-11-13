@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, session
 from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
@@ -18,8 +18,10 @@ from recommending_v2.save_preferences import save_preferences, get_preferences_j
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
+from chatbot.chatbot_agent import ChatbotAgent
 from models.user import User
 from models.mongo_utils import MongoUtils
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -28,6 +30,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 mongo_utils = MongoUtils()
+chatbot_agent = ChatbotAgent()
+
 users = mongo_utils.get_collection('users')
 trips = mongo_utils.get_collection('trips')
 user_name = None
@@ -49,8 +53,10 @@ def load_user(user_id):
 def update_user_name():
     global user_name
     if current_user.is_authenticated:
+        session['user_name'] = current_user.login
         user_name = current_user.login
     else:
+        session.pop('user_name', None)
         user_name = None
 
 
@@ -143,8 +149,7 @@ def registration():
 @login_required
 def logout():
     logout_user()
-    global user_name
-    user_name = None
+    update_user_name()
     return redirect(url_for('show_home'))
 
 
@@ -251,6 +256,31 @@ def show_default_trip():
     return res
 
 
+@app.route('/chatbot', methods=['GET', 'POST'])
+def show_chatbot():
+    if request.method == "POST":
+        new_message = request.form['user_text']
+        chatbot_agent.add_user_message(new_message)
+
+        if chatbot_agent.is_finished and current_user.is_authenticated:
+            chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+
+    chat_user = 'Użytkownik'
+    if current_user.is_authenticated:
+        chat_user = current_user.login
+    return render_template("chatbot_view.html",
+                           user_name=chat_user,
+                           messages=chatbot_agent.get_all_messages(),
+                           is_finished=chatbot_agent.is_finished)
+
+
+@app.route('/reset-chatbot', methods=['POST'])
+def restart_chatbot():
+    global chatbot_agent
+    chatbot_agent = ChatbotAgent()
+    return redirect(url_for('show_chatbot'))
+
+
 def render_trip(schedule: Schedule, template: str):
     maps = [create_map(trajectory) for trajectory in schedule.trajectories]
     for m in maps:
@@ -260,7 +290,9 @@ def render_trip(schedule: Schedule, template: str):
                           maps[i].get_root().script.render(),
                           schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
 
-    res = render_template(template, trajectories_data=trajectories_data, map_headers=headers, is_auth=current_user.is_authenticated)
+    res = render_template(template, trajectories_data=trajectories_data,
+                          map_headers=headers,
+                          is_auth=current_user.is_authenticated)
     return res
 
 

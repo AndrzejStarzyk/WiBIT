@@ -1,29 +1,53 @@
+body{
+    padding: 0;
+}
+
 h1, h2, h3{
     text-align: center;
     width: 100%;
 }
+
+input, select{
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 6px;
+    background-color: white;
+    font-size: large;
+}
+
+.title-header{
+    margin: 10vh 0;
+}
+
+@media only screen and (max-width: 992px) {
+    .title-header{
+        margin: 5vh 0;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .title-header{
+        margin: 0 0 24px 0;
+    }
+}
+
 
 /* main page */
 .main-page-option{
     text-align: center;
     text-decoration: none;
     padding: 30px;
-    margin-top: 10vh;
     font-size: medium;
     color: black;
     border: 1px solid black;
     border-radius: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-@media only screen and (max-width: 992px) {
-    .main-page-option {
-        margin-top: 20px;
-    }
+    margin: 10px 5px 0 5px;
 }
 
-body{
-    padding: 20px;
+.main-page-option:hover{
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 /* default page */
@@ -103,6 +127,15 @@ body{
     padding: 6px 20px 6px 20px;
     margin-left: 13px;
     text-align: center;
+    font-size: medium;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    min-width: 128px;
+}
+
+.base-button:hover{
+    box-shadow: 2px 2px 4px black;
 }
 
 .trip-place-name-small{
@@ -171,6 +204,55 @@ body{
     margin: auto 3vw auto 3vw;
 }
 
+.message-chatbot{
+    text-align: left;
+    margin-top: 20px;
+}
+
+.message-user{
+    text-align: right;
+    margin-top: 20px;
+}
+
+.inner-message{
+    border: 1px solid black;
+    width: 80%;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.inner-message-user{
+    margin-left: 20%;
+    background-color: darkseagreen;
+}
+
+#message-textarea{
+    width: 100%;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.new-message-container{
+    margin-top: 20px;
+}
+
+.message-submit {
+    background-color: darkseagreen;
+    height: fit-content;
+    width: fit-content;
+    font-weight: bold;
+    font-size: larger;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px 30px;
+    margin: 10px 10px 10px 0;
+}
+
+.message-submit:hover {
+    box-shadow: 2px 2px 4px black;
+}
+
 .auth-form{
     text-align: center;
 }
@@ -183,10 +265,14 @@ body{
     border-radius: 5px;
 }
 
-.user-top-bar{
-    width: 100%;
-    margin: 20px;
-    text-align: right;
+.auth-form form input#submit{
+    background-color: white;
+    width: 228px;
+    text-align: center;
+}
+
+.auth-form form input#submit:hover{
+    box-shadow: 2px 2px 4px black;
 }
 
 .auth-alert{
@@ -217,7 +303,14 @@ body{
 }
 
 .user-login a:hover{
-    color: royalblue;
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
+}
+
+.chatbot-block{
+    height: 80vh;
+    overflow-y: scroll;
 }
 
 #save-trip-form{
@@ -236,8 +329,14 @@ body{
     margin: 10px 5px;
 }
 
+.saved-trip-banner p{
+    margin-bottom: 4px;
+}
+
 .saved-trip-banner:hover{
-    color: royalblue;
+    text-decoration: none;
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 .trip-additional-button{
@@ -247,6 +346,7 @@ body{
     text-decoration: none;
     padding: 10px;
     font-size: medium;
+    background-color: white;
     color: black;
     border: 1px solid black;
     border-radius: 5px;
@@ -255,11 +355,24 @@ body{
 
 .trip-additional-button:hover{
     text-decoration: none;
-    color: royalblue;
+    color: black;
+    box-shadow: 2px 2px 4px black;
+}
+
+.button-in-chatbot{
+    padding: 6px;
+    margin: 6px 6px 6px 10%;
+    width: 80%;
+    background-color: darkseagreen;
+    font-weight: bold;
+}
+
+.button-in-chatbot:hover {
+    color: black;
+    box-shadow: 2px 2px 4px black;
 }
 
 /* edit preferences */
-
 
 #subcategories{
     display: flex;

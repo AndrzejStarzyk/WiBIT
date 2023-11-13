@@ -12,10 +12,6 @@ def save_trip(user_id, schedule: Schedule):
     mongo_utils = MongoUtils()
     trips = mongo_utils.get_collection('trips')
 
-    for event in schedule.trajectories[0].get_events():
-        print(event.start)
-        print(type(event.start))
-
     trip = TripDaysMongo(
         user_id=user_id,
         days=[DayMongo(
@@ -32,8 +28,6 @@ def save_trip(user_id, schedule: Schedule):
                 ) for event in schedule.trajectories[i].get_events()]
         ) for i in range(schedule.days)]
     )
-
-    print(trip.to_bson())
 
     trips.insert_one(trip.to_bson())
 
