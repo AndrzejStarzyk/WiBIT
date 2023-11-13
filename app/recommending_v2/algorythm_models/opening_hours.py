@@ -49,8 +49,8 @@ class OpeningHours:
         if self.is_always_opened:
             return True
         for period in self.periods:
-            if period.open.day == weekday and period.open.time < start and \
-                    period.close.day == weekday and period.close.time > end:
+            if period.open.day == weekday and period.open.time <= end and \
+                    period.close.day == weekday and period.close.time >= start:
                 return True
         return False
 

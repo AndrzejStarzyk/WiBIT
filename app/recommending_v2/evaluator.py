@@ -28,10 +28,10 @@ class Evaluator:
 
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
         place_id_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
-        #for poi, s in place_id_score:
-        #    res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
-        #    if len(res) > 0:
-        #        print(poi.name, s, res[0][1])
+        for poi, s in place_id_score:
+            res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
+            if len(res) > 0:
+                print(poi.name, s, res[0][1])
         res = []
         i = 0
         curr_time = day.start
