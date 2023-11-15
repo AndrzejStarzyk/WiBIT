@@ -11,7 +11,7 @@ from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.algorythm_models.schedule import Schedule
+from recommending_v2.algorythm_models.schedule import Schedule, Day
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
 from recommending_v2.save_preferences import save_preferences, get_preferences_json, delete_preferences
@@ -244,7 +244,13 @@ def show_categories():
 def show_default_trip():
     res = render_template("default_page.html")
     try:
-        trajectory = default_trip.get_trip(None)
+        default_schedule = default_trip.get_default_schedule()
+        recommender.days = 1
+        recommender.dates = default_schedule.dates
+        recommender.hours = default_schedule.hours
+        recommender.create_schedule()
+        print(list(map(lambda x: (x.date_str, x.start, x.end, x.weekday), recommender.schedule.schedule)))
+        trajectory = default_trip.get_trip(default_schedule.schedule[0])
         m = create_map(trajectory)
         m.get_root().render()
         map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
@@ -348,6 +354,7 @@ def suggest_again(day_nr: int):
         recommended = recommender.recommend_again(day_nr-1)
     else:
         recommended = recommender.recommend_again(day_nr-1)
+    print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
 

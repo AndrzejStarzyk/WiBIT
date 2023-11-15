@@ -6,7 +6,7 @@ from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.algorythm_models.user_in_algorythm import User
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.algorythm_models.constraint import Constraint, GeneralConstraint, ProximityConstraint
+from recommending_v2.algorythm_models.constraint import Constraint, ProximityConstraint, ConstraintType
 from recommending_v2.algorythm_models.trajectory import Trajectory
 from recommending_v2.algorythm_models.schedule import Schedule
 
@@ -29,7 +29,7 @@ class Recommender:
         self.cold_start = False
 
     def add_constraint(self, constraint: Constraint):
-        if self.cold_start:
+        if self.cold_start and constraint.to_json()["constraint_type"] == ConstraintType.Category.value:
             self.cold_start = False
         self.user.add_constraint(constraint, constraint.get_weight())
 
@@ -50,6 +50,7 @@ class Recommender:
         else:
             self.evaluator.setup()
             for day in self.schedule.schedule:
+                print(day.date_str)
                 best_pois = self.evaluator.extract_best_trajectory(day)
                 trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
                 self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))
@@ -58,6 +59,9 @@ class Recommender:
             return self.schedule
 
     def recommend_again(self, day_id: int) -> Schedule:
+        if self.cold_start:
+            self.cold_start = False
+            return self.get_recommended()
         if day_id < 0 or day_id >= len(self.schedule.schedule):
             return self.schedule
         self.evaluator.evaluate()
