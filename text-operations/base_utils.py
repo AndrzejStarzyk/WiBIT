@@ -92,7 +92,10 @@ def read_chat_html(html_path) -> pd.DataFrame:
     for tmp_json in pref_jsons_formatted:
         pref_dict = json.loads(tmp_json)
         prefs_dict_df['text'].append(pref_dict['Preferencje']['Opis'])
-        prefs_dict_df['date'].append(pref_dict['Termin']['Data'])
+        if pref_dict['Termin'] is dict:
+            prefs_dict_df['date'].append(pref_dict['Termin']['Data'])
+        else:
+            prefs_dict_df['date'].append(pref_dict['Termin'])
 
         for place_cat in pref_dict['Miejsca'].keys():
             prefs_dict_df[place_cat].append(pref_dict['Miejsca'][place_cat])
@@ -105,6 +108,10 @@ def read_chat_html(html_path) -> pd.DataFrame:
 
 # print(read_form_result('./files/wibit_form.csv'))
 
-# df = read_chat_html('./files/chat_example.html')
+# df_1 = read_chat_html('./files/chat_example.html')
+# df_2 = read_chat_html('./files/chat_example_2.html')
+# df = pd.concat([df_1, df_2], ignore_index=True)
+
 # print(df)
+# print(df.size)
 # df.to_csv('./files/chat_example.csv')
