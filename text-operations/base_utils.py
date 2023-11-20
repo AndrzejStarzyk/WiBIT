@@ -90,15 +90,23 @@ def read_chat_html(html_path) -> pd.DataFrame:
     prefs_dict_df = {cat_key: [] for cat_key in keys}
 
     for tmp_json in pref_jsons_formatted:
-        pref_dict = json.loads(tmp_json)
-        prefs_dict_df['text'].append(pref_dict['Preferencje']['Opis'])
-        if pref_dict['Termin'] is dict:
-            prefs_dict_df['date'].append(pref_dict['Termin']['Data'])
-        else:
-            prefs_dict_df['date'].append(pref_dict['Termin'])
+        try:
+            pref_dict = json.loads(tmp_json)
+            prefs_dict_df['text'].append(pref_dict['Preferencje']['Opis'])
 
-        for place_cat in pref_dict['Miejsca'].keys():
-            prefs_dict_df[place_cat].append(pref_dict['Miejsca'][place_cat])
+            if type(pref_dict['Termin']) is dict:
+                prefs_dict_df['date'].append(pref_dict['Termin']['Data'])
+            else:
+                prefs_dict_df['date'].append(pref_dict['Termin'])
+
+            for place_cat in pref_dict['Miejsca'].keys():
+                prefs_dict_df[place_cat].append(pref_dict['Miejsca'][place_cat])
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            break
 
     df = pd.DataFrame.from_dict(prefs_dict_df)
     df.columns = [categories_dict[cat] if cat in categories_dict else cat for cat in df.columns]
@@ -110,7 +118,9 @@ def read_chat_html(html_path) -> pd.DataFrame:
 
 # df_1 = read_chat_html('./files/chat_example.html')
 # df_2 = read_chat_html('./files/chat_example_2.html')
-# df = pd.concat([df_1, df_2], ignore_index=True)
+# df_3 = read_chat_html('./files/chat_example_3.html')
+# df_4 = read_chat_html('./files/chat_example_4.html')
+# df = pd.concat([df_1, df_2, df_3, df_4], ignore_index=True)
 
 # print(df)
 # print(df.size)
