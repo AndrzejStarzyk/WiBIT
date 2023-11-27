@@ -6,12 +6,12 @@ from wtforms.validators import ValidationError
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.poi_provider import PoiProvider
+from point_of_interest.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.algorythm_models.schedule import Schedule, Day
+from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
 from recommending_v2.save_preferences import save_preferences, get_preferences_json, delete_preferences
@@ -184,6 +184,10 @@ def edit_preferences():
                 categories_provider.get_subcategories([cat.code])]
     } for cat in categories_provider.get_main_categories()]
     return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
+
+
+@app.route('/city', methods=['GET', 'POST'])
+def choose_city():
 
 
 @app.route('/duration', methods=['GET', 'POST'])

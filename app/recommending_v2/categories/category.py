@@ -295,5 +295,5 @@ categories = [
 ]
 
 if __name__ == "__main__":
-    a = timedelta(minutes=30)
-    print(a/3)
+    a = {"a": 1, "b": 2}
+    print(a.get("a"))
