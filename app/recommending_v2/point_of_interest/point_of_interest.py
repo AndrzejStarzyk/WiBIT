@@ -5,7 +5,7 @@ from recommending_v2.algorythm_models.opening_hours import OpeningHours, parse_o
 
 class PointOfInterest:
     def __init__(self, xid: str, name: str, lon: float, lat: float, kinds: List[str],
-                 website: str, wiki: str, img: str, opening_hours):
+                 website: str, wiki: str, img: str, opening_hours: str):
         self.xid: str = xid
         self.name: str = name
         self.lat: float = lat

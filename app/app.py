@@ -6,7 +6,7 @@ from wtforms.validators import ValidationError
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from point_of_interest.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
@@ -21,7 +21,6 @@ from models.forms import LoginForm, RegisterForm
 from chatbot.chatbot_agent import ChatbotAgent
 from models.user import User
 from models.mongo_utils import MongoUtils
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -186,8 +185,17 @@ def edit_preferences():
     return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
 
 
-@app.route('/city', methods=['GET', 'POST'])
+@app.route('/region', methods=['GET', 'POST'])
 def choose_city():
+    if request.method == 'GET':
+        available = poi_provider.get_available_attraction_sets()
+        return render_template('creating_trip/choose_city.html', options=available)
+    if request.method == 'POST':
+        if 'region' in request.form.items():
+            poi_provider.fetch_attractions_from_osm(request.form.get('region'))
+        else:
+            poi_provider.fetch_pois(request.form.get('region')[7:])
+        redirect(url_for('/duration'))
 
 
 @app.route('/duration', methods=['GET', 'POST'])
@@ -352,12 +360,12 @@ def suggest_again(day_nr: int):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
             some_replaced = True
     if some_removed and not some_replaced:
-        recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+        recommended = recommender.remove_from_schedule(day_nr - 1, to_remove)
     elif not some_removed and not some_replaced:
         recommender.modify_general_constraint()
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
     else:
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
     print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
     return render_trip(recommended, "creating_trip/suggested_page.html")
 

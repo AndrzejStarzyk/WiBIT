@@ -5,7 +5,7 @@ from typing import List, Union, Tuple
 from models.mongo_utils import MongoUtils
 from recommending_v2.algorythm_models.schedule import Day, Schedule
 from recommending_v2.algorythm_models.trajectory import Trajectory
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 
 trip = {
     "trip": [

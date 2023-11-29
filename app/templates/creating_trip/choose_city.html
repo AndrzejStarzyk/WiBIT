@@ -5,20 +5,24 @@
 
 {% block body %}
 <div>
-    <h1></h1>
-    <form class="form" id="category_form" action="{{redirect}}" method="POST">
+    <h1>Wybier lub wprowadź nawzę miasta albo regionu, gdzie chcesz spędzić wycieczkę</h1>
+    <form class="form" id="region_form" action="/region" method="POST">
         <div class="container">
-            {% for category in input_categories %}
+            {% for option in options %}
                 <div class="item">
-                    <input class="not-displayed select-checkbox" name="cat_{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
-                    <label class="base-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
+                    <input class="not-displayed select-checkbox" name="region_{{ option[0]}}-{{ option[1] }}" id="{{ option[1]  }}" type="radio">
+                    <label class="base-label" for="{{ option[1]  }}">{{ option[1] }}, {{ option[0] }}</label>
                 </div>
             {% endfor %}
             <br>
 
-            <button class="base-button">Dalej</button>
+            <button class="base-button" type="submit" form="region_form">Dalej</button>
         </div>
-
+        <div class="container">
+            <label class="base-label" for="region"></label>
+            <input id="region" type="text">
+            <button class="base-button" type="submit" form="region_form">Dalej</button>
+        </div>
     </form >
 </div>
 {% endblock %}

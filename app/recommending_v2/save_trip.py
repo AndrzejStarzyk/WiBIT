@@ -3,7 +3,7 @@ from datetime import datetime
 from recommending_v2.algorythm_models.mongo_trip_models import ScheduleMongo, PoiMongo, DayMongo, TripDaysMongo
 from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.algorythm_models.trajectory import Trajectory
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from models.mongo_utils import MongoUtils
 from models.constants import ATTRACTIONS_COLLECTION
 

@@ -1,8 +1,6 @@
 mappings = [
     {
-        "code": "attraction",
-        "key": "attraction",
-        "value": "*"
+        "code": "attraction"
     }, {
         "code": "amusement_parks",
         "query_parameters": [{
@@ -34,35 +32,90 @@ mappings = [
         }],
     }, {
         "code": "sport",
+        "query_parameters": [{
+            "key": "sport",
+            "value": "*"
+        }],
     }, {
-        "code": "climbing"
+        "code": "climbing",
+        "query_parameters": [{
+            "key": "hiking",
+            "value": "yes"
+        }],
     }, {
-        "code": "stadiums"
+        "code": "stadiums",
+        "query_parameters": [{
+            "key": "leisure",
+            "value": "stadium"
+        }],
     }, {
-        "code": "winter_sports"
+        "code": "winter_sports",
+        "query_parameters": [{
+            "key": "landuse",
+            "value": "winter_sport"
+        }],
     }, {
-        "code": "natural"
+        "code": "natural",
+        "query_parameters": [{
+            "key": "natural",
+            "value": "*"
+        }],
     }, {
-        "code": "natural_springs"
+        "code": "natural_springs",
+        "query_parameters": [{
+            "key": "natural",
+            "value": "spring"
+        }],
     }, {
-        "code": "water"
+        "code": "water",
+        "query_parameters": [{
+            "key": "natural",
+            "value": "water"
+        }],
     }, {
-        "code": "nature_reserves"
+        "code": "nature_reserves",
+        "query_parameters": [{
+            "key": "leisure",
+            "value": "nature_reserve"
+        }],
     }, {
-        "code": "beaches"
+        "code": "beaches",
+        "query_parameters": [{
+            "key": "natural",
+            "value": "beach"
+        }],
     }, {
         "code": "industrial_facilities"
     }, {
-        "code": "railway_stations"
+        "code": "railway_stations",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "railway"
+        }],
     }, {
-        "code": "dams"
+        "code": "dams",
+        "query_parameters": [{
+            "key": "waterway",
+            "value": "dam"
+        }],
     }, {
         "code": "mints"
     }, {
-        "code": "mineshafts"
+        "code": "mineshafts",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "mine"
+        }],
     }, {
         "code": "science_museums",
-        "additional_codes": ["museums_of_science_and_technology"]
+        "additional_codes": ["museums_of_science_and_technology"],
+        "query_parameters": [{
+            "key": "museum",
+            "value": "science"
+        }, {
+            "key": "museum",
+            "value": "technology"
+        }],
     }, {
         "code": "religion",
         "query_parameters": [{
@@ -72,7 +125,7 @@ mappings = [
     }, {
         "code": "churches",
         "query_parameters": [{
-            "key": "building",
+            "key": "historic",
             "value": "church"
         }],
     }, {
@@ -84,7 +137,7 @@ mappings = [
     }, {
         "code": "monasteries",
         "query_parameters": [{
-            "key": "building",
+            "key": "historic",
             "value": "monastery"
         }],
     }, {
@@ -102,7 +155,7 @@ mappings = [
     }, {
         "code": "mosques",
         "query_parameters": [{
-            "key": "building",
+            "key": "historic",
             "value": "mosque"
         }],
     }, {
@@ -116,17 +169,41 @@ mappings = [
         }],
     }, {
         "code": "historical_places",
-        "additional_codes": ["fortifications", "historic"]
+        "additional_codes": ["fortifications", "historic"],
+        "query_parameters": [{
+            "key": "historic",
+            "value": "*"
+        }],
     }, {
-        "code": "castles"
+        "code": "castles",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "castle"
+        }],
     }, {
-        "code": "fortified_towers"
+        "code": "fortified_towers",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "tower"
+        }],
     }, {
-        "code": "bunkers"
+        "code": "bunkers",
+        "query_parameters": [{
+            "key": "military",
+            "value": "bunker"
+        }],
     }, {
-        "code": "military_museums"
+        "code": "military_museums",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "military"
+        }],
     }, {
-        "code": "battlefields"
+        "code": "battlefields",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "battlefield"
+        }],
     }, {
         "code": "war_graves",
         "query_parameters": [{
@@ -134,22 +211,48 @@ mappings = [
             "value": "war_cemetery"
         }],
     }, {
-        "code": "war_memorials"
+        "code": "war_memorials",
+        "query_parameters": [{
+            "key": "memorial",
+            "value": "war_memorial"
+        }],
     }, {
         "code": "burial_places"
     }, {
-        "code": "cemeteries"
-    },{
-        "code": "necropolises"
-    } ,
-    {
-        "code": "mausoleums"
+        "code": "cemeteries",
+        "query_parameters": [{
+            "key": "landuse",
+            "value": "cemetery"
+        }, {
+            "key": "amenity",
+            "value": "grave_yard"
+        }],
     }, {
-        "code": "crypts"
+        "code": "necropolises",
+        "query_parameters": [{
+            "key": "archaeological_site",
+            "value": "necropolis"
+        }],
+    }, {
+        "code": "mausoleums",
+        "query_parameters": [{
+            "key": "tomb",
+            "value": "mausoleum"
+        }],
+    }, {
+        "code": "crypts",
+        "query_parameters": [{
+            "key": "amenity",
+            "value": "crypt"
+        }],
     }, {
         "code": "urban_environment"
     }, {
-        "code": "wall_painting"
+        "code": "wall_painting",
+        "query_parameters": [{
+            "key": "artwork_type",
+            "value": "mural"
+        }],
     }, {
         "code": "fountains",
         "query_parameters": [{
@@ -158,28 +261,71 @@ mappings = [
         }],
     }, {
         "code": "sculptures",
-        "additional_codes": ["installations"]
+        "additional_codes": ["installations"],
+        "query_parameters": [{
+            "key": "artwork_type",
+            "value": "sculpture"
+        }],
     }, {
-        "code": "gardens_and_parks"
+        "code": "gardens_and_parks",
+        "query_parameters": [{
+            "key": "leisure",
+            "value": "garden"
+        }, {
+            "key": "leisure",
+            "value": "park"
+        }],
     }, {
-        "code": "museums"
+        "code": "museums",
+        "query_parameters": [{
+            "key": "tourism",
+            "value": "museum"
+        }],
     }, {
-        "code": "archaeological_museums"
+        "code": "archaeological_museums",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "archaeological"
+        }],
     }, {
-        "code": "art_galleries"
+        "code": "art_galleries",
+        "query_parameters": [{
+            "key": "tourism",
+            "value": "gallery"
+        }],
     }, {
-        "code": "biographical_museums"
+        "code": "biographical_museums",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "person"
+        }],
     }, {
         "code": "history_museums",
-        "additional_codes": ["historic_house_museums"]
+        "additional_codes": ["historic_house_museums"],
+        "query_parameters": [{
+            "key": "museum",
+            "value": "history"
+        }],
     }, {
-        "code": "local_museums"
+        "code": "local_museums",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "local"
+        }],
     }, {
-        "code": "national_museums"
+        "code": "national_museums",
+        "query_parameters": [{
+            "key": "museum_type",
+            "value": "national"
+        }],
     }, {
         "code": "fashion_museums"
     }, {
-        "code": "nature_museums"
+        "code": "nature_museums",
+        "query_parameters": [{
+            "key": "museum",
+            "value": "nature"
+        }],
     }, {
         "code": "planetariums",
         "query_parameters": [{
@@ -187,35 +333,70 @@ mappings = [
             "value": "planetarium"
         }],
     }, {
-        "code": "zoos"
+        "code": "zoos",
+        "query_parameters": [{
+            "key": "tourism",
+            "value": "zoo"
+        }],
     }, {
-        "code": "aquariums"
+        "code": "aquariums",
+        "query_parameters": [{
+            "key": "tourism",
+            "value": "aquarium"
+        }],
     }, {
-        "code": "architecture"
+        "code": "architecture",
+        "query_parameters": [{
+            "key": "artwork_type",
+            "value": "architecture"
+        }],
     }, {
         "code": "skyscrapers"
     }, {
-        "code": "towers"
+        "code": "towers",
+        "query_parameters": [{
+            "key": "building",
+            "value": "tower"
+        }],
     }, {
-        "code": "historic_architecture"
+        "code": "historic_architecture",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "building"
+        }],
     }, {
-        "code": "bridges"
+        "code": "bridges",
+        "query_parameters": [{
+            "key": "building",
+            "value": "bridge"
+        }],
     }, {
-        "code": "memorials"
+        "code": "memorials",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "memorial"
+        }],
     }, {
-        "code": "monuments"
+        "code": "monuments",
+        "query_parameters": [{
+            "key": "historic",
+            "value": "monument"
+        }],
     }, {
-        "code": "tumuluses"
+        "code": "tumuluses",
+        "query_parameters": [{
+            "key": "archaeological_site",
+            "value": "tumulus"
+        }],
     },
 ]
 
+"""
 ,
         "query_parameters": [{
             "key": "",
             "value": ""
         }],
-"""
-
 {
     "attraction":,
     "amusement_parks":,

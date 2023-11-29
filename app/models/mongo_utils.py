@@ -8,12 +8,21 @@ class MongoUtils:
     def __init__(self):
         self.mongo_client = None
         self.mongo_database = None
+        self.mongo_database_attractions = None
 
     def get_db(self):
-        if self.mongo_database is None:
+        if self.mongo_client is None:
             self.connect_to_db()
-
+        if self.mongo_database is None:
+            self.mongo_database = self.mongo_client["wibit"]
         return self.mongo_database
+
+    def get_db_attractions(self):
+        if self.mongo_client is None:
+            self.connect_to_db()
+        if self.mongo_database is None:
+            self.mongo_database_attractions = self.mongo_client["wibit_attractions"]
+        return self.mongo_database_attractions
 
     def get_client(self):
         if self.mongo_client is None:
@@ -31,8 +40,6 @@ class MongoUtils:
         except Exception as e:
             print(f"EXCEPTION while connecting mongodb atlas: {e}")
 
-        self.mongo_database = self.mongo_client["wibit"]
-
     def get_collection(self, collection_name):
         self.get_db()
         try:
@@ -43,6 +50,18 @@ class MongoUtils:
             print(f"Collection {collection_name} created.")
 
         collection = self.mongo_database[collection_name]
+        return collection
+
+    def get_collection_attractions(self, collection_name):
+        self.get_db_attractions()
+        try:
+            self.mongo_database_attractions.create_collection(collection_name)
+        except CollectionInvalid:
+            print(f"Collection {collection_name} already exists.")
+        else:
+            print(f"Collection {collection_name} created.")
+
+        collection = self.mongo_database_attractions[collection_name]
         return collection
 
 
