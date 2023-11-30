@@ -8,8 +8,11 @@ def determine_kinds(tags):
         if kind is None or mapping.get("query_parameters") is None:
             continue
         for parameter in mapping.get("query_parameters"):
-            if tags.get(parameter.get("key")) is not None and tags.get(parameter.get("key")) == parameter.get("value"):
-                kinds.append(kind)
+            if tags.get(parameter.get("key")) is not None:
+                if tags.get(parameter.get("key")) == parameter.get("value") or parameter.get("value") == "*":
+                    if kind not in kinds:
+                        kinds.append(kind)
+
     return kinds
 
 
@@ -19,11 +22,14 @@ mappings = [
         "query_parameters": [{
             "key": "tourist",
             "value": "attraction"
+        }, {
+            "key": "leisure",
+            "value": "*"
         }],
     }, {
         "code": "amusement_parks",
         "query_parameters": [{
-            "key": "tourist",
+            "key": "tourism",
             "value": "theme_park"
         }],
     }, {
@@ -140,6 +146,9 @@ mappings = [
         "query_parameters": [{
             "key": "religion",
             "value": "*"
+        }, {
+            "key": "landuse",
+            "value": "religious"
         }],
     }, {
         "code": "churches",
@@ -192,11 +201,17 @@ mappings = [
         "query_parameters": [{
             "key": "historic",
             "value": "*"
+        }, {
+            "key": "heritage",
+            "value": "*"
         }],
     }, {
         "code": "castles",
         "query_parameters": [{
             "key": "historic",
+            "value": "castle"
+        }, {
+            "key": "building",
             "value": "castle"
         }],
     }, {
@@ -265,7 +280,14 @@ mappings = [
             "value": "crypt"
         }],
     }, {
-        "code": "urban_environment"
+        "code": "urban_environment",
+        "query_parameters": [{
+            "key": "artwork_type",
+            "value": "*"
+        }, {
+            "key": "tourism",
+            "value": "artwork"
+        }]
     }, {
         "code": "wall_painting",
         "query_parameters": [{
@@ -277,6 +299,9 @@ mappings = [
         "query_parameters": [{
             "key": "fountain",
             "value": "decorative"
+        }, {
+            "key": "artwork_type",
+            "value": "fountain"
         }],
     }, {
         "code": "sculptures",
@@ -376,6 +401,9 @@ mappings = [
         "query_parameters": [{
             "key": "building",
             "value": "tower"
+        }, {
+            "key": "man_made",
+            "value": "tower"
         }],
     }, {
         "code": "historic_architecture",
@@ -387,6 +415,9 @@ mappings = [
         "code": "bridges",
         "query_parameters": [{
             "key": "building",
+            "value": "bridge"
+        }, {
+            "key": "man_made",
             "value": "bridge"
         }],
     }, {

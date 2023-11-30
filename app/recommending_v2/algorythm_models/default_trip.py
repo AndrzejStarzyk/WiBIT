@@ -74,7 +74,7 @@ class DefaultTrip:
         self.fetch_trip()
 
     def fetch_trip(self):
-        collection = self.db_connection.get_collection("cracow-attractions-v2")
+        collection = self.db_connection.get_collection_attractions("poland-cracow")
 
         for xid, time in trip2:
             place = collection.find_one({"xid": xid})
@@ -86,7 +86,6 @@ class DefaultTrip:
                                                     xid=place.get('xid'),
                                                     website=place.get('url'),
                                                     wiki=place.get('wikipedia'),
-                                                    img=place.get('image'),
                                                     opening_hours=place.get('opening_hours')), time))
 
     def get_trip(self, day: Union[Day, None]):

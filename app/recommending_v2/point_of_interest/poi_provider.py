@@ -40,10 +40,9 @@ class PoiProvider:
     def fetch_pois(self, country_region="poland-kraków"):
         if self.fetched:
             return
+
         country_region = country_region.lower()
-        print(country_region)
-        print(list(map(lambda x: f'{x[0].lower()}-{x[1].lower()}', self.available_country_region)))
-        if country_region in list(map(lambda x: f'{x[0]}-{x[1]}', self.available_country_region)):
+        if country_region in list(map(lambda x: f"{x[0].lower()}-{x[1].lower()}", self.available_country_region)):
             collection = self.db_connection.get_collection_attractions(country_region)
             all_places = collection.find()
 
@@ -56,14 +55,10 @@ class PoiProvider:
                                     xid=place.get('xid'),
                                     website=place.get('url'),
                                     wiki=place.get('wikipedia'),
-                                    img=place.get('image'),
                                     opening_hours=place.get('opening_hours')))
 
         else:
-            regex = re.compile("^(\w)+_(\w)+$")
-            match = regex.match(country_region)
-            region = match.group(2)
-            self.fetch_attractions_from_osm(region)
+            self.fetch_attractions_from_osm(country_region)
 
         self.fetched = True
         """overpass = Overpass()
@@ -125,7 +120,6 @@ class PoiProvider:
                                 xid=f"{place.get('type')[0]}/{place.get('id')}",
                                 website=place.get('website'),
                                 wiki=place.get('tags').get('wikipedia'),
-                                img=place.get('tags').get('image'),
                                 opening_hours=place.get('tags').get('opening_hours')))
 
 

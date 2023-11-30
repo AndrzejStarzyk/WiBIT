@@ -11,9 +11,11 @@ class ChatbotAgent:
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
+        self.region_message_used = False
 
         self.user_information_text = ''
         self.trip_date_text = None
+        self.region_text = None
         self.recommender = recommender
 
         self.is_finished = False
@@ -68,12 +70,13 @@ class ChatbotAgent:
 
             self.add_bot_message(more_text)
 
-        elif not self.date_message_used:
-
+        elif not self.region_message_used:
             for message in self.messages:
                 if message.author == 'user':
                     self.user_information_text += message.text + ' '
-
+            self.region_message_used = True
+            self.add_bot_message("Podaj nazwę miasta lub regionu, w którym ma się odbyć wycieczka.")
+        elif not self.date_message_used:
             self.date_message_used = True
             date_text = "Kiedy odbędzie się i jak długo będzie trwała Twoja wycieczka?"
             self.add_bot_message(date_text)
