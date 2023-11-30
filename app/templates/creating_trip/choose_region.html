@@ -10,7 +10,8 @@
         <div class="container">
             {% for option in options %}
                 <div class="item">
-                    <input class="not-displayed select-checkbox" name="region_{{ option[0]}}-{{ option[1] }}" id="{{ option[1]  }}" type="radio">
+                    <input class="not-displayed select-checkbox" name="region_radio" id="{{ option[1]  }}" type="radio"
+                           value="{{ option[0] }}-{{ option[1] }}">
                     <label class="base-label" for="{{ option[1]  }}">{{ option[1] }}, {{ option[0] }}</label>
                 </div>
             {% endfor %}
@@ -19,8 +20,8 @@
             <button class="base-button" type="submit" form="region_form">Dalej</button>
         </div>
         <div class="container">
-            <label class="base-label" for="region"></label>
-            <input id="region" type="text">
+            <label class="base-label" for="region_text"></label>
+            <input id="region_text" name="region_text" type="text">
             <button class="base-button" type="submit" form="region_form">Dalej</button>
         </div>
     </form >

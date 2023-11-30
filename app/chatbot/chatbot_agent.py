@@ -2,16 +2,19 @@ import random
 
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
+from recommending_v2.recommender import Recommender
+from chatbot.user_texts_parser import parse_user_text
 
 
 class ChatbotAgent:
-    def __init__(self):
+    def __init__(self, recommender: Recommender):
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
 
         self.user_information_text = ''
         self.trip_date_text = None
+        self.recommender = recommender
 
         self.is_finished = False
 
@@ -85,4 +88,5 @@ class ChatbotAgent:
             self.is_finished = True
             self.end_conversation()
 
+            parse_user_text(self.user_information_text, self.trip_date_text, self.recommender)
             # TODO - something like propose_trip(self.user_information_text, self.trip_date_text)

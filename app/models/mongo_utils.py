@@ -20,7 +20,7 @@ class MongoUtils:
     def get_db_attractions(self):
         if self.mongo_client is None:
             self.connect_to_db()
-        if self.mongo_database is None:
+        if self.mongo_database_attractions is None:
             self.mongo_database_attractions = self.mongo_client["wibit_attractions"]
         return self.mongo_database_attractions
 

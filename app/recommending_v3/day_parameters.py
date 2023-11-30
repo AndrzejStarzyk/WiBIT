@@ -1,14 +1,15 @@
 from datetime import timedelta, date
+from typing import Union
 
 
-class DayParameters:
+class ScheduleParameters:
     def __init__(self):
-        self.start_day = None
-        self.start_month = None
-        self.end_day = None
-        self.end_month = None
-        self.start_date = None
-        self.end_date = None
+        self.start_day: Union[int, None] = None
+        self.start_month: Union[int, None] = None
+        self.end_day: Union[int, None] = None
+        self.end_month: Union[int, None] = None
+        self.start_date: Union[date, None] = None
+        self.end_date: Union[date, None] = None
 
     def assume_missing_info(self):
         today = date.today()
@@ -45,34 +46,37 @@ class DayParameters:
 
         if self.end_day is None:
             if self.start_day is None:
-                start = date(1, month, year)
+                start = date(day=1, month=month, year=year)
                 end = today + timedelta(days=7)
             else:
-                start = date(self.start_day, month, year)
+                start = date(day=self.start_day, month=month, year=year)
                 end = today + timedelta(days=7)
         else:
             if self.start_day is None:
-                end = date(self.end_day, month, year)
+                end = date(day=self.end_day, month=month, year=year)
                 start = today - timedelta(days=7)
             else:
                 if is_start:
-                    start = date(self.start_day, month, year)
+                    start = date(day=self.start_day, month=month, year=year)
                     if self.end_day > self.start_day:
-                        end = date(self.end_day, month, year)
+                        end = date(day=self.end_day, month=month, year=year)
                     else:
                         if month == 12:
-                            end = date(self.end_day, 1, year + 1)
+                            end = date(day=self.end_day, month=1, year=year + 1)
                         else:
-                            end = date(self.end_day, month + 1, year)
+                            end = date(day=self.end_day, month=month + 1, year=year)
                 else:
-                    end = date(self.end_day, month, year)
+                    print(self.end_day)
+                    print(month)
+                    print(year)
+                    end = date(day=self.end_day, month=month, year=year)
                     if self.end_day > self.start_day:
-                        start = date(self.start_day, month, year)
+                        start = date(day=self.start_day, month=month, year=year)
                     else:
                         if month == 1:
-                            start = date(self.start_day, 12, year - 1)
+                            start = date(day=self.start_day, month=12, year=year - 1)
                         else:
-                            start = date(self.start_day, month - 1, year)
+                            start = date(day=self.start_day, month=month - 1, year=year)
         self.start_date = start
         self.end_date = end
 
@@ -97,18 +101,18 @@ class DayParameters:
                     year2 = today.year + 2
             if self.end_day is None:
                 if self.start_day is None:
-                    start = date(27, month1, year1)
-                    end = date(2, month2, year2)
+                    start = date(day=27, month=month1, year=year1)
+                    end = date(day=2, month=month2, year=year2)
                 else:
-                    start = date(self.start_day, month1, year1)
-                    end = date(2, month2, year2)
+                    start = date(day=self.start_day, month=month1, year=year1)
+                    end = date(day=2, month=month2, year=year2)
             else:
                 if self.start_day is None:
-                    end = date(self.end_day, month2, year2)
-                    start = date(27, month1, year1)
+                    end = date(day=self.end_day, month=month2, year=year2)
+                    start = date(day=27, month=month1, year=year1)
                 else:
-                    start = date(self.start_day, month1, year1)
-                    end = date(self.end_day, month2, year2)
+                    start = date(day=self.start_day, month=month1, year=year1)
+                    end = date(day=self.end_day, month=month2, year=year2)
             self.start_date = start
             self.end_date = end
 
@@ -120,10 +124,10 @@ class DayParameters:
                 end = start + timedelta(days=7)
             else:
                 if today.month == 12:
-                    start = date(day, 1, today.year + 1)
+                    start = date(day=day, month=1, year=today.year + 1)
                     end = start + timedelta(days=7)
                 else:
-                    start = date(day, today.month + 1, today.year)
+                    start = date(day=day, month=today.month + 1, year=today.year)
                     end = start + timedelta(days=7)
         else:
             if day >= today.day:
@@ -131,10 +135,10 @@ class DayParameters:
                 start = end - timedelta(days=7)
             else:
                 if today.month == 12:
-                    end = date(day, 1, today.year + 1)
+                    end = date(day=day, month=1, year=today.year + 1)
                     start = end - timedelta(days=7)
                 else:
-                    end = date(day, today.month + 1, today.year)
+                    end = date(day=day, month=today.month + 1, year=today.year)
                     start = end - timedelta(days=7)
         self.start_date = start
         self.end_date = end
@@ -143,33 +147,33 @@ class DayParameters:
         today = date.today()
         if day1 <= day2:
             if today.day <= day1:
-                start = date(day1, today.month, today.year)
-                end = date(day2, today.month, today.year)
+                start = date(day=day1, month=today.month, year=today.year)
+                end = date(day=day2, month=today.month, year=today.year)
             else:
                 if today.month == 12:
-                    start = date(day1, 1, today.year + 1)
-                    end = date(day2, 1, today.year + 1)
+                    start = date(day=day1, month=1, year=today.year + 1)
+                    end = date(day=day2, month=1, year=today.year + 1)
                 else:
-                    start = date(day1, today.month + 1, today.year)
-                    end = date(day2, today.month + 1, today.year)
+                    start = date(day=day1, month=today.month + 1, year=today.year)
+                    end = date(day=day2, month=today.month + 1, year=today.year)
         else:
             if today.day <= day1:
-                start = date(day1, today.month, today.year)
+                start = date(day=day1, month=today.month, year=today.year)
                 if today.month == 12:
-                    end = date(day2, 1, today.year + 1)
+                    end = date(day=day2, month=1, year=today.year + 1)
                 else:
-                    end = date(day2, today.month + 1, today.year)
+                    end = date(day=day2, month=today.month + 1, year=today.year)
             else:
                 if today.month == 12:
-                    start = date(day1, 1, today.year + 1)
+                    start = date(day=day1, month=1, year=today.year + 1)
                 else:
-                    start = date(day1, today.month + 1, today.year)
+                    start = date(day=day1, month=today.month + 1, year=today.year)
                 if today.month == 11:
-                    end = date(day2, 1, today.year + 1)
+                    end = date(day=day2, month=1, year=today.year + 1)
                 elif today.month == 12:
-                    end = date(day2, 2, today.year + 1)
+                    end = date(day=day2, month=2, year=today.year + 1)
                 else:
-                    end = date(day2, today.month + 2, today.year)
+                    end = date(day=day2, month=today.month + 2, year=today.year)
 
         self.start_date = start
         self.end_date = end

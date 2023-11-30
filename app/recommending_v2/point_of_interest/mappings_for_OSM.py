@@ -1,6 +1,25 @@
+from typing import List
+
+
+def determine_kinds(tags):
+    kinds: List[str] = []
+    for mapping in mappings:
+        kind = mapping.get("code")
+        if kind is None or mapping.get("query_parameters") is None:
+            continue
+        for parameter in mapping.get("query_parameters"):
+            if tags.get(parameter.get("key")) is not None and tags.get(parameter.get("key")) == parameter.get("value"):
+                kinds.append(kind)
+    return kinds
+
+
 mappings = [
     {
-        "code": "attraction"
+        "code": "attraction",
+        "query_parameters": [{
+            "key": "tourist",
+            "value": "attraction"
+        }],
     }, {
         "code": "amusement_parks",
         "query_parameters": [{
@@ -39,8 +58,8 @@ mappings = [
     }, {
         "code": "climbing",
         "query_parameters": [{
-            "key": "hiking",
-            "value": "yes"
+            "key": "route",
+            "value": "hiking"
         }],
     }, {
         "code": "stadiums",

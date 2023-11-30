@@ -29,7 +29,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 mongo_utils = MongoUtils()
-chatbot_agent = ChatbotAgent()
 
 users = mongo_utils.get_collection('users')
 trips = mongo_utils.get_collection('trips')
@@ -42,7 +41,7 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
-
+chatbot_agent = ChatbotAgent(recommender)
 @login_manager.user_loader
 def load_user(user_id):
     user = users.find_one({"_id": PydanticObjectId(user_id)})
@@ -186,16 +185,23 @@ def edit_preferences():
 
 
 @app.route('/region', methods=['GET', 'POST'])
-def choose_city():
+def choose_region():
     if request.method == 'GET':
         available = poi_provider.get_available_attraction_sets()
-        return render_template('creating_trip/choose_city.html', options=available)
+
+        return render_template('creating_trip/choose_region.html', options=available)
     if request.method == 'POST':
-        if 'region' in request.form.items():
-            poi_provider.fetch_attractions_from_osm(request.form.get('region'))
+        region_text_empty: bool = False
+        if 'region_text' in request.form and len(request.form.get('region_text')) == 0:
+            region_text_empty = True
+
+        if len(list(request.form.items())) == 0 or (len(list(request.form.items())) == 1 and region_text_empty):
+            poi_provider.fetch_pois()
+        if 'region_text' in request.form and not region_text_empty:
+            poi_provider.fetch_pois(request.form.get('region_text')[7:])
         else:
-            poi_provider.fetch_pois(request.form.get('region')[7:])
-        redirect(url_for('/duration'))
+            poi_provider.fetch_pois(request.form.get('region_radio'))
+        return redirect(url_for('show_duration'))
 
 
 @app.route('/duration', methods=['GET', 'POST'])
@@ -295,7 +301,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent()
+    chatbot_agent = ChatbotAgent(recommender)
     return redirect(url_for('show_chatbot'))
 
 
@@ -314,7 +320,7 @@ def render_trip(schedule: Schedule, template: str):
     return res
 
 
-@app.route('/suggested', methods=['POST'])
+@app.route('/suggested', methods=['POST', 'GET'])
 async def show_suggested():
     res = render_template("default_page.html")
 
@@ -340,6 +346,19 @@ async def show_suggested():
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
 
+    if request.method == "GET":
+        print(request.method)
+        if current_user.is_authenticated:
+            user_pref = get_preferences_json(current_user.id, mongo_utils)
+            for pref in user_pref:
+                if pref['constraint_type'] == ConstraintType.Category.value:
+                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+                if pref['constraint_type'] == ConstraintType.Attraction.value:
+                    recommender.add_constraint(AttractionConstraint(pref['value']))
+        recommender.create_schedule()
+        recommended = recommender.get_recommended()
+        return render_trip(recommended, "creating_trip/suggested_page.html")
+    print("def")
     return res
 
 

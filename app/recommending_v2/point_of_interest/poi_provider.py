@@ -1,7 +1,7 @@
 import re
 from typing import List, Tuple
 from OSMPythonTools.nominatim import Nominatim
-from OSMPythonTools.overpass import overpassQueryBuilder, Overpass
+from OSMPythonTools.overpass import Overpass
 
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
@@ -16,7 +16,7 @@ class PoiProvider:
         self.db_connection = db_connection
 
         self.pois: List[PointOfInterest] = []
-        self.available_attractions_sets: List[str] = []
+        self.available_country_region: List[Tuple[str, str]] = []
 
         self.groups: List[List[int]] = []
         self.poi_to_group: dict[int: int] = {}
@@ -33,16 +33,18 @@ class PoiProvider:
         available_regions_names = collection.find()
 
         for data in available_regions_names:
-            self.available_attractions_sets.append(f'{data.get("country")}-{data.get("city")}')
+            self.available_country_region.append((data.get("country"), data.get("city")))
 
         self.available_fetched = True
 
-    def fetch_pois(self, country_region):
+    def fetch_pois(self, country_region="poland-kraków"):
         if self.fetched:
             return
-
-        if country_region in self.available_attractions_sets:
-            collection = self.db_connection.get_collection_attractions(f"{country_region}")
+        country_region = country_region.lower()
+        print(country_region)
+        print(list(map(lambda x: f'{x[0].lower()}-{x[1].lower()}', self.available_country_region)))
+        if country_region in list(map(lambda x: f'{x[0]}-{x[1]}', self.available_country_region)):
+            collection = self.db_connection.get_collection_attractions(country_region)
             all_places = collection.find()
 
             for place in all_places:
@@ -60,7 +62,8 @@ class PoiProvider:
         else:
             regex = re.compile("^(\w)+_(\w)+$")
             match = regex.match(country_region)
-            self.fetch_attractions_from_osm(match.group(2))
+            region = match.group(2)
+            self.fetch_attractions_from_osm(region)
 
         self.fetched = True
         """overpass = Overpass()
@@ -97,17 +100,21 @@ class PoiProvider:
                     """
 
     def fetch_attractions_from_osm(self, region):
-        nominatim = Nominatim()
-        region = nominatim.query(f"{region}")
-
         overpass = Overpass()
-        query_str = '[out:json][timeout:25];{{geocodeArea:{' + region + '}}}->.searchArea;('
+        nominatim = Nominatim()
+        region = nominatim.query(region)
+
+        region_data = region
+        if isinstance(region, list):
+            region_data = region[0]
+        region_name = region_data.get("name")
+
+        query_str = f'area["name"="{region_name}"]->.searchArea;('
         for selector in selectors:
             query_str += f'nwr["{selector[0]}"="{selector[1]}"](area.searchArea);'
-
         query_str += ');out body;>;out skel;'
-        query = overpassQueryBuilder(query_str)
-        res = overpass.query(query)
+        res = overpass.query(query_str)
+
         for place in res.get('elements'):
             kinds = []
             self.pois.append(
@@ -120,6 +127,9 @@ class PoiProvider:
                                 wiki=place.get('tags').get('wikipedia'),
                                 img=place.get('tags').get('image'),
                                 opening_hours=place.get('tags').get('opening_hours')))
+
+
+
 
     def divide_places(self):
         if self.divided:
@@ -149,14 +159,12 @@ class PoiProvider:
         self.divided = True
 
     def get_places(self) -> List[PointOfInterest]:
-        if not self.fetched:
-            self.fetch_pois()
         return self.pois
 
     def get_available_attraction_sets(self) -> List[Tuple[str, str]]:
         if not self.available_fetched:
             self.fetch_available_attraction_sets()
-        return self.available_attractions_sets
+        return self.available_country_region
 
     def get_groups(self):
         if not self.fetched:
