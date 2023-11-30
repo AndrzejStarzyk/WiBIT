@@ -25,7 +25,6 @@ selectors = [
     ("historic", "temple"),
 
     ("leisure", "beach_resort"),
-    ("leisure", "escape_game"),
     ("leisure", "fishing"),
     ("leisure", "garden"),
     ("leisure", "golf_course"),
