@@ -125,6 +125,7 @@ input, select{
 
 .base-button{
     padding: 6px 20px 6px 20px;
+    margin-top: 20px;
     margin-left: 13px;
     text-align: center;
     font-size: medium;
