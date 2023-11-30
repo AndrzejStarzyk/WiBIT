@@ -5,9 +5,9 @@
 
 {% block body %}
 <div>
-    <h1>Wybier lub wprowadź nawzę miasta albo regionu, gdzie chcesz spędzić wycieczkę</h1>
-    <form class="form" id="region_form" action="/region" method="POST">
-        <div class="container">
+    <h1>Wybierz lub wprowadź nawzę miasta albo regionu, gdzie odbędzie się wycieczka</h1>
+    <form class="centered-form row" id="region_form" action="/region" method="POST">
+        <div class="col-lg-6">
             {% for option in options %}
                 <div class="item">
                     <input class="not-displayed select-checkbox" name="region_radio" id="{{ option[1]  }}" type="radio"
@@ -19,10 +19,10 @@
 
             <button class="base-button" type="submit" form="region_form">Dalej</button>
         </div>
-        <div class="container">
+        <div class="col-lg-6">
             <label class="base-label" for="region_text"></label>
             <input id="region_text" name="region_text" type="text">
-            <button class="base-button" type="submit" form="region_form">Dalej</button>
+            <button class="base-button " type="submit" form="region_form">Dalej</button>
         </div>
     </form >
 </div>
