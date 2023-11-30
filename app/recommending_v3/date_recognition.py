@@ -3,7 +3,7 @@ import re
 import pl_core_news_md
 from spacy.matcher import Matcher
 
-from day_parameters import ScheduleParameters
+from recommending_v3.day_parameters import ScheduleParameters
 
 patterns = [[
     {"ENT_TYPE": "date"},

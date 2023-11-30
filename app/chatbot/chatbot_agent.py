@@ -82,11 +82,15 @@ class ChatbotAgent:
             if self.trip_date_text is None:
                 self.trip_date_text = self.messages[-1].text
 
-            self.add_bot_message(f"Podane preferencje: {self.user_information_text} "
+            self.add_bot_message(f"Podane preferencje: {self.user_information_text} \n"
                                  f"Podana data: {self.trip_date_text}")
+
+            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.recommender)
+
+            self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
+                                 f"Daty: {dates}")
 
             self.is_finished = True
             self.end_conversation()
 
-            parse_user_text(self.user_information_text, self.trip_date_text, self.recommender)
             # TODO - something like propose_trip(self.user_information_text, self.trip_date_text)
