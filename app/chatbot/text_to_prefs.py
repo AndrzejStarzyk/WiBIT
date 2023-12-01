@@ -5,7 +5,7 @@ from string import punctuation
 from stop_words import get_stop_words
 from pyMorfologik import Morfologik
 from pyMorfologik.parsing import ListParser
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 
 parser = ListParser()
 stemmer = Morfologik()
@@ -29,7 +29,7 @@ class TextProcessor:
                   'towers', 'historic_architecture', 'bridges']
 
     vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit.joblib')
-    model = load_model('./chatbot/models/tfidf_bigger_nn')
+    model = load_model('app/chatbot/models/tfidf_bigger_nn')
 
     def predict_classes(self, text):
         prep_text = [self.preprocess_text(text)]

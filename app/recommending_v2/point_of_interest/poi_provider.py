@@ -1,8 +1,8 @@
-import re
 from typing import List, Tuple
 from OSMPythonTools.nominatim import Nominatim
 from OSMPythonTools.overpass import Overpass
 
+from recommending_v2.point_of_interest.mappings_for_OSM import determine_kinds
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
 from models.mongo_utils import MongoUtils
@@ -95,35 +95,58 @@ class PoiProvider:
                     """
 
     def fetch_attractions_from_osm(self, region):
+
         overpass = Overpass()
         nominatim = Nominatim()
-        region = nominatim.query(region)
+        region_data = nominatim.query(region)
 
-        region_data = region
-        if isinstance(region, list):
-            region_data = region[0]
+        region_data = region_data.toJSON()
+        if isinstance(region_data, list):
+            region_data = region_data[0]
+
         region_name = region_data.get("name")
-
         query_str = f'area["name"="{region_name}"]->.searchArea;('
         for selector in selectors:
             query_str += f'nwr["{selector[0]}"="{selector[1]}"](area.searchArea);'
         query_str += ');out body;>;out skel;'
         res = overpass.query(query_str)
 
-        for place in res.get('elements'):
-            kinds = []
-            self.pois.append(
-                PointOfInterest(name=place.get('tags').get('name'),
-                                lon=place.get('lon'),
-                                lat=place.get('lat'),
-                                kinds=kinds,
-                                xid=f"{place.get('type')[0]}/{place.get('id')}",
-                                website=place.get('website'),
-                                wiki=place.get('tags').get('wikipedia'),
-                                opening_hours=place.get('tags').get('opening_hours')))
+        for element in res.toJSON().get("elements"):
+            tags = element.get("tags")
+            if tags is None:
+                continue
+            if tags.get("name") is None or element.get("type") is None or element.get("id") is None:
+                continue
 
+            lon = element.get("lon")
+            lat = element.get("lat")
+            if lon is None or lat is None:
+                data = nominatim.query(f"{element.get('type')}/{element.get('id')}", lookup=True).toJSON()
+                if isinstance(data, list):
+                    if len(data) == 0:
+                        continue
+                    data = data[0]
+                lon = data.get("lon")
+                lat = data.get("lat")
+                if lon is None or lat is None:
+                    continue
+            lon = float(lon)
+            lat = float(lat)
 
-
+            kinds = determine_kinds(tags)
+            if len(kinds) == 0:
+                continue
+            for place in res.get('elements'):
+                kinds = []
+                self.pois.append(
+                    PointOfInterest(name=tags.get('name'),
+                                    lon=lon,
+                                    lat=lat,
+                                    kinds=kinds,
+                                    xid=f"{element.get('type')[0].upper()}{element.get('id')}",
+                                    website=tags.get('website'),
+                                    wiki=tags.get('wikipedia'),
+                                    opening_hours=tags.get('opening_hours')))
 
     def divide_places(self):
         if self.divided:

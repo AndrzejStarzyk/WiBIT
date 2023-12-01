@@ -41,7 +41,9 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
-chatbot_agent = ChatbotAgent(recommender)
+chatbot_agent = ChatbotAgent(recommender, mongo_utils)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     user = users.find_one({"_id": PydanticObjectId(user_id)})
@@ -184,6 +186,16 @@ def edit_preferences():
     return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
 
 
+def fetch_user_preferences():
+    if current_user.is_authenticated:
+        user_pref = get_preferences_json(current_user.id, mongo_utils)
+        for pref in user_pref:
+            if pref['constraint_type'] == ConstraintType.Category.value:
+                recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+            if pref['constraint_type'] == ConstraintType.Attraction.value:
+                recommender.add_constraint(AttractionConstraint(pref['value']))
+
+
 @app.route('/region', methods=['GET', 'POST'])
 def choose_region():
     if request.method == 'GET':
@@ -301,7 +313,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent(recommender)
+    chatbot_agent = ChatbotAgent(recommender, mongo_utils)
     return redirect(url_for('show_chatbot'))
 
 
@@ -335,26 +347,12 @@ async def show_suggested():
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
 
-        if current_user.is_authenticated:
-            user_pref = get_preferences_json(current_user.id, mongo_utils)
-            for pref in user_pref:
-                if pref['constraint_type'] == ConstraintType.Category.value:
-                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
-                if pref['constraint_type'] == ConstraintType.Attraction.value:
-                    recommender.add_constraint(AttractionConstraint(pref['value']))
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
 
     if request.method == "GET":
         print(request.method)
-        if current_user.is_authenticated:
-            user_pref = get_preferences_json(current_user.id, mongo_utils)
-            for pref in user_pref:
-                if pref['constraint_type'] == ConstraintType.Category.value:
-                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
-                if pref['constraint_type'] == ConstraintType.Attraction.value:
-                    recommender.add_constraint(AttractionConstraint(pref['value']))
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")

@@ -2,12 +2,13 @@ import random
 
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
+from mongo_utils import MongoUtils
 from recommending_v2.recommender import Recommender
 from chatbot.user_texts_parser import parse_user_text
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender):
+    def __init__(self, recommender: Recommender, db_connection: MongoUtils):
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
@@ -17,6 +18,7 @@ class ChatbotAgent:
         self.trip_date_text = None
         self.region_text = None
         self.recommender = recommender
+        self.db_connection = db_connection
 
         self.is_finished = False
 
@@ -88,7 +90,7 @@ class ChatbotAgent:
             self.add_bot_message(f"Podane preferencje: {self.user_information_text} \n"
                                  f"Podana data: {self.trip_date_text}")
 
-            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.recommender)
+            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.recommender, self.db_connection)
 
             self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
                                  f"Daty: {dates}")
