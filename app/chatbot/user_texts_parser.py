@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
-from constraint import CategoryConstraint
-from mongo_utils import MongoUtils
+from recommending_v2.algorythm_models.constraint import CategoryConstraint
+from models.mongo_utils import MongoUtils
 from recommending_v3.date_recognition import parse_date_text
 from recommending_v2.recommender import Recommender
 from chatbot.text_to_prefs import TextProcessor

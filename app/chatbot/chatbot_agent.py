@@ -2,7 +2,7 @@ import random
 
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from mongo_utils import MongoUtils
+from models.mongo_utils import MongoUtils
 from recommending_v2.recommender import Recommender
 from chatbot.user_texts_parser import parse_user_text
 
