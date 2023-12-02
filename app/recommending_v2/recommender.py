@@ -44,13 +44,13 @@ class Recommender:
 
     def get_recommended(self) -> Schedule:
         if self.cold_start:
+            print("cold start")
             trip = self.default_trip.get_trip(self.schedule.schedule[0])
             self.schedule.add_trajectory(trip)
             return self.schedule
         else:
             self.evaluator.setup()
             for day in self.schedule.schedule:
-                print(day.date_str)
                 best_pois = self.evaluator.extract_best_trajectory(day)
                 trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
                 self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))

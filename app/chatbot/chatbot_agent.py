@@ -1,13 +1,12 @@
-import random
-
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from recommending_v2.recommender import Recommender
 from chatbot.user_texts_parser import parse_user_text
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from recommending_v2.recommender import Recommender
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender):
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider):
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
@@ -16,7 +15,9 @@ class ChatbotAgent:
         self.user_information_text = ''
         self.trip_date_text = None
         self.region_text = None
+
         self.recommender = recommender
+        self.poi_provider = poi_provider
 
         self.is_finished = False
 
@@ -74,13 +75,15 @@ class ChatbotAgent:
             for message in self.messages:
                 if message.author == 'user':
                     self.user_information_text += message.text + ' '
-            self.region_message_used = True
             self.add_bot_message("Podaj nazwę miasta lub regionu, w którym ma się odbyć wycieczka.")
+            self.region_message_used = True
         elif not self.date_message_used:
-            self.date_message_used = True
+            if self.region_text is None:
+                self.region_text = self.messages[-1].text
+
             date_text = "Kiedy odbędzie się i jak długo będzie trwała Twoja wycieczka?"
             self.add_bot_message(date_text)
-
+            self.date_message_used = True
         else:
             if self.trip_date_text is None:
                 self.trip_date_text = self.messages[-1].text
@@ -88,8 +91,9 @@ class ChatbotAgent:
             self.add_bot_message(f"Podane preferencje: {self.user_information_text} "
                                  f"Podana data: {self.trip_date_text}")
 
+            parse_user_text(self.user_information_text, self.trip_date_text, self.region_text, self.recommender, self.poi_provider)
+            region_found = self.poi_provider.last_fetch_success
+            if not region_found:
+                self.add_bot_message("Nie znaleziono regionu o nazwie: " + self.region_text)
             self.is_finished = True
             self.end_conversation()
-
-            parse_user_text(self.user_information_text, self.trip_date_text, self.recommender)
-            # TODO - something like propose_trip(self.user_information_text, self.trip_date_text)

@@ -27,7 +27,6 @@ month_regexes = [re.compile(f"^{subject}\w*$") for subject in month_subjects]
 
 
 def parse_date_text(text: str):
-    print(text)
     day_parameters = ScheduleParameters()
     nlp = pl_core_news_md.load()
     matcher = Matcher(nlp.vocab)
@@ -44,7 +43,6 @@ def parse_date_text(text: str):
 
 
 def parse_period_text(text: str, day_parameters: ScheduleParameters):
-    print(text)
     match = period_regex.match(text)
 
     if match.group(1) is not None:
@@ -55,11 +53,6 @@ def parse_period_text(text: str, day_parameters: ScheduleParameters):
         day_parameters.end_day = int(match.group(3))
     if match.group(4) is not None:
         day_parameters.end_month = recognise_month(match.group(4))
-
-    print(day_parameters.start_day)
-    print(day_parameters.start_month)
-    print(day_parameters.end_day)
-    print(day_parameters.end_month)
 
 
 def recognise_month(text: str) -> Union[None, int]:
