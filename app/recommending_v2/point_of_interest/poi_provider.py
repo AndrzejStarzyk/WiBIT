@@ -3,11 +3,10 @@ from OSMPythonTools.nominatim import Nominatim
 from OSMPythonTools.overpass import Overpass
 
 from recommending_v2.point_of_interest.mappings_for_OSM import determine_kinds
-from mappings_for_OSM import determine_kinds
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
-from models.mongo_utils import MongoUtils
 from recommending_v2.utils import dist
+from models.mongo_utils import MongoUtils
 
 max_dist = 2000
 

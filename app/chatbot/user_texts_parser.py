@@ -1,11 +1,11 @@
 from datetime import date, timedelta
 
-from recommending_v2.algorythm_models.constraint import CategoryConstraint
 from models.mongo_utils import MongoUtils
+from chatbot.text_to_prefs import TextProcessor
+from recommending_v2.algorythm_models.constraint import CategoryConstraint
 from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v3.date_recognition import parse_date_text
 from recommending_v2.recommender import Recommender
-from chatbot.text_to_prefs import TextProcessor
 
 tp = TextProcessor()
 
