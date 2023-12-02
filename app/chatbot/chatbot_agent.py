@@ -1,6 +1,6 @@
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from mongo_utils import MongoUtils
+from models.mongo_utils import MongoUtils
 from recommending_v2.recommender import Recommender
 from chatbot.user_texts_parser import parse_user_text
 from recommending_v2.point_of_interest.poi_provider import PoiProvider
