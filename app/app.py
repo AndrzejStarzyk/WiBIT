@@ -41,9 +41,7 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
-chatbot_agent = ChatbotAgent(recommender, mongo_utils)
-
-
+chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
 @login_manager.user_loader
 def load_user(user_id):
     user = users.find_one({"_id": PydanticObjectId(user_id)})
@@ -206,13 +204,20 @@ def choose_region():
         region_text_empty: bool = False
         if 'region_text' in request.form and len(request.form.get('region_text')) == 0:
             region_text_empty = True
-
+        print(request.form.get('region_text'))
         if len(list(request.form.items())) == 0 or (len(list(request.form.items())) == 1 and region_text_empty):
             poi_provider.fetch_pois()
         if 'region_text' in request.form and not region_text_empty:
-            poi_provider.fetch_pois(request.form.get('region_text')[7:])
+            poi_provider.fetch_pois(request.form.get('region_text'))
+            if not poi_provider.last_fetch_success:
+                return render_template('error_template/unknown_region_error.html',
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_text')))
         else:
+            if not poi_provider.last_fetch_success:
+                return render_template('error_template/unknown_region_error.html',
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_radio')))
             poi_provider.fetch_pois(request.form.get('region_radio'))
+
         return redirect(url_for('show_duration'))
 
 
@@ -313,7 +318,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent(recommender, mongo_utils)
+    chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
     return redirect(url_for('show_chatbot'))
 
 
@@ -335,7 +340,7 @@ def render_trip(schedule: Schedule, template: str):
 @app.route('/suggested', methods=['POST', 'GET'])
 async def show_suggested():
     res = render_template("default_page.html")
-
+    print(request.method)
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
@@ -356,7 +361,6 @@ async def show_suggested():
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
-    print("def")
     return res
 
 

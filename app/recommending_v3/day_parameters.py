@@ -66,9 +66,6 @@ class ScheduleParameters:
                         else:
                             end = date(day=self.end_day, month=month + 1, year=year)
                 else:
-                    print(self.end_day)
-                    print(month)
-                    print(year)
                     end = date(day=self.end_day, month=month, year=year)
                     if self.end_day > self.start_day:
                         start = date(day=self.start_day, month=month, year=year)

@@ -1,15 +1,17 @@
 from datetime import date, timedelta
 
-from constraint import CategoryConstraint
-from mongo_utils import MongoUtils
+from recommending_v2.algorythm_models.constraint import CategoryConstraint
+from models.mongo_utils import MongoUtils
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v3.date_recognition import parse_date_text
 from recommending_v2.recommender import Recommender
 from chatbot.text_to_prefs import TextProcessor
 
 tp = TextProcessor()
 
+def parse_user_text(user_information: str, user_date: str, user_region: str, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
+    poi_provider.fetch_pois(user_region)
 
-def parse_user_text(user_information: str, user_date: str, recommender: Recommender, db_connection: MongoUtils):
     schedule_parameters = parse_date_text(user_date)
 
     start_date: date = schedule_parameters.start_date
