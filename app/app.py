@@ -3,6 +3,11 @@ from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from wtforms.validators import ValidationError
+from docx import Document
+from pypdf import PdfReader
+from odf import text, teletype
+from odf.opendocument import load
+
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
@@ -21,7 +26,6 @@ from models.forms import LoginForm, RegisterForm
 from chatbot.chatbot_agent import ChatbotAgent
 from models.user import User
 from models.mongo_utils import MongoUtils
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -342,12 +346,12 @@ def suggest_again(day_nr: int):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
             some_replaced = True
     if some_removed and not some_replaced:
-        recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+        recommended = recommender.remove_from_schedule(day_nr - 1, to_remove)
     elif not some_removed and not some_replaced:
         recommender.modify_general_constraint()
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
     else:
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
 
@@ -405,6 +409,39 @@ def saved_trip_page():
     trip = TripDaysMongo(**raw_trip)
 
     return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
+
+
+@app.route("/upload-file", methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        added_file = request.files.get('file')
+        if added_file:
+            file_content = ""
+            if added_file.filename.endswith('.txt'):
+                file_content = added_file.read().decode('utf-8')
+
+            elif added_file.filename.endswith('.pdf'):
+                reader = PdfReader(added_file)
+                number_of_pages = len(reader.pages)
+                for i in range(number_of_pages):
+                    page = reader.pages[0]
+                    file_content += ' ' + page.extract_text()
+
+            elif added_file.filename.endswith(('.docx', '.doc')):
+                doc = Document(added_file)
+                for paragraph in doc.paragraphs:
+                    file_content += ' ' + paragraph.text
+                pass
+
+            elif added_file.filename.endswith('.odt'):
+                odt_document = load(added_file)
+                all_text_elements = odt_document.getElementsByType(text.P)
+                for text_element in all_text_elements:
+                    file_content += ' ' + teletype.extractText(text_element)
+
+            print(file_content)
+
+    return render_template("file_upload/file_upload.html")
 
 
 if __name__ == '__main__':

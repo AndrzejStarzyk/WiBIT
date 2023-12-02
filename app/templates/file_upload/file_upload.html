@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>File uploading</title>
+{% endblock %}
+
+{% block body %}
+<div class="auth-form">
+    <h1>Dodaj plik z preferencjami</h1>
+    <br>
+    <p>Powinien to być dokument, który będzie mówił coś o Tobie, na przykład Twój opis z mediów społacznościowych, fragment pamiętnika lub CV.</p>
+    <p>Akceptowane formaty to .txt, .docx, .doc, .pdf, .odt</p>
+    <br>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input value="Wybierz plik" class="file-input base-button" type="file" name="file" id="file"
+               accept=".txt, .docx, .doc, .pdf, .odt" required>
+        <input value="Prześlij" type="submit" class="base-button">
+    </form>
+</div>
+
+{% endblock %}
