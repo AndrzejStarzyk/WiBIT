@@ -411,6 +411,31 @@ def saved_trip_page():
     return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
 
 
+@app.route('/duration-date-file', methods=['GET', 'POST'])
+def show_date_duration():
+    duration_options = [
+        {'name': 'Jeden dzień', 'time': 1},
+        {'name': 'Dwa dni', 'time': 2},
+        {'name': 'Trzy dni', 'time': 3},
+        {'name': 'Pięć dni', 'time': 5},
+        {'name': 'Tydzień', 'time': 7},
+    ]
+
+    if request.method == 'POST':
+        days_number = request.form.get('duration_dropdown')
+        recommender.days = int(days_number)
+        start_date = request.form.get('start_date')
+        recommender.hours = [('10:00', '18:00') for _ in range(recommender.days)]
+        recommender.create_schedule()
+        print(start_date, days_number)
+
+        return redirect(url_for('show_suggested'), code=307)
+
+    return render_template('file_upload/date_duration_form.html',
+                           options=duration_options,
+                           tomorrow=date.today() + timedelta(days=1))
+
+
 @app.route("/upload-file", methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -424,14 +449,13 @@ def upload_file():
                 reader = PdfReader(added_file)
                 number_of_pages = len(reader.pages)
                 for i in range(number_of_pages):
-                    page = reader.pages[0]
+                    page = reader.pages[i]
                     file_content += ' ' + page.extract_text()
 
             elif added_file.filename.endswith(('.docx', '.doc')):
                 doc = Document(added_file)
                 for paragraph in doc.paragraphs:
                     file_content += ' ' + paragraph.text
-                pass
 
             elif added_file.filename.endswith('.odt'):
                 odt_document = load(added_file)
@@ -440,6 +464,7 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
+            return redirect(url_for('show_date_duration'))
 
     return render_template("file_upload/file_upload.html")
 
