@@ -1,7 +1,7 @@
 from math import sqrt, cos, pi
 from datetime import datetime
 
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 
 deg_to_m = 40075014 / 360  # m/deg
 earth_radius = 6371009  # m

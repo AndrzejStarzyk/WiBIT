@@ -11,7 +11,7 @@ from odf.opendocument import load
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
@@ -34,7 +34,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 mongo_utils = MongoUtils()
-chatbot_agent = ChatbotAgent()
 
 users = mongo_utils.get_collection('users')
 trips = mongo_utils.get_collection('trips')
@@ -47,7 +46,7 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
-
+chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
 @login_manager.user_loader
 def load_user(user_id):
     user = users.find_one({"_id": PydanticObjectId(user_id)})
@@ -190,6 +189,43 @@ def edit_preferences():
     return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
 
 
+def fetch_user_preferences():
+    if current_user.is_authenticated:
+        user_pref = get_preferences_json(current_user.id, mongo_utils)
+        for pref in user_pref:
+            if pref['constraint_type'] == ConstraintType.Category.value:
+                recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+            if pref['constraint_type'] == ConstraintType.Attraction.value:
+                recommender.add_constraint(AttractionConstraint(pref['value']))
+
+
+@app.route('/region', methods=['GET', 'POST'])
+def choose_region():
+    if request.method == 'GET':
+        available = poi_provider.get_available_attraction_sets()
+
+        return render_template('creating_trip/choose_region.html', options=available)
+    if request.method == 'POST':
+        region_text_empty: bool = False
+        if 'region_text' in request.form and len(request.form.get('region_text')) == 0:
+            region_text_empty = True
+        print(request.form.get('region_text'))
+        if len(list(request.form.items())) == 0 or (len(list(request.form.items())) == 1 and region_text_empty):
+            poi_provider.fetch_pois()
+        if 'region_text' in request.form and not region_text_empty:
+            poi_provider.fetch_pois(request.form.get('region_text'))
+            if not poi_provider.last_fetch_success:
+                return render_template('error_template/unknown_region_error.html',
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_text')))
+        else:
+            if not poi_provider.last_fetch_success:
+                return render_template('error_template/unknown_region_error.html',
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_radio')))
+            poi_provider.fetch_pois(request.form.get('region_radio'))
+
+        return redirect(url_for('show_duration'))
+
+
 @app.route('/duration', methods=['GET', 'POST'])
 def show_duration():
     duration_options = [
@@ -248,7 +284,13 @@ def show_categories():
 def show_default_trip():
     res = render_template("default_page.html")
     try:
-        trajectory = default_trip.get_trip(None)
+        default_schedule = default_trip.get_default_schedule()
+        recommender.days = 1
+        recommender.dates = default_schedule.dates
+        recommender.hours = default_schedule.hours
+        recommender.create_schedule()
+        print(list(map(lambda x: (x.date_str, x.start, x.end, x.weekday), recommender.schedule.schedule)))
+        trajectory = default_trip.get_trip(default_schedule.schedule[0])
         m = create_map(trajectory)
         m.get_root().render()
         map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
@@ -281,7 +323,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent()
+    chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
     return redirect(url_for('show_chatbot'))
 
 
@@ -300,10 +342,10 @@ def render_trip(schedule: Schedule, template: str):
     return res
 
 
-@app.route('/suggested', methods=['POST'])
+@app.route('/suggested', methods=['POST', 'GET'])
 async def show_suggested():
     res = render_template("default_page.html")
-
+    print(request.method)
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
@@ -315,17 +357,15 @@ async def show_suggested():
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
 
-        if current_user.is_authenticated:
-            user_pref = get_preferences_json(current_user.id, mongo_utils)
-            for pref in user_pref:
-                if pref['constraint_type'] == ConstraintType.Category.value:
-                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
-                if pref['constraint_type'] == ConstraintType.Attraction.value:
-                    recommender.add_constraint(AttractionConstraint(pref['value']))
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
 
+    if request.method == "GET":
+        print(request.method)
+        recommender.create_schedule()
+        recommended = recommender.get_recommended()
+        return render_trip(recommended, "creating_trip/suggested_page.html")
     return res
 
 
@@ -352,6 +392,8 @@ def suggest_again(day_nr: int):
         recommended = recommender.recommend_again(day_nr - 1)
     else:
         recommended = recommender.recommend_again(day_nr - 1)
+
+    print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
 

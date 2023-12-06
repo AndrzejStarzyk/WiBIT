@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from recommending_v2.algorythm_models.constraint import Constraint, AttractionConstraint, CategoryConstraint, \
     GeneralConstraint
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.algorythm_models.default_trip import get_default_places_xid
 
 
