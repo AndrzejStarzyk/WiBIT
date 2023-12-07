@@ -24,6 +24,8 @@ class Recommender:
         self.hours: List[Tuple[str, str]] = []
         self.schedule: Union[Schedule, None] = None
 
+        self.logged_user_preferences_fetched = False
+
     def set_user(self, user: User):
         self.user = user
         self.cold_start = False

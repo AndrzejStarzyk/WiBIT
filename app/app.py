@@ -100,6 +100,7 @@ def login():
                 login_user(curr_user, duration=timedelta(days=1))
                 update_user_name()
                 fetch_user_preferences()
+                recommender.logged_user_preferences_fetched = True
                 return redirect(url_for('user_main_page'))
             else:
                 alert = "Podano błędne hasło!"
@@ -356,6 +357,8 @@ def render_trip(schedule: Schedule, template: str):
 async def show_suggested():
     res = render_template("default_page.html")
     print(request.method)
+    if current_user.is_authenticated and not recommender.logged_user_preferences_fetched:
+        fetch_user_preferences()
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
