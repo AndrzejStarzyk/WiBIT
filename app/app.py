@@ -3,6 +3,11 @@ from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from wtforms.validators import ValidationError
+from docx import Document
+from pypdf import PdfReader
+from odf import text, teletype
+from odf.opendocument import load
+
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
@@ -197,6 +202,31 @@ def fetch_user_preferences():
                 recommender.add_constraint(AttractionConstraint(pref['value']))
 
 
+def get_region_from_request(request):
+    region_text = None
+    if 'region_text' in request.form:
+        region_text = request.form.get('region_text')
+    region_radio = None
+    if 'region_redio' in request.form:
+        region_radio = request.form.get('region_radio')
+
+    if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
+        poi_provider.fetch_pois()
+    elif region_text is not None and len(region_text) > 0:
+        poi_provider.fetch_pois(region_text)
+        if not poi_provider.last_fetch_success:
+            return render_template('error_template/unknown_region_error.html',
+                                   communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
+    elif region_radio is not None and len(region_radio) > 0:
+        poi_provider.fetch_pois(region_radio)
+        if not poi_provider.last_fetch_success:
+            return render_template('error_template/unknown_region_error.html',
+                                   communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
+
+    return redirect(url_for('show_duration'))
+
+
+
 @app.route('/region', methods=['GET', 'POST'])
 def choose_region():
     if request.method == 'GET':
@@ -204,30 +234,7 @@ def choose_region():
 
         return render_template('creating_trip/choose_region.html', options=available)
     if request.method == 'POST':
-        print(list(request.form.items()))
-
-        region_text = None
-        if 'region_text' in request.form:
-            region_text = request.form.get('region_text')
-        region_radio = None
-        if 'region_redio' in request.form:
-            region_radio = request.form.get('region_radio')
-
-        if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
-            poi_provider.fetch_pois()
-        elif region_text is not None and len(region_text) > 0:
-            poi_provider.fetch_pois(region_text)
-            if not poi_provider.last_fetch_success:
-                return render_template('error_template/unknown_region_error.html',
-                                       communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
-        elif region_radio is not None and len(region_radio) > 0:
-            poi_provider.fetch_pois(region_radio)
-            if not poi_provider.last_fetch_success:
-                return render_template('error_template/unknown_region_error.html',
-                                       communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
-
-        return redirect(url_for('show_duration'))
-
+        get_region_from_request(request)
 
 @app.route('/duration', methods=['GET', 'POST'])
 def show_duration():
@@ -395,6 +402,7 @@ def suggest_again(day_nr: int):
         recommended = recommender.recommend_again(day_nr - 1)
     else:
         recommended = recommender.recommend_again(day_nr - 1)
+
     print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
@@ -453,6 +461,81 @@ def saved_trip_page():
     trip = TripDaysMongo(**raw_trip)
 
     return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
+
+
+@app.route('/region-file', methods=['GET', 'POST'])
+def choose_region_file():
+    if request.method == 'GET':
+        available = poi_provider.get_available_attraction_sets()
+        return render_template('creating_trip/choose_region.html', options=available)
+    if request.method == 'POST':
+        get_region_from_request(request)
+        return redirect(url_for('upload_file'))
+
+
+@app.route("/upload-file", methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        added_file = request.files.get('file')
+        if added_file:
+            file_content = ""
+            if added_file.filename.endswith('.txt'):
+                file_content = added_file.read().decode('utf-8')
+
+            elif added_file.filename.endswith('.pdf'):
+                reader = PdfReader(added_file)
+                number_of_pages = len(reader.pages)
+                for i in range(number_of_pages):
+                    page = reader.pages[i]
+                    file_content += ' ' + page.extract_text()
+
+            elif added_file.filename.endswith(('.docx', '.doc')):
+                doc = Document(added_file)
+                for paragraph in doc.paragraphs:
+                    file_content += ' ' + paragraph.text
+
+            elif added_file.filename.endswith('.odt'):
+                odt_document = load(added_file)
+                all_text_elements = odt_document.getElementsByType(text.P)
+                for text_element in all_text_elements:
+                    file_content += ' ' + teletype.extractText(text_element)
+
+            print(file_content)
+            return redirect(url_for('show_date_duration'))
+
+    return render_template("file_upload/file_upload.html")
+
+
+@app.route('/duration-date-file', methods=['GET', 'POST'])
+def show_date_duration():
+    duration_options = [
+        {'name': 'Jeden dzień', 'time': 1},
+        {'name': 'Dwa dni', 'time': 2},
+        {'name': 'Trzy dni', 'time': 3},
+        {'name': 'Pięć dni', 'time': 5},
+        {'name': 'Tydzień', 'time': 7},
+    ]
+
+    if request.method == 'POST':
+        days_number = request.form.get('duration_dropdown')
+        recommender.days = int(days_number)
+        start = request.form.get('start_date')
+        print(start, days_number)
+
+        start_date = date.fromisoformat(start)
+        dates = []
+        for i in range(0, recommender.days):
+            tmp = start_date + timedelta(days=i)
+            dates.append(tmp.isoformat())
+
+        recommender.dates = dates
+        recommender.hours = [('10:00', '18:00') for _ in range(recommender.days)]
+
+        return redirect(url_for('show_suggested'))
+
+    return render_template('file_upload/date_duration_form.html',
+                           options=duration_options,
+                           tomorrow=date.today() + timedelta(days=1))
 
 
 if __name__ == '__main__':
