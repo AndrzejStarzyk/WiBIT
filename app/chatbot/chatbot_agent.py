@@ -91,9 +91,11 @@ class ChatbotAgent:
                 self.trip_date_text = self.messages[-1].text
 
             self.add_bot_message(f"Podane preferencje: {self.user_information_text} \n"
-                                 f"Podana data: {self.trip_date_text}")
+                                 f"Podana data: {self.trip_date_text} \n"
+                                 f"Miejsce wycieczki: {self.region_text}")
 
-            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.recommender, self.db_connection, self.poi_provider)
+            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
+                                             self.recommender, self.poi_provider, self.db_connection)
 
             self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
                                  f"Daty: {dates}")

@@ -28,6 +28,9 @@ class PoiProvider:
         self.available_fetched: bool = False
         self.divided: bool = False
 
+        self.overpass = Overpass()
+        self.nominatim = Nominatim()
+
         self.fetch_available_attraction_sets()
 
     def fetch_available_attraction_sets(self):
@@ -38,7 +41,8 @@ class PoiProvider:
         for data in available_regions_names:
             self.available_country_region.append((data.get("country"), data.get("city")))
 
-        self.available_region_names = list(map(lambda x: f"{x[0].lower()}-{x[1].lower()}", self.available_country_region))
+        self.available_region_names = list(
+            map(lambda x: f"{x[0].lower()}-{x[1].lower()}", self.available_country_region))
         self.available_fetched = True
 
     def fetch_pois(self, region_text="poland-kraków"):
@@ -49,13 +53,13 @@ class PoiProvider:
         poland_region = f"poland-{region_text}"
         if region_text in self.available_region_names:
             poland_region = region_text
+
         if self.last_fetch_success and self.current_region is not None:
             if poland_region == self.current_region:
                 self.region_changed = False
                 return
             if poland_region not in self.available_country_region:
-                nominatim = Nominatim()
-                region = nominatim.query(region_text)
+                region = self.nominatim.query(region_text)
 
                 region_data = region.toJSON()
                 if len(region_data) == 0:
@@ -68,6 +72,7 @@ class PoiProvider:
                 if region_name == self.current_region:
                     self.region_changed = False
                     return
+
         self.region_changed = True
         if poland_region in self.available_region_names:
             collection = self.db_connection.get_collection_attractions(poland_region)
@@ -85,7 +90,6 @@ class PoiProvider:
                                     wiki=place.get('wikipedia'),
                                     opening_hours=place.get('opening_hours')))
             self.current_region = poland_region
-            print("fetched db")
             self.last_fetch_success = True
         else:
             self.fetch_attractions_from_osm(region_text)
@@ -124,13 +128,9 @@ class PoiProvider:
                     """
 
     def fetch_attractions_from_osm(self, region_name):
-        print(region_name)
-        overpass = Overpass()
-        nominatim = Nominatim()
-        region = nominatim.query(region_name)
+        region = self.nominatim.query(region_name)
 
         region_data = region.toJSON()
-        print(region_data)
         if len(region_data) == 0:
             self.region_changed = False
             self.last_fetch_success = False
@@ -140,12 +140,12 @@ class PoiProvider:
 
         region_name = region_data.get("name")
         self.current_region = region_name
-        print(region_name)
+
         query_str = f'area["name"="{region_name}"]->.searchArea;('
         for selector in selectors:
             query_str += f'nwr["{selector[0]}"="{selector[1]}"](area.searchArea);'
         query_str += ');out body;>;out skel;'
-        res = overpass.query(query_str)
+        res = self.overpass.query(query_str)
 
         self.pois = []
         for element in res.toJSON().get('elements'):
@@ -158,7 +158,7 @@ class PoiProvider:
             lon = element.get("lon")
             lat = element.get("lat")
             if lon is None or lat is None:
-                data = nominatim.query(f"{element.get('type')}/{element.get('id')}", lookup=True).toJSON()
+                data = self.nominatim.query(f"{element.get('type')}/{element.get('id')}", lookup=True).toJSON()
                 if isinstance(data, list):
                     if len(data) == 0:
                         continue

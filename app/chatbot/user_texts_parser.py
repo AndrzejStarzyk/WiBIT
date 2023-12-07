@@ -9,7 +9,9 @@ from recommending_v2.recommender import Recommender
 
 tp = TextProcessor()
 
-def parse_user_text(user_information: str, user_date: str, user_region: str, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
+
+def parse_user_text(user_information: str, user_date: str, user_region: str,
+                    recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
     poi_provider.fetch_pois(user_region)
 
     schedule_parameters = parse_date_text(user_date)

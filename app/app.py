@@ -18,9 +18,9 @@ from recommending_v2.save_preferences import save_preferences, get_preferences_j
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
-from chatbot.chatbot_agent import ChatbotAgent
 from models.user import User
 from models.mongo_utils import MongoUtils
+from chatbot.chatbot_agent import ChatbotAgent
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -40,8 +40,9 @@ poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
-
 chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     user = users.find_one({"_id": PydanticObjectId(user_id)})
@@ -93,6 +94,7 @@ def login():
             if bcrypt.check_password_hash(curr_user.password, login_password):
                 login_user(curr_user, duration=timedelta(days=1))
                 update_user_name()
+                fetch_user_preferences()
                 return redirect(url_for('user_main_page'))
             else:
                 alert = "Podano błędne hasło!"
@@ -167,6 +169,7 @@ def edit_preferences():
             save_preferences(current_user.id, [CategoryConstraint(new_preferences, mongo_utils)], mongo_utils)
         else:
             delete_preferences(current_user.id, mongo_utils)
+
         return redirect(url_for('user_main_page'))
 
     selected_codes = []
@@ -201,22 +204,27 @@ def choose_region():
 
         return render_template('creating_trip/choose_region.html', options=available)
     if request.method == 'POST':
-        region_text_empty: bool = False
-        if 'region_text' in request.form and len(request.form.get('region_text')) == 0:
-            region_text_empty = True
-        print(request.form.get('region_text'))
-        if len(list(request.form.items())) == 0 or (len(list(request.form.items())) == 1 and region_text_empty):
+        print(list(request.form.items()))
+
+        region_text = None
+        if 'region_text' in request.form:
+            region_text = request.form.get('region_text')
+        region_radio = None
+        if 'region_redio' in request.form:
+            region_radio = request.form.get('region_radio')
+
+        if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
             poi_provider.fetch_pois()
-        if 'region_text' in request.form and not region_text_empty:
-            poi_provider.fetch_pois(request.form.get('region_text'))
+        elif region_text is not None and len(region_text) > 0:
+            poi_provider.fetch_pois(region_text)
             if not poi_provider.last_fetch_success:
                 return render_template('error_template/unknown_region_error.html',
-                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_text')))
-        else:
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
+        elif region_radio is not None and len(region_radio) > 0:
+            poi_provider.fetch_pois(region_radio)
             if not poi_provider.last_fetch_success:
                 return render_template('error_template/unknown_region_error.html',
-                                       communicate='Nie znaleziono regionu o nazwie: ' + str(request.form.get('region_radio')))
-            poi_provider.fetch_pois(request.form.get('region_radio'))
+                                       communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
 
         return redirect(url_for('show_duration'))
 
