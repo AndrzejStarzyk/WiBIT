@@ -1,17 +1,18 @@
 from typing import List, Tuple
 
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest, placeholder_poi
 from recommending_v2.algorythm_models.schedule import Day
 from recommending_v2.algorythm_models.user_in_algorythm import User
-from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 
 
 class Evaluator:
     def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
+
         self.user = user
         self.places_provider: PoiProvider = poi_provider
-        self.places: List[PointOfInterest] = self.places_provider.get_places()
+        self.places: List[PointOfInterest] = []
         self.already_recommended: List[str] = []
 
         self.visiting_time_provider = visiting_time_provider
@@ -19,28 +20,57 @@ class Evaluator:
         self.evaluated_places: List[Tuple[PointOfInterest, float]] = []
         self.poi_evaluated = False
 
-    def evaluate(self):
-        self.evaluated_places: List[Tuple[PointOfInterest, float]] = [(i, self.user.evaluate(i)) for i in self.places]
+        self.placeholder_to_remove = False
+        self.placeholder: PointOfInterest = placeholder_poi()
 
+    def setup(self, cold_start: bool):
+        print(self.places_provider.region_changed)
+        if self.places_provider.region_changed:
+            self.places = self.places_provider.get_places()
+            print(len(self.places))
+            self.places_provider.region_changed = False
+
+        if cold_start:
+            self.placeholder.lat = self.places_provider.current_region.lat
+            self.placeholder.lon = self.places_provider.current_region.lon
+
+        self.already_recommended = []
+        self.evaluate(cold_start)
+
+    def evaluate(self, cold_start):
+        self.evaluated_places: List[Tuple[PointOfInterest, float]] = [(i, self.user.evaluate(i)) for i in self.places]
         self.evaluated_places.sort(key=lambda x: x[1], reverse=True)
+
+        if cold_start:
+            self.places.append(self.placeholder)
+            max_score = self.evaluated_places[0][1]
+            self.evaluated_places.insert(0, (self.placeholder, max_score+2))
+            self.placeholder_to_remove = True
+
         self.user.decay_weights()
         self.poi_evaluated = True
 
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
-        place_id_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
-        #for poi, s in place_id_score:
-        #    res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
-        #    if len(res) > 0:
-        #        print(poi.name, s, res[0][1])
+        poi_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
+
+        if self.placeholder_to_remove:
+            to_remove = list(filter(lambda x: x[0].name == 'placeholder', poi_score))[0]
+            poi_score.remove(to_remove)
+            self.places.remove(self.placeholder)
+
+        for poi, s in poi_score:
+            res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
+            #if len(res) > 0:
+                #print(poi.name, s, res[0][1])
         res = []
         i = 0
         curr_time = day.start
-        while i < len(place_id_score) and curr_time < day.end:
-            poi: PointOfInterest = place_id_score[i][0]
+        while i < len(poi_score) and curr_time < day.end:
+            poi: PointOfInterest = poi_score[i][0]
             if poi.opening_hours.is_open(day.weekday, day.start.time(),
                                          day.end.time()) and poi.xid not in self.already_recommended:
                 curr_time += self.visiting_time_provider.get_visiting_time(poi)
-                res.append((poi, place_id_score[i][1]))
+                res.append((poi, poi_score[i][1]))
             i += 1
 
         return res
@@ -48,10 +78,6 @@ class Evaluator:
     def add_already_recommended(self, xids: List[str]):
         for xid in xids:
             self.already_recommended.append(xid)
-
-    def setup(self):
-        self.already_recommended = []
-        self.evaluate()
 
 
 if __name__ == "__main__":

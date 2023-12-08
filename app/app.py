@@ -3,10 +3,14 @@ from datetime import date, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from wtforms.validators import ValidationError
+from docx import Document
+from pypdf import PdfReader
+from odf import text, teletype
+from odf.opendocument import load
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
@@ -18,10 +22,10 @@ from recommending_v2.save_preferences import save_preferences, get_preferences_j
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm
-from chatbot.chatbot_agent import ChatbotAgent
 from models.user import User
 from models.mongo_utils import MongoUtils
-
+from chatbot.chatbot_agent import ChatbotAgent
+from text_to_prefs import TextProcessor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -30,18 +34,21 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 mongo_utils = MongoUtils()
-chatbot_agent = ChatbotAgent()
 
 users = mongo_utils.get_collection('users')
 trips = mongo_utils.get_collection('trips')
 user_name = None
 
 algo_user = Algo_User()
+
 categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
+
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
+text_processor = TextProcessor()
+chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
 
 
 @login_manager.user_loader
@@ -95,6 +102,8 @@ def login():
             if bcrypt.check_password_hash(curr_user.password, login_password):
                 login_user(curr_user, duration=timedelta(days=1))
                 update_user_name()
+                fetch_user_preferences()
+                recommender.logged_user_preferences_fetched = True
                 return redirect(url_for('user_main_page'))
             else:
                 alert = "Podano błędne hasło!"
@@ -150,6 +159,7 @@ def registration():
 def logout():
     logout_user()
     update_user_name()
+    algo_user.reset_permanent_preference()
     return redirect(url_for('show_home'))
 
 
@@ -169,6 +179,7 @@ def edit_preferences():
             save_preferences(current_user.id, [CategoryConstraint(new_preferences, mongo_utils)], mongo_utils)
         else:
             delete_preferences(current_user.id, mongo_utils)
+
         return redirect(url_for('user_main_page'))
 
     selected_codes = []
@@ -184,6 +195,50 @@ def edit_preferences():
                 categories_provider.get_subcategories([cat.code])]
     } for cat in categories_provider.get_main_categories()]
     return render_template('edit_preferences.html', categories=categories, redirect='/preferences')
+
+
+def fetch_user_preferences():
+    if current_user.is_authenticated:
+        user_pref = get_preferences_json(current_user.id, mongo_utils)
+        for pref in user_pref:
+            if pref['constraint_type'] == ConstraintType.Category.value:
+                algo_user.add_permanent_preference(CategoryConstraint(pref['value'], mongo_utils))
+            if pref['constraint_type'] == ConstraintType.Attraction.value:
+                algo_user.add_permanent_preference(AttractionConstraint(pref['value']))
+
+
+def get_region_from_request(req):
+    print(list(req.form.items()))
+    region_text = None
+    if 'region_text' in req.form:
+        region_text = req.form.get('region_text')
+    region_radio = None
+    if 'region_radio' in req.form:
+        region_radio = req.form.get('region_radio')
+    print(region_text, region_radio)
+    if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
+        poi_provider.fetch_pois()
+    elif region_text is not None and len(region_text) > 0:
+        poi_provider.fetch_pois(region_text)
+        if not poi_provider.last_fetch_success:
+            render_template('error_template/unknown_region_error.html',
+                            communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
+    elif region_radio is not None and len(region_radio) > 0:
+        poi_provider.fetch_pois(region_radio)
+        if not poi_provider.last_fetch_success:
+            render_template('error_template/unknown_region_error.html',
+                            communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
+
+
+@app.route('/region', methods=['GET', 'POST'])
+def choose_region():
+    if request.method == 'GET':
+        available = poi_provider.get_available_attraction_sets()
+
+        return render_template('creating_trip/choose_region.html', options=available)
+    if request.method == 'POST':
+        get_region_from_request(request)
+        return redirect(url_for('show_duration'))
 
 
 @app.route('/duration', methods=['GET', 'POST'])
@@ -244,7 +299,13 @@ def show_categories():
 def show_default_trip():
     res = render_template("default_page.html")
     try:
-        trajectory = default_trip.get_trip(None)
+        default_schedule = default_trip.get_default_schedule()
+        recommender.days = 1
+        recommender.dates = default_schedule.dates
+        recommender.hours = default_schedule.hours
+        recommender.create_schedule()
+        print(list(map(lambda x: (x.date_str, x.start, x.end, x.weekday), recommender.schedule.schedule)))
+        trajectory = default_trip.get_trip(default_schedule.schedule[0])
         m = create_map(trajectory)
         m.get_root().render()
         map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
@@ -277,7 +338,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent()
+    chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
     return redirect(url_for('show_chatbot'))
 
 
@@ -296,10 +357,13 @@ def render_trip(schedule: Schedule, template: str):
     return res
 
 
-@app.route('/suggested', methods=['POST'])
+@app.route('/suggested', methods=['POST', 'GET'])
 async def show_suggested():
     res = render_template("default_page.html")
-
+    print(request.method)
+    if current_user.is_authenticated and not recommender.logged_user_preferences_fetched:
+        fetch_user_preferences()
+    algo_user.reset()
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
@@ -311,17 +375,15 @@ async def show_suggested():
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
 
-        if current_user.is_authenticated:
-            user_pref = get_preferences_json(current_user.id, mongo_utils)
-            for pref in user_pref:
-                if pref['constraint_type'] == ConstraintType.Category.value:
-                    recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
-                if pref['constraint_type'] == ConstraintType.Attraction.value:
-                    recommender.add_constraint(AttractionConstraint(pref['value']))
         recommender.create_schedule()
         recommended = recommender.get_recommended()
         return render_trip(recommended, "creating_trip/suggested_page.html")
 
+    if request.method == "GET":
+        print(request.method)
+        recommender.create_schedule()
+        recommended = recommender.get_recommended()
+        return render_trip(recommended, "creating_trip/suggested_page.html")
     return res
 
 
@@ -342,12 +404,14 @@ def suggest_again(day_nr: int):
             recommender.add_constraint(AttractionConstraint([item[1]], False))
             some_replaced = True
     if some_removed and not some_replaced:
-        recommended = recommender.remove_from_schedule(day_nr-1, to_remove)
+        recommended = recommender.remove_from_schedule(day_nr - 1, to_remove)
     elif not some_removed and not some_replaced:
         recommender.modify_general_constraint()
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
     else:
-        recommended = recommender.recommend_again(day_nr-1)
+        recommended = recommender.recommend_again(day_nr - 1)
+
+    print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
     return render_trip(recommended, "creating_trip/suggested_page.html")
 
 
@@ -405,6 +469,84 @@ def saved_trip_page():
     trip = TripDaysMongo(**raw_trip)
 
     return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
+
+
+@app.route('/region-file', methods=['GET', 'POST'])
+def choose_region_file():
+    if request.method == 'GET':
+        available = poi_provider.get_available_attraction_sets()
+        return render_template('creating_trip/choose_region.html', options=available)
+    if request.method == 'POST':
+        get_region_from_request(request)
+        return redirect(url_for('upload_file'))
+
+
+@app.route("/upload-file", methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        added_file = request.files.get('file')
+        if added_file:
+            file_content = ""
+            if added_file.filename.endswith('.txt'):
+                file_content = added_file.read().decode('utf-8')
+
+            elif added_file.filename.endswith('.pdf'):
+                reader = PdfReader(added_file)
+                number_of_pages = len(reader.pages)
+                for i in range(number_of_pages):
+                    page = reader.pages[i]
+                    file_content += ' ' + page.extract_text()
+
+            elif added_file.filename.endswith(('.docx', '.doc')):
+                doc = Document(added_file)
+                for paragraph in doc.paragraphs:
+                    file_content += ' ' + paragraph.text
+
+            elif added_file.filename.endswith('.odt'):
+                odt_document = load(added_file)
+                all_text_elements = odt_document.getElementsByType(text.P)
+                for text_element in all_text_elements:
+                    file_content += ' ' + teletype.extractText(text_element)
+
+            print(file_content)
+            classes = text_processor.predict_classes(file_content)
+            for kind in classes:
+                recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
+            return redirect(url_for('show_date_duration'))
+
+    return render_template("file_upload/file_upload.html")
+
+
+@app.route('/duration-date-file', methods=['GET', 'POST'])
+def show_date_duration():
+    duration_options = [
+        {'name': 'Jeden dzień', 'time': 1},
+        {'name': 'Dwa dni', 'time': 2},
+        {'name': 'Trzy dni', 'time': 3},
+        {'name': 'Pięć dni', 'time': 5},
+        {'name': 'Tydzień', 'time': 7},
+    ]
+
+    if request.method == 'POST':
+        days_number = request.form.get('duration_dropdown')
+        recommender.days = int(days_number)
+        start = request.form.get('start_date')
+        print(start, days_number)
+
+        start_date = date.fromisoformat(start)
+        dates = []
+        for i in range(0, recommender.days):
+            tmp = start_date + timedelta(days=i)
+            dates.append(tmp.isoformat())
+
+        recommender.dates = dates
+        recommender.hours = [('10:00', '18:00') for _ in range(recommender.days)]
+
+        return redirect(url_for('show_suggested'))
+
+    return render_template('file_upload/date_duration_form.html',
+                           options=duration_options,
+                           tomorrow=date.today() + timedelta(days=1))
 
 
 if __name__ == '__main__':

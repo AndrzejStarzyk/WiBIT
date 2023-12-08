@@ -3,8 +3,8 @@ from datetime import timedelta
 from typing import Dict
 
 from models.mongo_utils import MongoUtils
-from recommending_v2.algorythm_models.point_of_interest import PointOfInterest
-from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 
 
 default_estimated_time = timedelta(hours=1, minutes=30)

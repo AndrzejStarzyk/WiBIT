@@ -25,7 +25,6 @@ def create_map(trajectory: Trajectory) -> folium.Map:
             location=(path[i].poi.lat, path[i].poi.lon),
             popup=render_template('map/popup.html',
                                   name=path[i].poi.name,
-                                  img=path[i].poi.image,
                                   website=path[i].poi.website,
                                   wiki=path[i].poi.wiki,
                                   start=path[i].start,

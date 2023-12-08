@@ -2,11 +2,11 @@ from typing import List, Tuple, Union
 
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
 from recommending_v2.evaluator import Evaluator
-from recommending_v2.poi_provider import PoiProvider
+from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.algorythm_models.user_in_algorythm import User
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
-from recommending_v2.algorythm_models.constraint import Constraint, GeneralConstraint, ProximityConstraint
+from recommending_v2.algorythm_models.constraint import Constraint, ProximityConstraint, ConstraintType
 from recommending_v2.algorythm_models.trajectory import Trajectory
 from recommending_v2.algorythm_models.schedule import Schedule
 
@@ -24,18 +24,19 @@ class Recommender:
         self.hours: List[Tuple[str, str]] = []
         self.schedule: Union[Schedule, None] = None
 
+        self.logged_user_preferences_fetched = False
+
     def set_user(self, user: User):
         self.user = user
-        self.cold_start = False
 
     def add_constraint(self, constraint: Constraint):
-        if self.cold_start:
+        if self.cold_start and constraint.to_json()["constraint_type"] == ConstraintType.Category.value:
             self.cold_start = False
         self.user.add_constraint(constraint, constraint.get_weight())
 
     def modify_general_constraint(self):
         if len(self.user.general_constraints) == 0:
-            self.user.general_constraints.append(ProximityConstraint())
+            self.user.add_general_constraint(ProximityConstraint())
         else:
             self.user.general_constraints[0].modify()
 
@@ -43,24 +44,24 @@ class Recommender:
         self.schedule = Schedule(self.days, self.dates, self.hours)
 
     def get_recommended(self) -> Schedule:
+        print(self.cold_start)
         if self.cold_start:
-            trip = self.default_trip.get_trip(self.schedule.schedule[0])
-            self.schedule.add_trajectory(trip)
-            return self.schedule
-        else:
-            self.evaluator.setup()
-            for day in self.schedule.schedule:
-                best_pois = self.evaluator.extract_best_trajectory(day)
-                trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
-                self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))
-                self.schedule.add_trajectory(trajectory)
-
-            return self.schedule
+            self.user.add_general_constraint(ProximityConstraint(best_pois_nr=1))
+        self.evaluator.setup(self.cold_start)
+        for day in self.schedule.schedule:
+            best_pois = self.evaluator.extract_best_trajectory(day)
+            trajectory: Trajectory = build_trajectory(day, best_pois, self.visiting_time_provider)
+            self.evaluator.add_already_recommended(list(map(lambda x: x.poi.xid, trajectory.get_events())))
+            self.schedule.add_trajectory(trajectory)
+        return self.schedule
 
     def recommend_again(self, day_id: int) -> Schedule:
+        if self.cold_start:
+            self.cold_start = False
+            return self.get_recommended()
         if day_id < 0 or day_id >= len(self.schedule.schedule):
             return self.schedule
-        self.evaluator.evaluate()
+        self.evaluator.evaluate(cold_start=False)
         best_pois = self.evaluator.extract_best_trajectory(self.schedule.schedule[day_id])
         trajectory: Trajectory = build_trajectory(self.schedule.schedule[day_id], best_pois,
                                                   self.visiting_time_provider)
