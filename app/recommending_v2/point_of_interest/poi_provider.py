@@ -7,6 +7,7 @@ from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
 from recommending_v2.utils import dist
 from models.mongo_utils import MongoUtils
+from region import Region
 
 max_dist = 2000
 
@@ -16,7 +17,8 @@ class PoiProvider:
         self.db_connection: MongoUtils = db_connection
 
         self.pois: List[PointOfInterest] = []
-        self.available_country_region: List[Tuple[str, str]] = []
+        self.available_regions: List[Region] = []
+        self.available_country_region: List[str] = []
         self.available_region_names: List[str] = []
 
         self.groups: List[List[int]] = []
@@ -24,7 +26,7 @@ class PoiProvider:
 
         self.last_fetch_success: bool = False
         self.region_changed = False
-        self.current_region: Union[None, str] = None
+        self.current_region: Union[None, Region] = None
         self.available_fetched: bool = False
         self.divided: bool = False
 
@@ -39,10 +41,11 @@ class PoiProvider:
         available_regions_names = collection.find()
 
         for data in available_regions_names:
-            self.available_country_region.append((data.get("country"), data.get("city")))
+            self.available_regions.append(
+                Region(data.get("city"), data.get("lat"), data.get("lon"), data.get("country")))
 
-        self.available_region_names = list(
-            map(lambda x: f"{x[0].lower()}-{x[1].lower()}", self.available_country_region))
+        self.available_country_region = list(map(lambda x: x.get_country_region().lower(), self.available_regions))
+        self.available_region_names = list(map(lambda x: x.name.lower(), self.available_regions))
         self.available_fetched = True
 
     def fetch_pois(self, region_text="poland-kraków"):
@@ -50,15 +53,14 @@ class PoiProvider:
             self.fetch_available_attraction_sets()
 
         region_text = region_text.lower()
-        poland_region = f"poland-{region_text}"
-        if region_text in self.available_region_names:
-            poland_region = region_text
 
+        print(region_text, self.last_fetch_success, self.current_region is not None)
         if self.last_fetch_success and self.current_region is not None:
-            if poland_region == self.current_region:
+            if region_text == self.current_region.name.lower() or \
+                    region_text == self.current_region.get_country_region().lower():
                 self.region_changed = False
                 return
-            if poland_region not in self.available_country_region:
+            if region_text not in self.available_regions and region_text not in self.available_region_names:
                 region = self.nominatim.query(region_text)
 
                 region_data = region.toJSON()
@@ -69,13 +71,17 @@ class PoiProvider:
                 if isinstance(region_data, list):
                     region_data = region_data[0]
                 region_name = region_data.get("name")
-                if region_name == self.current_region:
+                if region_name == self.current_region.name:
                     self.region_changed = False
                     return
 
         self.region_changed = True
-        if poland_region in self.available_region_names:
-            collection = self.db_connection.get_collection_attractions(poland_region)
+
+        if region_text in self.available_region_names:
+            region_text = list(filter(lambda x: x.name.lower() == region_text, self.available_regions))[0].get_country_region()
+
+        if region_text in self.available_country_region:
+            collection = self.db_connection.get_collection_attractions(region_text)
             all_places = collection.find()
 
             self.pois = []
@@ -89,7 +95,8 @@ class PoiProvider:
                                     website=place.get('url'),
                                     wiki=place.get('wikipedia'),
                                     opening_hours=place.get('opening_hours')))
-            self.current_region = poland_region
+            self.current_region = list(filter(lambda x: x.get_country_region() == region_text, self.available_regions))[
+                0]
             self.last_fetch_success = True
         else:
             self.fetch_attractions_from_osm(region_text)
@@ -139,7 +146,7 @@ class PoiProvider:
             region_data = region_data[0]
 
         region_name = region_data.get("name")
-        self.current_region = region_name
+        self.current_region = Region(region_name, float(region_data.get("lat")), float(region_data.get("lon")))
 
         query_str = f'area["name"="{region_name}"]->.searchArea;('
         for selector in selectors:
@@ -219,7 +226,7 @@ class PoiProvider:
     def get_available_attraction_sets(self) -> List[Tuple[str, str]]:
         if not self.available_fetched:
             self.fetch_available_attraction_sets()
-        return self.available_country_region
+        return list(map(lambda x: (x.country, x.name), self.available_regions))
 
     def get_groups(self):
         if not self.last_fetch_success:

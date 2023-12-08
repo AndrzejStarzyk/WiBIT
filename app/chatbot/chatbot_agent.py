@@ -1,13 +1,18 @@
+from datetime import date, timedelta
+
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
+from constraint import CategoryConstraint
+from date_recognition import parse_date_text
 from models.mongo_utils import MongoUtils
-from chatbot.user_texts_parser import parse_user_text
 from recommending_v2.point_of_interest.poi_provider import PoiProvider
 from recommending_v2.recommender import Recommender
+from text_to_prefs import TextProcessor
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider:PoiProvider, db_connection: MongoUtils):
+    def __init__(self, recommender: Recommender, poi_provider:PoiProvider,  text_processor: TextProcessor,
+                 db_connection: MongoUtils):
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
@@ -20,6 +25,7 @@ class ChatbotAgent:
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
+        self.text_processor = text_processor
 
         self.is_finished = False
 
@@ -94,7 +100,7 @@ class ChatbotAgent:
                                  f"Podana data: {self.trip_date_text} \n"
                                  f"Miejsce wycieczki: {self.region_text}")
 
-            dates, classes = parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
+            dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
                                              self.recommender, self.poi_provider, self.db_connection)
 
             self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
@@ -105,3 +111,32 @@ class ChatbotAgent:
                 self.add_bot_message("Nie znaleziono regionu o nazwie: " + self.region_text)
             self.is_finished = True
             self.end_conversation()
+
+    def parse_user_text(self, user_information: str, user_date: str, user_region: str,
+                        recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
+        poi_provider.fetch_pois(user_region)
+
+        schedule_parameters = parse_date_text(user_date)
+
+        start_date: date = schedule_parameters.start_date
+        dates = []
+        tmp = start_date
+        i = 0
+        while tmp != schedule_parameters.end_date:
+            tmp = start_date + timedelta(days=i)
+            dates.append(tmp.isoformat())
+            i += 1
+
+        recommender.dates = dates
+        recommender.days = len(dates)
+
+        schedule_hours = [('10:00', '18:00')
+                          for _ in range(0, len(dates))]
+        recommender.hours = schedule_hours
+        recommender.create_schedule()
+
+        classes = self.text_processor.predict_classes(user_information)
+        for kind in classes:
+            recommender.add_constraint(CategoryConstraint(kind, db_connection))
+
+        return dates, classes

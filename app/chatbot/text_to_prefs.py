@@ -1,11 +1,10 @@
 import joblib
 import re
 import string
-from string import punctuation
 from stop_words import get_stop_words
 from pyMorfologik import Morfologik
 from pyMorfologik.parsing import ListParser
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 
 parser = ListParser()
 stemmer = Morfologik()

@@ -8,7 +8,6 @@ from pypdf import PdfReader
 from odf import text, teletype
 from odf.opendocument import load
 
-
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
 from recommending_v2.point_of_interest.poi_provider import PoiProvider
@@ -26,6 +25,7 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
+from text_to_prefs import TextProcessor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -40,12 +40,15 @@ trips = mongo_utils.get_collection('trips')
 user_name = None
 
 algo_user = Algo_User()
+
 categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
+
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
-chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
+text_processor = TextProcessor()
+chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
 
 
 @login_manager.user_loader
@@ -156,6 +159,7 @@ def registration():
 def logout():
     logout_user()
     update_user_name()
+    algo_user.reset_permanent_preference()
     return redirect(url_for('show_home'))
 
 
@@ -198,34 +202,32 @@ def fetch_user_preferences():
         user_pref = get_preferences_json(current_user.id, mongo_utils)
         for pref in user_pref:
             if pref['constraint_type'] == ConstraintType.Category.value:
-                recommender.add_constraint(CategoryConstraint(pref['value'], mongo_utils))
+                algo_user.add_permanent_preference(CategoryConstraint(pref['value'], mongo_utils))
             if pref['constraint_type'] == ConstraintType.Attraction.value:
-                recommender.add_constraint(AttractionConstraint(pref['value']))
+                algo_user.add_permanent_preference(AttractionConstraint(pref['value']))
 
 
-def get_region_from_request(request):
+def get_region_from_request(req):
+    print(list(req.form.items()))
     region_text = None
-    if 'region_text' in request.form:
-        region_text = request.form.get('region_text')
+    if 'region_text' in req.form:
+        region_text = req.form.get('region_text')
     region_radio = None
-    if 'region_redio' in request.form:
-        region_radio = request.form.get('region_radio')
-
+    if 'region_radio' in req.form:
+        region_radio = req.form.get('region_radio')
+    print(region_text, region_radio)
     if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
         poi_provider.fetch_pois()
     elif region_text is not None and len(region_text) > 0:
         poi_provider.fetch_pois(region_text)
         if not poi_provider.last_fetch_success:
-            return render_template('error_template/unknown_region_error.html',
-                                   communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
+            render_template('error_template/unknown_region_error.html',
+                            communicate='Nie znaleziono regionu o nazwie: ' + str(region_text))
     elif region_radio is not None and len(region_radio) > 0:
         poi_provider.fetch_pois(region_radio)
         if not poi_provider.last_fetch_success:
-            return render_template('error_template/unknown_region_error.html',
-                                   communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
-
-    return redirect(url_for('show_duration'))
-
+            render_template('error_template/unknown_region_error.html',
+                            communicate='Nie znaleziono regionu o nazwie: ' + str(region_radio))
 
 
 @app.route('/region', methods=['GET', 'POST'])
@@ -236,6 +238,8 @@ def choose_region():
         return render_template('creating_trip/choose_region.html', options=available)
     if request.method == 'POST':
         get_region_from_request(request)
+        return redirect(url_for('show_duration'))
+
 
 @app.route('/duration', methods=['GET', 'POST'])
 def show_duration():
@@ -359,6 +363,7 @@ async def show_suggested():
     print(request.method)
     if current_user.is_authenticated and not recommender.logged_user_preferences_fetched:
         fetch_user_preferences()
+    algo_user.reset()
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
@@ -504,6 +509,9 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
+            classes = text_processor.predict_classes(file_content)
+            for kind in classes:
+                recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
             return redirect(url_for('show_date_duration'))
 
     return render_template("file_upload/file_upload.html")

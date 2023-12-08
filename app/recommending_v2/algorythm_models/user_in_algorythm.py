@@ -1,9 +1,7 @@
 from typing import List, Tuple
 
-from recommending_v2.algorythm_models.constraint import Constraint, AttractionConstraint, CategoryConstraint, \
-    GeneralConstraint
+from recommending_v2.algorythm_models.constraint import Constraint, CategoryConstraint, GeneralConstraint
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
-from recommending_v2.algorythm_models.default_trip import get_default_places_xid
 
 
 class Preference:
@@ -19,20 +17,35 @@ class User:
     def __init__(self):
         self.preferences: List[Preference] = []
         self.total_weights: int = 0
-
         self.general_constraints: List[GeneralConstraint] = []
-
-        for xid in get_default_places_xid():
-            self.add_constraint(AttractionConstraint([xid]), 3)
+        self.permanent_preferences: List[Preference] = []
 
     def add_constraint(self, constraint: Constraint, weight: int):
         self.preferences.append(Preference(constraint, weight))
         self.total_weights += weight
 
+    def add_permanent_preference(self, constraint: Constraint):
+        self.permanent_preferences.append(Preference(constraint, constraint.get_weight()))
+
+    def reset_permanent_preference(self):
+        self.permanent_preferences = []
+
+    def add_general_constraint(self, constraint: GeneralConstraint):
+        self.general_constraints.append(constraint)
+
+    def reset(self):
+        self.preferences = []
+        for preference in self.permanent_preferences:
+            self.preferences.append(preference)
+
     def evaluate(self, poi: PointOfInterest) -> float:
         res = 0
         for pref in self.preferences:
             res += pref.constraint.evaluate(poi) * pref.weight
+
+        if self.total_weights == 0:
+            return base_score
+
         res /= self.total_weights
         res += base_score
         return res
