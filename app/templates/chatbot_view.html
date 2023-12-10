@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/chat_toggle.css') }}">
+
     <title>Wirtualne Biuro Informacji Turystycznej</title>
 {% endblock %}
 
@@ -53,6 +55,27 @@
                 <form method="POST">
                     <textarea id="message-textarea" name="user_text" rows="3" required="required"></textarea>
                     <input class="message-submit" type="submit" value="Prześlij">
+
+                    <div id="div-yesnotoggle">
+                        <div id="div-notext" class="div-label-text ">
+                            <p class="div-no-disclaimer">Przewodnik układa plan wycieczki bazując na tym, co lubią inni turyści.</p>
+                            <h5>Przewodnik z doświadczeniem</h5>
+                        </div>
+                        <div id="div-switch">
+                            <label class="switch">
+                                {% if mode_checked %}
+                                <input type="checkbox" name="chatbot_mode" checked>
+                                {% else %}
+                                <input type="checkbox" name="chatbot_mode">
+                                {% endif %}
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                        <div id="div-yestext" class="div-label-text">
+                            <p class="div-yes-disclaimer">Przewodnik układa plan wycieczki w oparciu o swoją wiedzę dotyczącą atrakcji turystycznych.</p>
+                            <h5>Przewodnik z dużą wiedzą</h5>
+                        </div>
+                    </div>
                 </form>
             {% endif %}
         </div>

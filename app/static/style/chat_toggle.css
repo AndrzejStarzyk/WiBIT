@@ -1,0 +1,110 @@
+#div-yesnotoggle {
+  display: inline-block;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+#div-notext {
+  display: inline-block;
+  text-align: right;
+}
+
+#div-switch {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 10px;
+}
+
+#div-yestext {
+  display: inline-block;
+  text-align: left;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: lightgray;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+ transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: darkseagreen;;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px black;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.div-label-text{
+  text-align: center;
+  width: calc(50% - 60px);
+}
+
+.div-label-text h5{
+  font-size: 16px;
+}
+
+.div-label-text {
+  font-size: 14px;
+}
+
+.div-no-disclaimer, .div-yes-disclaimer{
+  display: none;
+}
+
+#div-yestext:hover{
+  color: #262626;
+}
+
+#div-yestext:hover .div-yes-disclaimer{
+  display: block;
+}
+
+#div-notext:hover .div-no-disclaimer{
+  display: block;
+}
+
+/* https://stackoverflow.com/questions/41129060/centering-text-on-either-side-of-a-toggle */

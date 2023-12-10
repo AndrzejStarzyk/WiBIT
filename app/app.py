@@ -25,7 +25,7 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
-from text_to_prefs import TextProcessor
+from chatbot.text_to_prefs import TextProcessor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -319,7 +319,15 @@ def show_default_trip():
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
+    chat_mode = 'experience'
     if request.method == "POST":
+        if request.form.get("chatbot_mode", False) == 'on':
+            chat_mode = 'knowledge'
+        else:
+            chat_mode = 'experience'
+
+        print(chat_mode)
+
         new_message = request.form['user_text']
         chatbot_agent.add_user_message(new_message)
 
@@ -332,7 +340,8 @@ def show_chatbot():
     return render_template("chatbot_view.html",
                            user_name=chat_user,
                            messages=chatbot_agent.get_all_messages(),
-                           is_finished=chatbot_agent.is_finished)
+                           is_finished=chatbot_agent.is_finished,
+                           mode_checked=(chat_mode == 'knowledge'))
 
 
 @app.route('/reset-chatbot', methods=['POST'])
