@@ -57,9 +57,8 @@
                     <input class="message-submit" type="submit" value="Prześlij">
 
                     <div id="div-yesnotoggle">
-                        <div id="div-notext" class="div-label-text ">
-                            <p class="div-no-disclaimer">Przewodnik układa plan wycieczki bazując na tym, co lubią inni turyści.</p>
-                            <h5>Przewodnik z doświadczeniem</h5>
+                        <div id="div-notext" class="div-label-text">
+                            <h5>Doświadczony przewodnik</h5> <h5 id="notext-info">i</h5>
                         </div>
                         <div id="div-switch">
                             <label class="switch">
@@ -72,8 +71,7 @@
                             </label>
                         </div>
                         <div id="div-yestext" class="div-label-text">
-                            <p class="div-yes-disclaimer">Przewodnik układa plan wycieczki w oparciu o swoją wiedzę dotyczącą atrakcji turystycznych.</p>
-                            <h5>Przewodnik z dużą wiedzą</h5>
+                            <h5>Przewodnik z dużą wiedzą</h5> <h5 id="yestext-info">i</h5>
                         </div>
                     </div>
                 </form>
@@ -85,11 +83,43 @@
 </body>
 <script>
     function scrollToBottom() {
-      var chatbotBlock = document.querySelector('.chatbot-block');
-      chatbotBlock.scrollTop = chatbotBlock.scrollHeight;
+        var chatbotBlock = document.querySelector('.chatbot-block');
+        chatbotBlock.scrollTop = chatbotBlock.scrollHeight;
     }
 
-    scrollToBottom()
+    document.addEventListener("DOMContentLoaded", function() {
+            var tooltip = document.createElement("div");
+            tooltip.id = "tooltip";
+            document.body.appendChild(tooltip);
+
+            document.addEventListener("mousemove", function(event) {
+                var x = event.clientX - 262;
+                var y = event.clientY + 6;
+                tooltip.style.left = x + "px";
+                tooltip.style.top = y + "px";
+            });
+
+            document.getElementById('yestext-info').addEventListener("mouseover", function() {
+                tooltip.style.display = "block";
+                tooltip.innerHTML = "Przewodnik układa plan wycieczki w oparciu o swoją wiedzę dotyczącą atrakcji turystycznych.";
+            });
+
+            document.getElementById('yestext-info').addEventListener("mouseout", function() {
+                tooltip.style.display = "none";
+            });
+
+            document.getElementById('notext-info').addEventListener("mouseover", function() {
+                tooltip.style.display = "block";
+                tooltip.innerHTML = "Przewodnik układa plan wycieczki bazując na tym, co lubią inni turyści.";
+            });
+
+            document.getElementById('notext-info').addEventListener("mouseout", function() {
+                tooltip.style.display = "none";
+            });
+        });
+
+
+scrollToBottom()
 </script>
 
 {% endblock %}
