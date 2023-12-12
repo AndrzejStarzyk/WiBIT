@@ -517,7 +517,7 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
-            classes = text_processor.predict_classes(file_content)
+            classes = chatbot_agent.text_processor.predict_classes(file_content)
             for kind in classes:
                 recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
             return redirect(url_for('show_date_duration'))
