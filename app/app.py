@@ -25,7 +25,7 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
-from chatbot.text_to_prefs import TextProcessor
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -47,8 +47,7 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
-text_processor = TextProcessor()
-chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
+chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
 
 
 @login_manager.user_loader
@@ -329,7 +328,7 @@ def show_chatbot():
         print(chat_mode)
 
         new_message = request.form['user_text']
-        chatbot_agent.add_user_message(new_message)
+        chatbot_agent.add_user_message(new_message, chat_mode)
 
         if chatbot_agent.is_finished and current_user.is_authenticated:
             chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
