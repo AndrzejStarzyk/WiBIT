@@ -7,7 +7,7 @@ from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
 from recommending_v2.utils import dist
 from models.mongo_utils import MongoUtils
-from region import Region
+from recommending_v2.point_of_interest.region import Region
 
 max_dist = 2000
 

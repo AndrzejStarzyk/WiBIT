@@ -25,7 +25,7 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
-from text_to_prefs import TextProcessor
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -47,8 +47,7 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
-text_processor = TextProcessor()
-chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
+chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
 
 
 @login_manager.user_loader
@@ -319,9 +318,17 @@ def show_default_trip():
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
+    chat_mode = 'experience'
     if request.method == "POST":
+        if request.form.get("chatbot_mode", False) == 'on':
+            chat_mode = 'knowledge'
+        else:
+            chat_mode = 'experience'
+
+        print(chat_mode)
+
         new_message = request.form['user_text']
-        chatbot_agent.add_user_message(new_message)
+        chatbot_agent.add_user_message(new_message, chat_mode)
 
         if chatbot_agent.is_finished and current_user.is_authenticated:
             chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
@@ -332,7 +339,8 @@ def show_chatbot():
     return render_template("chatbot_view.html",
                            user_name=chat_user,
                            messages=chatbot_agent.get_all_messages(),
-                           is_finished=chatbot_agent.is_finished)
+                           is_finished=chatbot_agent.is_finished,
+                           mode_checked=(chat_mode == 'knowledge'))
 
 
 @app.route('/reset-chatbot', methods=['POST'])
@@ -509,7 +517,7 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
-            classes = text_processor.predict_classes(file_content)
+            classes = chatbot_agent.text_processor.predict_classes(file_content)
             for kind in classes:
                 recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
             return redirect(url_for('show_date_duration'))
