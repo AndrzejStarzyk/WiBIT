@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Choose page</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1></h1>
+    <form class="centered-form row" id="region_form" method="POST">
+        <div class="col-lg-6">
+            <label for="duration_dropdown"> Wybierz czas trwania wycieczki</label>
+            <label for="duration_dropdown"> Wybierz czas trwania wycieczki</label>
+            <select id="duration_dropdown" name="duration_dropdown" required>
+                {% for option in options %}
+                <option value={{option['time']}}>{{option['name']}}</option>
+                {% endfor %}
+            </select>
+
+            <label class="base-label" for="region_text">Wybierz lub wprowadź nawzę miasta albo regionu, gdzie odbędzie się wycieczka</label>
+            <input id="region_text" name="region_text" type="text">
+            <button class="base-button " type="submit" form="region_form">Dalej</button>
+        </div>
+    </form >
+</div>
+{% endblock %}

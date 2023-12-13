@@ -24,12 +24,13 @@ class Evaluator:
         self.placeholder: PointOfInterest = placeholder_poi()
 
     def setup(self, cold_start: bool):
-        print(self.places_provider.region_changed)
+        print("region change", self.places_provider.region_changed)
         if self.places_provider.region_changed:
             self.places = self.places_provider.get_places()
-            print(len(self.places))
             self.places_provider.region_changed = False
+        print(len(self.places))
 
+        self.placeholder_to_remove = False
         if cold_start:
             self.placeholder.lat = self.places_provider.current_region.lat
             self.placeholder.lon = self.places_provider.current_region.lon
@@ -45,7 +46,7 @@ class Evaluator:
             self.places.append(self.placeholder)
             max_score = self.evaluated_places[0][1]
             self.evaluated_places.insert(0, (self.placeholder, max_score+2))
-            self.placeholder_to_remove = True
+            self.placeholder_to_remove = False
 
         self.user.decay_weights()
         self.poi_evaluated = True
@@ -53,15 +54,17 @@ class Evaluator:
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
         poi_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
 
-        if self.placeholder_to_remove:
-            to_remove = list(filter(lambda x: x[0].name == 'placeholder', poi_score))[0]
-            poi_score.remove(to_remove)
-            self.places.remove(self.placeholder)
-
         for poi, s in poi_score:
             res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
-            #if len(res) > 0:
-                #print(poi.name, s, res[0][1])
+            if len(res) > 0:
+                print(poi.name, s, res[0][1])
+
+        if self.placeholder_to_remove:
+            to_remove = list(filter(lambda x: x[0].xid == 'placeholder', poi_score))
+            if len(to_remove) > 0:
+                poi_score.remove(to_remove[0])
+                self.places.remove(self.placeholder)
+
         res = []
         i = 0
         curr_time = day.start

@@ -70,6 +70,7 @@ def update_user_name():
 @app.route('/', methods=['GET', 'POST'])
 def show_home():
     update_user_name()
+    algo_user.reset()
     return render_template("home.html", user_name=user_name)
 
 
@@ -338,7 +339,7 @@ def show_chatbot():
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
     global chatbot_agent
-    chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
+    chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
     return redirect(url_for('show_chatbot'))
 
 
@@ -363,7 +364,7 @@ async def show_suggested():
     print(request.method)
     if current_user.is_authenticated and not recommender.logged_user_preferences_fetched:
         fetch_user_preferences()
-    algo_user.reset()
+
     if request.method == "POST":
         temporary_pref = []
         for item in request.form.items():
@@ -547,6 +548,37 @@ def show_date_duration():
     return render_template('file_upload/date_duration_form.html',
                            options=duration_options,
                            tomorrow=date.today() + timedelta(days=1))
+
+
+@app.route('/quick-trip', methods=['GET', 'POST'])
+def show_quick_trip():
+    duration_options = [
+        {'name': 'Jeden dzień', 'time': 1},
+        {'name': 'Dwa dni', 'time': 2},
+        {'name': 'Trzy dni', 'time': 3},
+        {'name': 'Pięć dni', 'time': 5},
+        {'name': 'Tydzień', 'time': 7},
+    ]
+
+    if request.method == 'POST':
+        get_region_from_request(request)
+
+        days_number = request.form.get('duration_dropdown')
+        recommender.days = int(days_number)
+
+        start_date = date.today() + timedelta(days=1)
+        dates = []
+        for i in range(0, recommender.days):
+            tmp = start_date + timedelta(days=i)
+            dates.append(tmp.isoformat())
+
+        recommender.dates = dates
+        recommender.hours = [('10:00', '18:00') for _ in range(recommender.days)]
+
+        return redirect(url_for('show_suggested'))
+
+    return render_template('quick_trip.html',
+                           options=duration_options)
 
 
 if __name__ == '__main__':

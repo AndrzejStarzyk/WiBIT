@@ -3,7 +3,7 @@ from typing import List
 from recommending_v2.algorythm_models.opening_hours import OpeningHours, parse_opening_hours
 
 
-def placeholder_poi(xid: str = 'placeholder', name: str = '', lon: float = 0, lat: float = 0,
+def placeholder_poi(xid: str = 'placeholder', name: str = 'placeholder', lon: float = 0, lat: float = 0,
                     website: str = '', wiki: str = '', opening_hours: str = ''):
 
     return PointOfInterest(xid, name, lon, lat, [], website, wiki, opening_hours)

@@ -11,7 +11,7 @@ from text_to_prefs import TextProcessor
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider:PoiProvider,  text_processor: TextProcessor,
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, text_processor: TextProcessor,
                  db_connection: MongoUtils):
         self.messages = []
         self.first_incentive_used = False
@@ -101,7 +101,7 @@ class ChatbotAgent:
                                  f"Miejsce wycieczki: {self.region_text}")
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
-                                             self.recommender, self.poi_provider, self.db_connection)
+                                                  self.recommender, self.poi_provider, self.db_connection)
 
             self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
                                  f"Daty: {dates}")
@@ -136,7 +136,7 @@ class ChatbotAgent:
         recommender.create_schedule()
 
         classes = self.text_processor.predict_classes(user_information)
-        for kind in classes:
-            recommender.add_constraint(CategoryConstraint(kind, db_connection))
+        print(classes)
+        recommender.add_constraint(CategoryConstraint(classes, db_connection))
 
         return dates, classes
