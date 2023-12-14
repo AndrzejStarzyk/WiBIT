@@ -10,7 +10,7 @@ from odf.opendocument import load
 
 from display_route import create_map
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
@@ -420,7 +420,7 @@ def suggest_again(day_nr: int):
 @app.route('/save-trip', methods=['POST'])
 @login_required
 def save_trip_route():
-    save_trip(current_user.id, recommender.get_recommended())
+    save_trip(current_user.id, recommender.get_recommended(), poi_provider.get_current_region_name())
     return 'saved'
 
 
@@ -444,7 +444,8 @@ def all_saved_trips():
             'trip_id': trip.id,
             'date_start': trip.days[0].schedule.date,
             'date_end': trip.days[-1].schedule.date,
-            'attractions_num': sum([len(trip.days[i].trajectory) for i in range(len(trip.days))])
+            'attractions_num': sum([len(trip.days[i].trajectory) for i in range(len(trip.days))]),
+            'region': trip.region
         }
 
         trip_minis.append(trip_mini)
@@ -468,8 +469,7 @@ def saved_trip_page():
         abort(404)
 
     trip = TripDaysMongo(**raw_trip)
-
-    return render_trip(schedule_from_saved_trip(trip), "saved_trip_page.html")
+    return render_trip(schedule_from_saved_trip(trip, poi_provider), "saved_trip_page.html")
 
 
 @app.route('/region-file', methods=['GET', 'POST'])

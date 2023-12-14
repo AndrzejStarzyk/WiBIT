@@ -1,13 +1,13 @@
 from datetime import date, timedelta
 
+from models.mongo_utils import MongoUtils
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from constraint import CategoryConstraint
-from date_recognition import parse_date_text
-from models.mongo_utils import MongoUtils
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from chatbot.text_to_prefs import TextProcessor
+from recommending_v2.algorythm_models.constraint import CategoryConstraint
+from recommending_v3.date_recognition import parse_date_text
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.recommender import Recommender
-from text_to_prefs import TextProcessor
 
 
 class ChatbotAgent:

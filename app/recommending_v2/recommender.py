@@ -2,7 +2,7 @@ from typing import List, Tuple, Union
 
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
 from recommending_v2.evaluator import Evaluator
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.algorythm_models.user_in_algorythm import User
 from recommending_v2.algorythm_models.default_trip import DefaultTrip
@@ -18,7 +18,9 @@ class Recommender:
         self.visiting_time_provider = visiting_time_provider
         self.default_trip = default_trip
         self.evaluator: Evaluator = Evaluator(self.user, poi_provider, visiting_time_provider)
+
         self.cold_start: bool = True
+
         self.dates: List[str] = []
         self.days: int = 0
         self.hours: List[Tuple[str, str]] = []
