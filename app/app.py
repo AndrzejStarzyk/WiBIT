@@ -289,9 +289,12 @@ def show_schedule(start: str):
 def show_categories():
     if request.method == 'POST':
         categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
-        return render_template("creating_trip/choose_page.html", input_categories=categories, redirect='/suggested')
+        return render_template("creating_trip/choose_page.html",
+                               input_categories=categories, redirect='/suggested', categories_type_name='szczegółowe')
+
     categories = categories_provider.get_main_categories()
-    return render_template("creating_trip/choose_page.html", input_categories=categories, redirect='/categories')
+    return render_template("creating_trip/choose_page.html",
+                           input_categories=categories, redirect='/categories', categories_type_name='główne')
 
 
 @app.route('/default_trip', methods=['GET'])

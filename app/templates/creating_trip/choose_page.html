@@ -5,18 +5,23 @@
 
 {% block body %}
 <div>
-    <h1>Wybór kategorii atrakcji turystycznych</h1>
+    <h1 class="title-header"> Wybierz {{ categories_type_name }} kategorii atrakcji turystycznych</h1>
+    {% if categories_type_name == 'główne' %}
+    <h2 class="title-disclaimer"> Na podstawie wybranych głównych kategorii, w kolejnym kroku zostaniesz poproszony o wskazanie bardziej szczegółowych kategorii atrakcji </h2>
+    {% endif %}
+
     <form class="form" id="category_form" action="{{redirect}}" method="POST">
         <div class="container">
             {% for category in input_categories %}
                 <div class="item">
                     <input class="not-displayed select-checkbox" name="cat_{{ category['code']}}" id="{{ category['code']  }}" type="checkbox">
-                    <label class="base-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
+                    <label class="base-label centered-label" for="{{ category['code']  }}">{{ category["name"]  }}</label>
                 </div>
             {% endfor %}
             <br>
-
-            <button class="base-button">Dalej</button>
+            <div class="row justify-content-center">
+                <button class="base-button col-11 col-md-5 col-lg-4">Dalej</button>
+            </div>
         </div>
 
     </form >

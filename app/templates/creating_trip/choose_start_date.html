@@ -5,9 +5,10 @@
 
 {% block body %}
 <div>
+    <h1 class="title-header">Wybierz datę rozpoczęcia wycieczki</h1>
     <form method="POST" class="centered-form">
-        <label for="start_date"> Wybierz datę rozpoczęcia wycieczki</label>
-        <input type="date" id="start_date" name="start_date" value="{{tomorrow}}">
+        <label for="start_date"> Pierwszy dzień wycieczki</label><br>
+        <input type="date" id="start_date" name="start_date" value="{{tomorrow}}"><br>
         <input type="submit" value="dalej" class="base-button">
     </form>
 </div>
