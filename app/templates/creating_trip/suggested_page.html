@@ -11,15 +11,14 @@
     <div class="maps_container">
         {% for map_html, map_script, places in trajectories_data %}
         <div class="row">
-            <div> Dzień {{ loop.index }}</div>
+            <h4> Dzień {{ loop.index }}</h4>
             <div class="big-map col-12 col-md-6 col-xl-8">
-                {% for map_header in map_headers  %}
-                    {{ map_html|safe }}
-                {% endfor %}
+                {{ map_html|safe }}
 
                 <script>
                     {{ map_script|safe }}
                 </script>
+
             </div>
 
             <div class="col-12 col-md-6 col-xl-4">
