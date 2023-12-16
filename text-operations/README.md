@@ -6,12 +6,19 @@ To run code prepared in this directory you need to install some additional packa
 pip install spacy
 pip install nltk
 pip install stop_words
+pip install pyMorfologik
 ```
 
-It is also necessary to download specific model for Polish language with command:
+In some previous versions it is also necessary to download specific model for Polish language with command:
 
 ```
 python3 -m spacy download pl_core_news_sm
+```
+
+If you want to use oversampling feature (from notebooks), you have to download special packages for HuggingFace 🤗 and Google Translator:
+```
+pip install transformers
+pip install googletrans==4.0.0-rc1
 ```
 
 # AI generated dataset

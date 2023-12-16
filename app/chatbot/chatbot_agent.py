@@ -3,16 +3,17 @@ from datetime import date, timedelta
 from models.mongo_utils import MongoUtils
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from chatbot.text_to_prefs import TextProcessor
 from recommending_v2.algorythm_models.constraint import CategoryConstraint
 from recommending_v3.date_recognition import parse_date_text
 from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.recommender import Recommender
+from chatbot.text_to_prefs import TextProcessor
+from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, text_processor: TextProcessor,
-                 db_connection: MongoUtils):
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
+
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
@@ -21,11 +22,13 @@ class ChatbotAgent:
         self.user_information_text = ''
         self.trip_date_text = None
         self.region_text = None
+        self.mode = 'experience'
 
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
-        self.text_processor = text_processor
+        self.text_processor = TextProcessor()
+        self.text_processor_knowledge = TextProcessorKnowledge()
 
         self.is_finished = False
 
@@ -38,8 +41,9 @@ class ChatbotAgent:
     def get_all_messages(self):
         return self.messages
 
-    def add_user_message(self, message: str):
+    def add_user_message(self, message: str, mode: str):
         self.messages.append(Message('user', message))
+        self.mode = mode
         self.generate_answer()
 
     def add_bot_message(self, message: str):
@@ -101,7 +105,7 @@ class ChatbotAgent:
                                  f"Miejsce wycieczki: {self.region_text}")
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
-                                                  self.recommender, self.poi_provider, self.db_connection)
+                                                  self.recommender, self.poi_provider, self.db_connection, self.mode)
 
             self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
                                  f"Daty: {dates}")
@@ -113,7 +117,8 @@ class ChatbotAgent:
             self.end_conversation()
 
     def parse_user_text(self, user_information: str, user_date: str, user_region: str,
-                        recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
+                        recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils, mode: str):
+
         poi_provider.fetch_pois(user_region)
 
         schedule_parameters = parse_date_text(user_date)
@@ -135,8 +140,14 @@ class ChatbotAgent:
         recommender.hours = schedule_hours
         recommender.create_schedule()
 
-        classes = self.text_processor.predict_classes(user_information)
-        print(classes)
-        recommender.add_constraint(CategoryConstraint(classes, db_connection))
+        if mode == 'experience':
+            classes = self.text_processor.predict_classes(user_information)
+        elif mode == 'knowledge':
+            classes = self.text_processor_knowledge.predict_classes(user_information)
+        else:
+            classes = []
+
+        for kind in classes:
+            recommender.add_constraint(CategoryConstraint(kind, db_connection))
 
         return dates, classes
