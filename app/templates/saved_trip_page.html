@@ -8,10 +8,10 @@
 
 {% block body %}
  <div class="maps_container">
-     <h1> Zapisana wycieczka</h1>
+     <h1 class="title-header"> Zapisana wycieczka</h1>
         {% for map_html, map_script, places in trajectories_data %}
         <div class="row">
-            <div> Dzień {{ loop.index }}</div>
+            <h4> Dzień {{ loop.index }}</h4>
             <div class="big-map col-12 col-lg-8">
                 {% for map_header in map_headers  %}
                     {{ map_html|safe }}

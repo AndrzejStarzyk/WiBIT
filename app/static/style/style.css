@@ -34,18 +34,30 @@ input, select{
 }
 
 .title-header{
-    margin: 10vh 0;
+    margin: 6vh 5% 2vh 5%;
+    width: 90%;
+}
+
+.menu-header{
+    margin: 10vh 5% 10vh 5%;
+}
+
+.title-disclaimer{
+    width: 80%;
+    margin: 4vh 10%;
+    font-weight: normal;
+    font-size: larger;
 }
 
 @media only screen and (max-width: 992px) {
-    .title-header{
-        margin: 5vh 0;
+    .title-header, .menu-header{
+        margin: 4vh 5%;
     }
 }
 
 @media only screen and (max-width: 768px) {
-    .title-header{
-        margin: 0 0 24px 0;
+    .title-header, .menu-header{
+        margin: 0 5% 24px 5%;
     }
 }
 
@@ -87,6 +99,7 @@ input, select{
     row-gap: 1vh;
     width: 100%;
     margin-top: 5vh;
+    text-align: center;
 }
 
 #subcategory_form, #main_category_form{
@@ -109,7 +122,7 @@ input, select{
 
 /* suggested trip page */
 .maps_container{
-    padding: 10vh 10% 0 10%;
+    padding: 0 10% 0 10%;
 }
 
 .maps_container h4{
@@ -131,6 +144,7 @@ input, select{
     width: 100%;
     padding: 10px;
     flex-direction: row;
+    text-align: center;
 }
 
 .oen-column{
@@ -156,7 +170,6 @@ input, select{
 .base-button{
     padding: 6px 20px 6px 20px;
     margin-top: 20px;
-    margin-left: 13px;
     margin-bottom: 20px;
     text-align: center;
     font-size: medium;
@@ -164,10 +177,13 @@ input, select{
     border: 1px solid black;
     border-radius: 5px;
     min-width: 128px;
+    text-decoration: none;
+    color: black;
 }
 
 .base-button:hover{
     box-shadow: 2px 2px 4px black;
+    color: black;
 }
 
 .trip-place-name-small{
@@ -202,6 +218,10 @@ input, select{
     text-align: center;
 }
 
+.region-label, .centered-label{
+    margin: 3px 6px;
+}
+
 .remove-checkbox:checked+.base-label{
     background-color: red;
 }
@@ -222,9 +242,19 @@ input, select{
 .centered-form{
     position: relative;
     width: 50%;
-    left: 30%;
-    padding-top:10vh;
+    left: 25%;
+    padding-top: 5vh;
     text-align: center;
+}
+
+@media only screen and (max-width: 768px) {
+    .centered-form {
+        position: relative;
+        width: 90%;
+        left: 5%;
+        padding-top: 5vh;
+        text-align: center;
+    }
 }
 
 .popup{
@@ -283,6 +313,11 @@ input, select{
 
 .message-submit:hover {
     box-shadow: 2px 2px 4px black;
+}
+
+.chat-title{
+    margin: 1vh 5% 1vh 5%;
+    width: 90%;
 }
 
 .auth-form{
