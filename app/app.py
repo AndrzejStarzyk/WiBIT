@@ -47,7 +47,6 @@ visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
 
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
-chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
 
 
 @login_manager.user_loader
@@ -322,6 +321,8 @@ def show_default_trip():
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
+    user_chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils, session.get('chatbot_agent_dict', {}))
+
     chat_mode = 'experience'
     if request.method == "POST":
         if request.form.get("chatbot_mode", False) == 'on':
@@ -329,28 +330,29 @@ def show_chatbot():
         else:
             chat_mode = 'experience'
 
-        print(chat_mode)
-
         new_message = request.form['user_text']
-        chatbot_agent.add_user_message(new_message, chat_mode)
+        user_chatbot_agent.add_user_message(new_message, chat_mode)
 
-        if chatbot_agent.is_finished and current_user.is_authenticated:
-            chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+        if user_chatbot_agent.is_finished and current_user.is_authenticated:
+            user_chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+
+        session['chatbot_agent_dict'] = user_chatbot_agent.store_as_dict()
 
     chat_user = 'Użytkownik'
     if current_user.is_authenticated:
         chat_user = current_user.login
     return render_template("chatbot_view.html",
                            user_name=chat_user,
-                           messages=chatbot_agent.get_all_messages(),
-                           is_finished=chatbot_agent.is_finished,
+                           messages=user_chatbot_agent.get_all_messages(),
+                           is_finished=user_chatbot_agent.is_finished,
                            mode_checked=(chat_mode == 'knowledge'))
 
 
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
-    global chatbot_agent
-    chatbot_agent = ChatbotAgent(recommender, poi_provider, text_processor, mongo_utils)
+    # global chatbot_agent
+    # chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
+    session['chatbot_agent_dict'] = {}
     return redirect(url_for('show_chatbot'))
 
 

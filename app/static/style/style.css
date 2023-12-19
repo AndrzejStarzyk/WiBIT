@@ -134,7 +134,7 @@ input, select{
 
 @media only screen and (max-width: 768px) {
     .maps_container{
-        padding: 10vh 15px 0 15px;
+        padding: 0 15px 0 15px;
     }
 }
 
@@ -408,7 +408,7 @@ input, select{
 
 .trip-additional-button{
     display:block;
-    width: 100%;
+    width: 97%;
     text-align: center;
     text-decoration: none;
     padding: 10px;

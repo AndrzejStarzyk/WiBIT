@@ -12,17 +12,7 @@ from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
-
-        self.messages = []
-        self.first_incentive_used = False
-        self.date_message_used = False
-        self.region_message_used = False
-
-        self.user_information_text = ''
-        self.trip_date_text = None
-        self.region_text = None
-        self.mode = 'experience'
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils, state_dict: dict):
 
         self.recommender = recommender
         self.db_connection = db_connection
@@ -30,13 +20,23 @@ class ChatbotAgent:
         self.text_processor = TextProcessor()
         self.text_processor_knowledge = TextProcessorKnowledge()
 
-        self.is_finished = False
+        self.messages = [Message(msg_dict['author'], msg_dict['text']) for msg_dict in
+                         state_dict.get('messages', [])]
+        self.first_incentive_used = state_dict.get('first_incentive_used', False)
+        self.date_message_used = state_dict.get('date_message_used', False)
+        self.region_message_used = state_dict.get('region_message_used', False)
+        self.user_information_text = state_dict.get('user_information_text', '')
+        self.trip_date_text = state_dict.get('trip_date_text', None)
+        self.region_text = state_dict.get('region_text', None)
+        self.mode = state_dict.get('mode', 'experience')
+        self.is_finished = state_dict.get('is_finished', False)
 
         init_message = ("Witaj w wirtualnym biurze informacji turystycznej. "
                         "Powiedz mi więcej o tym, w jaki sposób lubisz odwiedzać nowe miejsca, "
                         "abym mógł pomóc Ci z wyborem atrakcji.")
 
-        self.add_bot_message(init_message)
+        if not self.messages:
+            self.add_bot_message(init_message)
 
     def get_all_messages(self):
         return self.messages
@@ -151,3 +151,18 @@ class ChatbotAgent:
             recommender.add_constraint(CategoryConstraint(kind, db_connection))
 
         return dates, classes
+
+    def store_as_dict(self):
+        chatbot_agent_dict = {
+            'messages': self.messages,
+            'first_incentive_used': self.first_incentive_used,
+            'date_message_used': self.date_message_used,
+            'region_message_used': self.region_message_used,
+            'user_information_text': self.user_information_text,
+            'trip_date_text': self.trip_date_text,
+            'region_text': self.region_text,
+            'mode': self.mode,
+            'is_finished': self.is_finished
+        }
+
+        return chatbot_agent_dict
