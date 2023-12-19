@@ -8,6 +8,8 @@ class ScheduleParameters:
         self.start_month: Union[int, None] = None
         self.end_day: Union[int, None] = None
         self.end_month: Union[int, None] = None
+        self.schedule_length: int = 7
+
         self.start_date: Union[date, None] = None
         self.end_date: Union[date, None] = None
 
@@ -18,7 +20,7 @@ class ScheduleParameters:
             if self.start_month is None:
                 if self.end_day is None:
                     if self.start_day is None:
-                        end = today + timedelta(days=7)
+                        end = today + timedelta(days=self.schedule_length)
                         self.start_date = today
                         self.end_date = end
                     else:
@@ -47,14 +49,14 @@ class ScheduleParameters:
         if self.end_day is None:
             if self.start_day is None:
                 start = date(day=1, month=month, year=year)
-                end = today + timedelta(days=7)
+                end = today + timedelta(days=self.schedule_length)
             else:
                 start = date(day=self.start_day, month=month, year=year)
-                end = today + timedelta(days=7)
+                end = today + timedelta(days=self.schedule_length)
         else:
             if self.start_day is None:
                 end = date(day=self.end_day, month=month, year=year)
-                start = today - timedelta(days=7)
+                start = today - timedelta(days=self.schedule_length)
             else:
                 if is_start:
                     start = date(day=self.start_day, month=month, year=year)
@@ -105,8 +107,8 @@ class ScheduleParameters:
                     end = date(day=2, month=month2, year=year2)
             else:
                 if self.start_day is None:
-                    end = date(day=self.end_day, month=month2, year=year2)
                     start = date(day=27, month=month1, year=year1)
+                    end = date(day=self.end_day, month=month2, year=year2)
                 else:
                     start = date(day=self.start_day, month=month1, year=year1)
                     end = date(day=self.end_day, month=month2, year=year2)
@@ -118,25 +120,25 @@ class ScheduleParameters:
         if is_start:
             if day >= today.day:
                 start = today + timedelta(days=(day - today.day))
-                end = start + timedelta(days=7)
+                end = start + timedelta(days=self.schedule_length)
             else:
                 if today.month == 12:
                     start = date(day=day, month=1, year=today.year + 1)
-                    end = start + timedelta(days=7)
+                    end = start + timedelta(days=self.schedule_length)
                 else:
                     start = date(day=day, month=today.month + 1, year=today.year)
-                    end = start + timedelta(days=7)
+                    end = start + timedelta(days=self.schedule_length)
         else:
             if day >= today.day:
                 end = today + timedelta(days=(day - today.day))
-                start = end - timedelta(days=7)
+                start = end - timedelta(days=self.schedule_length)
             else:
                 if today.month == 12:
                     end = date(day=day, month=1, year=today.year + 1)
-                    start = end - timedelta(days=7)
+                    start = end - timedelta(days=self.schedule_length)
                 else:
                     end = date(day=day, month=today.month + 1, year=today.year)
-                    start = end - timedelta(days=7)
+                    start = end - timedelta(days=self.schedule_length)
         self.start_date = start
         self.end_date = end
 

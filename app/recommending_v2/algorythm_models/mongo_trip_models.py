@@ -26,6 +26,7 @@ class TripDaysMongo(BaseModel):
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     user_id: PydanticObjectId
     days: List[DayMongo]
+    region: str
 
     def to_bson(self):
         data = self.dict(by_alias=True, exclude_none=True)

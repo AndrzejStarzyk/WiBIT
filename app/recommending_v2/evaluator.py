@@ -4,14 +4,15 @@ from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest, placeholder_poi
 from recommending_v2.algorythm_models.schedule import Day
 from recommending_v2.algorythm_models.user_in_algorythm import User
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from recommending_v2.poi_provider import PoiProvider
 
 
 class Evaluator:
     def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
-
         self.user = user
         self.places_provider: PoiProvider = poi_provider
+        self.current_region_name: str = ''
+
         self.places: List[PointOfInterest] = []
         self.already_recommended: List[str] = []
 
@@ -24,15 +25,15 @@ class Evaluator:
         self.placeholder: PointOfInterest = placeholder_poi()
 
     def setup(self, cold_start: bool):
-        print(self.places_provider.region_changed)
-        if self.places_provider.region_changed:
+        if self.places_provider.get_current_region_name() != self.current_region_name:
             self.places = self.places_provider.get_places()
-            print(len(self.places))
-            self.places_provider.region_changed = False
+            self.current_region_name = self.places_provider.get_current_region_name()
+        print(len(self.places))
 
+        self.placeholder_to_remove = False
         if cold_start:
-            self.placeholder.lat = self.places_provider.current_region.lat
-            self.placeholder.lon = self.places_provider.current_region.lon
+            self.placeholder.lat = self.places_provider.get_current_region().lat
+            self.placeholder.lon = self.places_provider.get_current_region().lon
 
         self.already_recommended = []
         self.evaluate(cold_start)
@@ -53,15 +54,17 @@ class Evaluator:
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
         poi_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
 
-        if self.placeholder_to_remove:
-            to_remove = list(filter(lambda x: x[0].name == 'placeholder', poi_score))[0]
-            poi_score.remove(to_remove)
-            self.places.remove(self.placeholder)
-
         for poi, s in poi_score:
             res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
             #if len(res) > 0:
                 #print(poi.name, s, res[0][1])
+
+        if self.placeholder_to_remove:
+            to_remove = list(filter(lambda x: x[0].xid == 'placeholder', poi_score))
+            if len(to_remove) > 0:
+                poi_score.remove(to_remove[0])
+                self.places.remove(self.placeholder)
+
         res = []
         i = 0
         curr_time = day.start

@@ -19,7 +19,7 @@ patterns = [[
     ]
 ]
 
-period_regex = re.compile("^([0-9]{1,2})\s*(\w+)?\s*(?:-|(?:do))\s*([0-9]{1,2})\s*(\w+)?$")
+period_regex = re.compile("^([0-9]{1,2})\s*(\w+)?\s*(?:-|do)?\s*([0-9]{1,2})?\s*(\w+)?$")
 
 month_subjects = ["stycz", "lut", "mar", "kwie", "maj", "czerw", "lip", "sierp", "wrze", "październik", "listopad",
                   "grud"]
@@ -44,6 +44,8 @@ def parse_date_text(text: str):
 
 def parse_period_text(text: str, day_parameters: ScheduleParameters):
     match = period_regex.match(text)
+    if match is None:
+        return
 
     if match.group(1) is not None:
         day_parameters.start_day = int(match.group(1))

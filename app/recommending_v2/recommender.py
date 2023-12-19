@@ -2,23 +2,22 @@ from typing import List, Tuple, Union
 
 from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
 from recommending_v2.evaluator import Evaluator
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
+from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.trajectory_builder import build_trajectory
 from recommending_v2.algorythm_models.user_in_algorythm import User
-from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.algorythm_models.constraint import Constraint, ProximityConstraint, ConstraintType
 from recommending_v2.algorythm_models.trajectory import Trajectory
 from recommending_v2.algorythm_models.schedule import Schedule
 
 
 class Recommender:
-    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider,
-                 default_trip: DefaultTrip):
+    def __init__(self, user: User, poi_provider: PoiProvider, visiting_time_provider: VisitingTimeProvider):
         self.user: User = user
         self.visiting_time_provider = visiting_time_provider
-        self.default_trip = default_trip
         self.evaluator: Evaluator = Evaluator(self.user, poi_provider, visiting_time_provider)
+
         self.cold_start: bool = True
+
         self.dates: List[str] = []
         self.days: int = 0
         self.hours: List[Tuple[str, str]] = []
@@ -44,7 +43,8 @@ class Recommender:
         self.schedule = Schedule(self.days, self.dates, self.hours)
 
     def get_recommended(self) -> Schedule:
-        print(self.cold_start)
+        self.create_schedule()
+
         if self.cold_start:
             self.user.add_general_constraint(ProximityConstraint(best_pois_nr=1))
         self.evaluator.setup(self.cold_start)

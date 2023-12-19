@@ -2,14 +2,11 @@ from typing import List, Tuple, Union
 from OSMPythonTools.nominatim import Nominatim
 from OSMPythonTools.overpass import Overpass
 
+from models.mongo_utils import MongoUtils
 from recommending_v2.point_of_interest.mappings_for_OSM import determine_kinds
 from recommending_v2.point_of_interest.point_of_interest import PointOfInterest
 from recommending_v2.point_of_interest.poi_from_osm_selectors import selectors
-from recommending_v2.utils import dist
-from models.mongo_utils import MongoUtils
 from recommending_v2.point_of_interest.region import Region
-
-max_dist = 2000
 
 
 class PoiProvider:
@@ -25,7 +22,6 @@ class PoiProvider:
         self.poi_to_group: dict[int: int] = {}
 
         self.last_fetch_success: bool = False
-        self.region_changed = False
         self.current_region: Union[None, Region] = None
         self.available_fetched: bool = False
         self.divided: bool = False
@@ -58,27 +54,23 @@ class PoiProvider:
         if self.last_fetch_success and self.current_region is not None:
             if region_text == self.current_region.name.lower() or \
                     region_text == self.current_region.get_country_region().lower():
-                self.region_changed = False
                 return
             if region_text not in self.available_regions and region_text not in self.available_region_names:
                 region = self.nominatim.query(region_text)
 
                 region_data = region.toJSON()
                 if len(region_data) == 0:
-                    self.region_changed = False
                     self.last_fetch_success = False
                     return
                 if isinstance(region_data, list):
                     region_data = region_data[0]
                 region_name = region_data.get("name")
                 if region_name == self.current_region.name:
-                    self.region_changed = False
                     return
 
-        self.region_changed = True
-
         if region_text in self.available_region_names:
-            region_text = list(filter(lambda x: x.name.lower() == region_text, self.available_regions))[0].get_country_region()
+            region_text = list(filter(lambda x: x.name.lower() == region_text, self.available_regions))[
+                0].get_country_region()
 
         if region_text in self.available_country_region:
             collection = self.db_connection.get_collection_attractions(region_text)
@@ -101,45 +93,11 @@ class PoiProvider:
         else:
             self.fetch_attractions_from_osm(region_text)
 
-        """overpass = Overpass()
-        nominatim = Nominatim()
-
-        cracow = nominatim.query('Kraków, Poland')
-        selectors = [['"tourism"="museum"'],
-                     ['"tourism"="gallery"'],
-                     ['"tourism"="aquarium"'],
-                     ['"tourism"="artwork"'],
-                     ['"tourism"="theme_park"'],
-                     ['"tourism"="viewpoint"'],
-                     ['"tourism"="zoo"'],
-                     ['"heritage"="2"'],
-                     ['"historic"="building"'],
-                     ['"historic"="castle"'],
-                     ['"historic"="city_gate"'],
-                     ['"leisure"="firepit"'],
-                     ['"leisure"="fishing"'],
-                     ['"leisure"="garden"'],
-                     ['"leisure"="water_park"'],
-                     ['"memorial"="statue"'],
-                     ['"military"="bunker"'],
-                     ['"natural"="peak"']]
-
-        for selector in selectors[0:3]:
-            query = overpassQueryBuilder(area=cracow.areaId(), elementType=['node', 'way'], selector=selector,
-                                         out='body')
-            res = overpass.query(query)
-            for element in res.elements():
-                osm = f"{element.type()}/{element.id()}"
-                el = collection.find_one({"osm": osm})
-                if el is not None:
-                    """
-
     def fetch_attractions_from_osm(self, region_name):
         region = self.nominatim.query(region_name)
 
         region_data = region.toJSON()
         if len(region_data) == 0:
-            self.region_changed = False
             self.last_fetch_success = False
             return
         if isinstance(region_data, list):
@@ -193,7 +151,62 @@ class PoiProvider:
 
         self.last_fetch_success = True
 
-    def divide_places(self):
+    def get_places(self) -> List[PointOfInterest]:
+        return self.pois
+
+    def get_available_attraction_sets(self) -> List[Tuple[str, str]]:
+        if not self.available_fetched:
+            self.fetch_available_attraction_sets()
+        return list(map(lambda x: (x.country, x.name), self.available_regions))
+
+    def get_current_region(self) -> Region:
+        if self.current_region is None:
+            Region('', 50.0, 20.0, '')
+        return self.current_region
+
+    def get_current_region_name(self) -> str:
+        if self.current_region is None:
+            return ''
+        return self.current_region.name
+
+
+if __name__ == "__main__":
+    print("a" == 'a')
+
+"""
+overpass = Overpass()
+        nominatim = Nominatim()
+
+        cracow = nominatim.query('Kraków, Poland')
+        selectors = [['"tourism"="museum"'],
+                     ['"tourism"="gallery"'],
+                     ['"tourism"="aquarium"'],
+                     ['"tourism"="artwork"'],
+                     ['"tourism"="theme_park"'],
+                     ['"tourism"="viewpoint"'],
+                     ['"tourism"="zoo"'],
+                     ['"heritage"="2"'],
+                     ['"historic"="building"'],
+                     ['"historic"="castle"'],
+                     ['"historic"="city_gate"'],
+                     ['"leisure"="firepit"'],
+                     ['"leisure"="fishing"'],
+                     ['"leisure"="garden"'],
+                     ['"leisure"="water_park"'],
+                     ['"memorial"="statue"'],
+                     ['"military"="bunker"'],
+                     ['"natural"="peak"']]
+
+        for selector in selectors[0:3]:
+            query = overpassQueryBuilder(area=cracow.areaId(), elementType=['node', 'way'], selector=selector,
+                                         out='body')
+            res = overpass.query(query)
+            for element in res.elements():
+                osm = f"{element.type()}/{element.id()}"
+                el = collection.find_one({"osm": osm})
+                if el is not None:
+                
+                 def divide_places(self):
         if self.divided:
             return
         if not self.last_fetch_success:
@@ -219,16 +232,8 @@ class PoiProvider:
                 dfs(i)
 
         self.divided = True
-
-    def get_places(self) -> List[PointOfInterest]:
-        return self.pois
-
-    def get_available_attraction_sets(self) -> List[Tuple[str, str]]:
-        if not self.available_fetched:
-            self.fetch_available_attraction_sets()
-        return list(map(lambda x: (x.country, x.name), self.available_regions))
-
-    def get_groups(self):
+        
+            def get_groups(self):
         if not self.last_fetch_success:
             self.fetch_pois()
         if not self.divided:
@@ -241,7 +246,4 @@ class PoiProvider:
         if not self.divided:
             self.divide_places()
         return self.poi_to_group
-
-
-if __name__ == "__main__":
-    print("a" == 'a')
+"""
