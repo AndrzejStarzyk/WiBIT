@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block head %}
     <title>Suggested trip</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/suggested_trip.css') }}">
+
     {% for map_header in map_headers  %}
         {{map_header|safe}}
     {% endfor %}
@@ -8,10 +10,11 @@
 
 {% block body %}
 <body>
+    <h1>Proponowana wycieczka</h1>
     <div class="maps_container">
-        {% for map_html, map_script, places in trajectories_data %}
-        <div class="row">
-            <h4> Dzień {{ loop.index }}</h4>
+        {% for map_html, map_script, places, date in trajectories_data %}
+        <div class="row item">
+            <h3> Dzień {{ loop.index }}, {{ date }}</h3>
             <div class="big-map col-12 col-md-6 col-xl-8">
                 {{ map_html|safe }}
 
@@ -27,7 +30,7 @@
                 <form id="opinion-form_{{outer_loop.index}}" class="suggested-form" action="/suggest_again/{{loop.index}}" method="post">
                     {% for place in places %}
                     <div class="one-line">
-                        <p class="trip-place-name-small"> {{place.name}} </p>
+                        <p class="trip-place-name"> {{place.name}} </p>
                         <input id="remove_{{place.xid}}" form="opinion-form_{{outer_loop.index}}" class="not-displayed remove-checkbox" type="checkbox"
                                name="remove_{{place.xid}}" value="{{place.xid}}">
                         <label class="base-label" for="remove_{{place.xid}}"> <span>USUŃ</span> </label>
@@ -39,17 +42,15 @@
 
 
                     <h3> Dodatkowe opcje </h3>
-                    <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
+                    <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną trasę" name="button_disapprove">
                 </form>
 
             </div>
         </div>
         {% endfor %}
 
-        <div class="row">
-            <div class="col-0 col-md-6 col-xl-8"></div>
-
-            <div class="col-12 col-md-6 col-xl-4">
+    <div class="row">
+            <div class="">
                 {% if is_auth %}
                 <h3> Dodatkowe opcje </h3>
 
@@ -73,7 +74,9 @@
                 </a>
             </div>
         </div>
+
     </div>
+
 
 <script>
     $(document).ready(function () {

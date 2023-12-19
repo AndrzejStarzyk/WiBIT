@@ -5,11 +5,6 @@ from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
 from recommending_v2.algorythm_models.constraint import CategoryConstraint
 from recommending_v3.date_recognition import parse_date_text
-from models.mongo_utils import MongoUtils
-from recommending_v2.point_of_interest.poi_provider import PoiProvider
-from chatbot.text_to_prefs import TextProcessor
-from recommending_v2.algorythm_models.constraint import CategoryConstraint
-from recommending_v3.date_recognition import parse_date_text
 from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.recommender import Recommender
 from chatbot.text_to_prefs import TextProcessor
@@ -23,6 +18,7 @@ class ChatbotAgent:
         self.first_incentive_used = False
         self.date_message_used = False
         self.region_message_used = False
+        self.loading = False
 
         self.user_information_text = ''
         self.trip_date_text = None
@@ -32,7 +28,7 @@ class ChatbotAgent:
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
-        self.text_processor = TextProcessor()
+        self.text_processor = text_processor
         self.text_processor_knowledge = TextProcessorKnowledge()
 
         self.is_finished = False
@@ -105,15 +101,12 @@ class ChatbotAgent:
             if self.trip_date_text is None:
                 self.trip_date_text = self.messages[-1].text
 
-            self.add_bot_message(f"Podane preferencje: {self.user_information_text} \n"
-                                 f"Podana data: {self.trip_date_text} \n"
-                                 f"Miejsce wycieczki: {self.region_text}")
+            self.add_bot_message("Tworzę wycieczkę...")
+            self.loading = True
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
-                                             self.recommender, self.poi_provider, self.db_connection, self.mode)
+                                                  self.recommender, self.poi_provider, self.db_connection, self.mode)
 
-            self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
-                                 f"Daty: {dates}")
 
             region_found = self.poi_provider.last_fetch_success
             if not region_found:
@@ -143,7 +136,6 @@ class ChatbotAgent:
         schedule_hours = [('10:00', '18:00')
                           for _ in range(0, len(dates))]
         recommender.hours = schedule_hours
-        recommender.create_schedule()
 
         if mode == 'experience':
             classes = self.text_processor.predict_classes(user_information)

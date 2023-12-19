@@ -1,0 +1,19 @@
+.item{
+    margin: 1vh auto 1vh auto;
+}
+
+.single_item{
+    margin: auto 0 auto 0;
+}
+
+.label{
+    margin: auto 3vw auto 3vw;
+    padding: 1vh 1vw 1vh 1vw;
+    border-radius: 3vh;
+    text-align: center;
+    font-size: larger;
+}
+
+.select-checkbox:checked~.label{
+    background-color: #D4B490;
+}
