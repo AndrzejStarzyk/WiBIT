@@ -12,8 +12,7 @@ from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, text_processor: TextProcessor,
-                 db_connection: MongoUtils):
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
         self.messages = []
         self.first_incentive_used = False
         self.date_message_used = False
@@ -28,7 +27,7 @@ class ChatbotAgent:
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
-        self.text_processor = text_processor
+        self.text_processor = TextProcessor()
         self.text_processor_knowledge = TextProcessorKnowledge()
 
         self.is_finished = False
@@ -107,7 +106,6 @@ class ChatbotAgent:
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
                                                   self.recommender, self.poi_provider, self.db_connection, self.mode)
 
-
             region_found = self.poi_provider.last_fetch_success
             if not region_found:
                 self.add_bot_message("Nie znaleziono regionu o nazwie: " + self.region_text)
@@ -121,10 +119,11 @@ class ChatbotAgent:
 
         schedule_parameters = parse_date_text(user_date)
 
+        print(schedule_parameters.start_date, schedule_parameters.end_date)
         start_date: date = schedule_parameters.start_date
-        dates = []
         tmp = start_date
-        i = 0
+        dates = [start_date.isoformat()]
+        i = 1
         while tmp != schedule_parameters.end_date:
             tmp = start_date + timedelta(days=i)
             dates.append(tmp.isoformat())
@@ -132,10 +131,7 @@ class ChatbotAgent:
 
         recommender.dates = dates
         recommender.days = len(dates)
-
-        schedule_hours = [('10:00', '18:00')
-                          for _ in range(0, len(dates))]
-        recommender.hours = schedule_hours
+        recommender.hours = [('10:00', '18:00') for _ in range(0, len(dates))]
 
         if mode == 'experience':
             classes = self.text_processor.predict_classes(user_information)

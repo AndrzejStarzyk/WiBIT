@@ -85,8 +85,8 @@ class Recommender:
 
 
 if __name__ == "__main__":
-    a = [0, 1, 2]
-    print(a[0:0])
+    a = [0]
+    print(a[1:])
 
 """
 
