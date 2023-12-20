@@ -21,7 +21,7 @@
                                    id="{{ cat['main']['code']  }}" type="checkbox">
                         {% endif %}
 
-                        <label class="base-label" for="{{ cat['main']['code']  }}">{{ cat['main']['name']  }}</label>
+                        <label class="base-label region-label" for="{{ cat['main']['code']  }}">{{ cat['main']['name']  }}</label>
                     </div>
                     <div class="subcategories">
                         {% for sub in cat['sub'] %}
@@ -34,7 +34,7 @@
                                         id="{{ sub['category']['code']  }}" type="checkbox">
                                 {% endif %}
 
-                                <label class="base-label" for="{{ sub['category']['code']  }}">{{ sub['category']['name']  }}</label>
+                                <label class="base-label region-label" for="{{ sub['category']['code']  }}">{{ sub['category']['name']  }}</label>
                             </div>
                         {% endfor %}
                     </div>
@@ -43,8 +43,8 @@
             {% endfor %}
 
             <div class="row justify-content-center">
-                <button class="base-button col-11 col-md-5 col-lg-4">Zapisz</button>
-                <a href="{{url_for('user_main_page')}}" class="base-button col-11 col-md-5 col-lg-4">
+                <button class="base-button col-11 col-md-7">Zapisz</button>
+                <a href="{{url_for('user_main_page')}}" class="base-button col-11 col-md-7">
                     Powrót
                 </a>
             </div>

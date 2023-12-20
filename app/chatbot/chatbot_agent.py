@@ -12,13 +12,15 @@ from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils, state_dict: dict):
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils,
+                 text_processor_experience: TextProcessor, text_processor_knowledge: TextProcessorKnowledge,
+                 state_dict: dict):
 
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
-        self.text_processor = TextProcessor()
-        self.text_processor_knowledge = TextProcessorKnowledge()
+        self.text_processor_experience = text_processor_experience
+        self.text_processor_knowledge = text_processor_knowledge
 
         self.messages = [Message(msg_dict['author'], msg_dict['text']) for msg_dict in
                          state_dict.get('messages', [])]
@@ -69,7 +71,7 @@ class ChatbotAgent:
             if message.author == 'user':
                 user_input_len += len(message.text)
 
-        if user_input_len < 250:
+        if user_input_len < 180:
             if not self.first_incentive_used:
                 more_text = ("Podaj więcej informacji o sobie - czym się interesujesz? Jakie jest twoje hobby? "
                              "W jakich miejscach lubisz spędzać czas i jeść posiłki? "
@@ -141,7 +143,7 @@ class ChatbotAgent:
         recommender.create_schedule()
 
         if mode == 'experience':
-            classes = self.text_processor.predict_classes(user_information)
+            classes = self.text_processor_experience.predict_classes(user_information)
         elif mode == 'knowledge':
             classes = self.text_processor_knowledge.predict_classes(user_information)
         else:

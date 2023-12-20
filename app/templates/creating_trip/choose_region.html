@@ -6,7 +6,12 @@
 {% block body %}
 <div>
     <h1 class="title-header">Wybierz lub wprowadź nawzę miasta albo regionu, gdzie odbędzie się wycieczka</h1>
-    <form class="centered-form row" id="region_form" method="POST">
+    <h2 class="title-disclaimer">
+        Jeśli nie jesteś zainteresowany żadnym regionem z bazy, możesz poprosić o wycieczkę do dowolnego miejsca.
+        Proponowanie takiej wycieczki może jednak potrwać dłużej.
+    </h2>
+
+    <form class="centered-form row justify-content-center" id="region_form" method="POST">
         <div class="col-lg-6">
             {% for option in options %}
                 <div class="item">
@@ -19,7 +24,7 @@
 
             <button class="base-button" type="submit" form="region_form">Dalej</button>
         </div>
-        <div class="col-lg-6">
+        <div class="col-11 col-lg-6">
             <label class="base-label region-label" for="region_text"> Twój region</label><br>
             <input id="region_text" name="region_text" type="text">
             <br>

@@ -25,6 +25,8 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
+from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
+from chatbot.text_to_prefs import TextProcessor as TextProcessorExperience
 
 
 app = Flask(__name__)
@@ -45,6 +47,8 @@ categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 default_trip = DefaultTrip(mongo_utils)
+text_processor_knowledge = TextProcessorKnowledge()
+text_processor_experience = TextProcessorExperience()
 
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
@@ -321,7 +325,9 @@ def show_default_trip():
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
-    user_chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils, session.get('chatbot_agent_dict', {}))
+    user_chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils,
+                                      text_processor_experience, text_processor_knowledge,
+                                      session.get('chatbot_agent_dict', {}))
 
     chat_mode = 'experience'
     if request.method == "POST":
@@ -350,8 +356,6 @@ def show_chatbot():
 
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
-    # global chatbot_agent
-    # chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
     session['chatbot_agent_dict'] = {}
     return redirect(url_for('show_chatbot'))
 
@@ -523,7 +527,7 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
-            classes = chatbot_agent.text_processor.predict_classes(file_content)
+            classes = text_processor_knowledge.predict_classes(file_content)
             for kind in classes:
                 recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
             return redirect(url_for('show_date_duration'))

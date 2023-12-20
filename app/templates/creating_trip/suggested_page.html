@@ -40,38 +40,42 @@
 
 
                     <h3> Dodatkowe opcje </h3>
-                    <input class="base-button suggested-form-button" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
+                    <div class="row justify-content-center">
+                        <input class="base-button col-11 col-lg-7" type="submit" value="Wygeneruj inną wycieczkę" name="button_disapprove">
+                    </div>
                 </form>
 
             </div>
         </div>
         {% endfor %}
 
-        <div class="row">
-            <div class="col-0 col-md-6 col-xl-8"></div>
-
-            <div class="col-12 col-md-6 col-xl-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
                 {% if is_auth %}
-                <h3> Dodatkowe opcje </h3>
-
-                <form id="save-trip-form">
-                    <input type="submit" class="trip-additional-button" value="Zapisz wycieczkę">
+                <form id="save-trip-form" class="row justify-content-center">
+                    <input type="submit" class="base-button col-11 col-lg-7" value="Zapisz wycieczkę">
                 </form>
 
-                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
-                    Zapisane wycieczki
-                </a>
+                <div class="row justify-content-center">
+                    <a href="{{ url_for('all_saved_trips') }}" class="base-button col-11 col-lg-7">
+                        Zapisane wycieczki
+                    </a>
+                </div>
                 {% else %}
-                <div class="auth-proposition-link">
-                    Zalogowani użytkownicy mogą zapsać wycieczkę.
-                    <a href="{{url_for('login')}}"> Zaloguj się </a> lub <a href="{{url_for('registration')}}"> Zarejestruj się </a>
+                <div class="row justify-content-center">
+                    <div class="auth-proposition-link col-11 col-lg-7">
+                        Zalogowani użytkownicy mogą zapsać wycieczkę.
+                        <a href="{{url_for('login')}}"> Zaloguj się </a> lub <a href="{{url_for('registration')}}"> Zarejestruj się </a>
+                    </div>
                 </div>
 
                 {% endif %}
 
-                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
-                    Strona główna
-                </a>
+                <div class="row justify-content-center">
+                    <a  href="{{ url_for('show_home') }}" class="base-button col-11 col-lg-7">
+                        Strona główna
+                    </a>
+                </div>
             </div>
         </div>
     </div>

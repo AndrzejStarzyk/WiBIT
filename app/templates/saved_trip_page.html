@@ -38,18 +38,17 @@
         </div>
         {% endfor %}
 
-        <div class="row">
-            <div class="col-12 col-lg-8"></div>
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="row justify-content-center">
+                    <a href="{{ url_for('all_saved_trips') }}" class="base-button col-11 col-lg-7">
+                        Zapisane wycieczki
+                    </a>
 
-            <div class="col-12 col-lg-4">
-
-                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
-                    Zapisane wycieczki
-                </a>
-
-                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
-                    Strona główna
-                </a>
+                    <a  href="{{ url_for('show_home') }}" class="base-button col-11 col-lg-7">
+                        Strona główna
+                    </a>
+                </div>
             </div>
         </div>
 

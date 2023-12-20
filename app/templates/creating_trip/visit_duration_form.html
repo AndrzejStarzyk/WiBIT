@@ -7,13 +7,14 @@
 <div>
     <h1 class="title-header">Wybierz długość wycieczki</h1>
     <form method="POST" id="duration_form">
-        <select name="duration_dropdown" required>
+        <label for="duration_dropdown"> Czas trwania wycieczki</label><br>
+        <select id="duration_dropdown" name="duration_dropdown" required>
             <option value="" disabled selected>Długość wycieczki</option>
             {% for option in options %}
             <option value={{option['time']}}>{{option['name']}}</option>
             {% endfor %}
         </select>
-        <br><br>
+        <br>
         <input type="submit" value="dalej" class="base-button">
     </form>
 </div>
