@@ -45,11 +45,9 @@ categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 
-default_trip = DefaultTrip(mongo_utils)
 text_processor_knowledge = TextProcessorKnowledge()
 text_processor_experience = TextProcessorExperience()
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
-
 
 
 @login_manager.user_loader
@@ -291,34 +289,12 @@ def show_schedule(start: str):
 def show_categories():
     if request.method == 'POST':
         categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
-        return render_template("creating_trip/choose_page.html",
+        return render_template("creating_trip/choose_duration.html",
                                input_categories=categories, redirect='/suggested', categories_type_name='szczegółowe')
 
     categories = categories_provider.get_main_categories()
-    return render_template("creating_trip/choose_page.html",
+    return render_template("creating_trip/choose_duration.html",
                            input_categories=categories, redirect='/categories', categories_type_name='główne')
-
-
-@app.route('/default_trip', methods=['GET'])
-def show_default_trip():
-    res = render_template("default_page.html")
-    try:
-        default_schedule = default_trip.get_default_schedule()
-        recommender.days = 1
-        recommender.dates = default_schedule.dates
-        recommender.hours = default_schedule.hours
-        recommender.create_schedule()
-        print(list(map(lambda x: (x.date_str, x.start, x.end, x.weekday), recommender.schedule.schedule)))
-        trajectory = default_trip.get_trip(default_schedule.schedule[0])
-        m = create_map(trajectory)
-        m.get_root().render()
-        map_data = [(m.get_root().html.render(), m.get_root().script.render(), trajectory.get_pois())]
-        res = render_template("creating_trip/suggested_page.html", trajectories_data=map_data,
-                              map_headers=[m.get_root().header.render()])
-    except FileExistsError:
-        print("Index file no found")
-
-    return res
 
 
 @app.route('/chatbot', methods=['GET', 'POST'])
