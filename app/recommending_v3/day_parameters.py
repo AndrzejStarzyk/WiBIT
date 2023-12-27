@@ -15,7 +15,7 @@ class ScheduleParameters:
 
     def assume_missing_info(self):
         today = date.today()
-
+        print(self.start_day, self.start_month, self.end_day, self.end_month)
         if self.end_month is None:
             if self.start_month is None:
                 if self.end_day is None:
@@ -52,11 +52,11 @@ class ScheduleParameters:
                 end = today + timedelta(days=self.schedule_length)
             else:
                 start = date(day=self.start_day, month=month, year=year)
-                end = today + timedelta(days=self.schedule_length)
+                end = date(day=self.start_day, month=month, year=year)
         else:
             if self.start_day is None:
                 end = date(day=self.end_day, month=month, year=year)
-                start = today - timedelta(days=self.schedule_length)
+                start = date(day=self.end_day, month=month, year=year)
             else:
                 if is_start:
                     start = date(day=self.start_day, month=month, year=year)
@@ -80,40 +80,42 @@ class ScheduleParameters:
         self.end_date = end
 
     def both_month_given(self, month1, month2):
-        if month1 == month2:
-            self.month_given(month1, True)
+        today = date.today()
+        if month1 <= month2:
+            if today.month <= month1:
+                year1 = today.year
+                year2 = today.year
+            else:
+                year1 = today.year + 1
+                year2 = today.year + 1
         else:
-            today = date.today()
-            if month1 < month2:
-                if today.month <= month1:
-                    year1 = today.year
-                    year2 = today.year
-                else:
-                    year1 = today.year + 1
-                    year2 = today.year + 1
+            if today.month <= month1:
+                year1 = today.year
+                year2 = today.year + 1
             else:
-                if today.month <= month1:
-                    year1 = today.year
-                    year2 = today.year + 1
+                year1 = today.year + 1
+                year2 = today.year + 2
+        if self.end_day is None:
+            if self.start_day is None:
+                if month1 == month2:
+                    start = date(day=1, month=month1, year=year1)
+                    end = date(day=6, month=month2, year=year2)
                 else:
-                    year1 = today.year + 1
-                    year2 = today.year + 2
-            if self.end_day is None:
-                if self.start_day is None:
                     start = date(day=27, month=month1, year=year1)
                     end = date(day=2, month=month2, year=year2)
-                else:
-                    start = date(day=self.start_day, month=month1, year=year1)
-                    end = date(day=2, month=month2, year=year2)
+
             else:
-                if self.start_day is None:
-                    start = date(day=27, month=month1, year=year1)
-                    end = date(day=self.end_day, month=month2, year=year2)
-                else:
-                    start = date(day=self.start_day, month=month1, year=year1)
-                    end = date(day=self.end_day, month=month2, year=year2)
-            self.start_date = start
-            self.end_date = end
+                start = date(day=self.start_day, month=month1, year=year1)
+                end = date(day=2, month=month2, year=year2)
+        else:
+            if self.start_day is None:
+                start = date(day=27, month=month1, year=year1)
+                end = date(day=self.end_day, month=month2, year=year2)
+            else:
+                start = date(day=self.start_day, month=month1, year=year1)
+                end = date(day=self.end_day, month=month2, year=year1)
+        self.start_date = start
+        self.end_date = end
 
     def day_given(self, day: int, is_start: bool):
         today = date.today()

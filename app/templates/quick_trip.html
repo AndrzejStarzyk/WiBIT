@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/quick_trip.css') }}">
+
     <title>Choose page</title>
 {% endblock %}
 
@@ -17,10 +19,11 @@
             </select>
 
             <br><br>
-            <label for="region_text">Wprowadź miasto lub region wycieczki</label><br>
+            <label for="region_text">Wprowadź nawzę miasta albo regionu, gdzie odbędzie się wycieczka</label><br>
             <input id="region_text" name="region_text" type="text">
             <br><br>
             <button class="base-button " type="submit" form="region_form">Dalej</button>
+
         </div>
     </form >
 </div>

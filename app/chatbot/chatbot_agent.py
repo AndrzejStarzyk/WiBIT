@@ -102,15 +102,11 @@ class ChatbotAgent:
             if self.trip_date_text is None:
                 self.trip_date_text = self.messages[-1].text
 
-            self.add_bot_message(f"Podane preferencje: {self.user_information_text} \n"
-                                 f"Podana data: {self.trip_date_text} \n"
-                                 f"Miejsce wycieczki: {self.region_text}")
+            self.add_bot_message("Tworzę wycieczkę...")
+            self.loading = True
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
                                                   self.recommender, self.poi_provider, self.db_connection, self.mode)
-
-            self.add_bot_message(f"Kategorie atrakcji turystycznych, które powinieneś polubić: {classes} \n"
-                                 f"Daty: {dates}")
 
             region_found = self.poi_provider.last_fetch_success
             if not region_found:
@@ -125,10 +121,11 @@ class ChatbotAgent:
 
         schedule_parameters = parse_date_text(user_date)
 
+        print(schedule_parameters.start_date, schedule_parameters.end_date)
         start_date: date = schedule_parameters.start_date
-        dates = []
         tmp = start_date
-        i = 0
+        dates = [start_date.isoformat()]
+        i = 1
         while tmp != schedule_parameters.end_date:
             tmp = start_date + timedelta(days=i)
             dates.append(tmp.isoformat())

@@ -14,7 +14,6 @@ from recommending_v2.poi_provider import PoiProvider
 from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
 from recommending_v2.recommender import Recommender
 from recommending_v2.algorythm_models.constraint import *
-from recommending_v2.algorythm_models.default_trip import DefaultTrip
 from recommending_v2.algorythm_models.schedule import Schedule
 from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
 from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
@@ -27,7 +26,6 @@ from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
 from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 from chatbot.text_to_prefs import TextProcessor as TextProcessorExperience
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -46,11 +44,12 @@ algo_user = Algo_User()
 categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
+
 default_trip = DefaultTrip(mongo_utils)
 text_processor_knowledge = TextProcessorKnowledge()
 text_processor_experience = TextProcessorExperience()
+recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
 
-recommender = Recommender(algo_user, poi_provider, visiting_time_provider, default_trip)
 
 
 @login_manager.user_loader
@@ -276,7 +275,6 @@ def show_schedule(start: str):
         schedule_hours = [(request.form.get(schedule_inputs[i][0]), request.form.get(schedule_inputs[i][1]))
                           for i in range(0, len(schedule_inputs))]
         recommender.hours = schedule_hours
-        recommender.create_schedule()
         return redirect(url_for('show_categories'))
 
     start_date = date.fromisoformat(start)
@@ -367,7 +365,8 @@ def render_trip(schedule: Schedule, template: str):
     headers = [m.get_root().header.render() for m in maps]
     trajectories_data = [(maps[i].get_root().html.render(),
                           maps[i].get_root().script.render(),
-                          schedule.trajectories[i].get_pois()) for i in range(len(schedule.trajectories))]
+                          schedule.trajectories[i].get_pois(),
+                          schedule.dates[i]) for i in range(len(schedule.trajectories))]
 
     res = render_template(template, trajectories_data=trajectories_data,
                           map_headers=headers,
@@ -378,7 +377,6 @@ def render_trip(schedule: Schedule, template: str):
 @app.route('/suggested', methods=['POST', 'GET'])
 async def show_suggested():
     res = render_template("default_page.html")
-    print(request.method)
     if current_user.is_authenticated and not recommender.logged_user_preferences_fetched:
         fetch_user_preferences()
 
@@ -393,15 +391,12 @@ async def show_suggested():
         if len(temporary_pref) > 0:
             recommender.add_constraint(CategoryConstraint(temporary_pref, mongo_utils))
 
-        recommender.create_schedule()
         recommended = recommender.get_recommended()
-        return render_trip(recommended, "creating_trip/suggested_page.html")
+        return render_trip(recommended, "creating_trip/suggested_trip.html")
 
     if request.method == "GET":
-        print(request.method)
-        recommender.create_schedule()
         recommended = recommender.get_recommended()
-        return render_trip(recommended, "creating_trip/suggested_page.html")
+        return render_trip(recommended, "creating_trip/suggested_trip.html")
     return res
 
 
@@ -429,8 +424,7 @@ def suggest_again(day_nr: int):
     else:
         recommended = recommender.recommend_again(day_nr - 1)
 
-    print(list(map(lambda x: list(map(lambda y: y.poi.name, x.events)), recommended.trajectories)))
-    return render_trip(recommended, "creating_trip/suggested_page.html")
+    return render_trip(recommended, "creating_trip/suggested_trip.html")
 
 
 # this is only API-endpoint

@@ -196,10 +196,11 @@ input, select{
     text-decoration: none;
 }
 
-.trip-place-name-small{
+.trip-place-name{
     text-align: right;
     width: 70%;
     padding: 16px 0 6px 0;
+    font-size: large;
 }
 
 .trip-place-name-wide{
