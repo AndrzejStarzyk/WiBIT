@@ -4,7 +4,7 @@ import string
 from stop_words import get_stop_words
 from pyMorfologik import Morfologik
 from pyMorfologik.parsing import ListParser
-# from keras.models import load_model
+from keras.models import load_model
 import random
 
 parser = ListParser()
@@ -30,10 +30,10 @@ class TextProcessor:
 
     vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit.joblib')
 
-    # model = load_model('./chatbot/models/tfidf_bigger_nn')
+    model = load_model('./chatbot/models/tfidf_bigger_nn')
 
     def predict_classes(self, text):
-        """prep_text = [self.preprocess_text(text)]
+        prep_text = [self.preprocess_text(text)]
         vec_text = self.vectorizer.transform(prep_text)
         vec_text = vec_text.toarray()
         poi_pred_frac = self.model.predict(vec_text)
@@ -42,9 +42,7 @@ class TextProcessor:
         liked_categories = []
         for i in range(len(poi_pred)):
             if poi_pred[i] == 1:
-                liked_categories.append(self.categories[i])"""
-
-        liked_categories = random.sample(self.categories, random.randint(5, 15))
+                liked_categories.append(self.categories[i])
 
         return liked_categories
 
