@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from typing import Tuple, List
 
 from models.mongo_utils import MongoUtils
 from chatbot.message import Message
@@ -103,7 +104,6 @@ class ChatbotAgent:
                 self.trip_date_text = self.messages[-1].text
 
             self.add_bot_message("Tworzę wycieczkę...")
-            self.loading = True
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
                                                   self.recommender, self.poi_provider, self.db_connection, self.mode)
@@ -121,7 +121,6 @@ class ChatbotAgent:
 
         schedule_parameters = parse_date_text(user_date)
 
-        print(schedule_parameters.start_date, schedule_parameters.end_date)
         start_date: date = schedule_parameters.start_date
         tmp = start_date
         dates = [start_date.isoformat()]
@@ -146,8 +145,8 @@ class ChatbotAgent:
         else:
             classes = []
 
-        for kind in classes:
-            recommender.add_constraint(CategoryConstraint(kind, db_connection))
+        print(classes)
+        recommender.add_constraint(CategoryConstraint(classes, db_connection))
 
         return dates, classes
 

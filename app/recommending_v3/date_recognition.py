@@ -43,14 +43,10 @@ def parse_date_text(text: str) -> ScheduleParameters:
     doc = nlp(text)
 
     matches = matcher(doc)
-    print(matches)
-    for _, start, end in matches:
-        print(doc[start:end])
+
     continue_matching = True
     if len(matches) > 0:
         unique_matches = only_unique_matches(matches)
-        for start, end in unique_matches:
-            print(doc[start:end])
         if len(unique_matches) == 1:
             continue_matching = parse_period_text(str(doc[unique_matches[0][0]:unique_matches[0][1]]), day_parameters)
     if continue_matching:
@@ -59,8 +55,6 @@ def parse_date_text(text: str) -> ScheduleParameters:
         matches = date_matcher(doc)
 
         matches = only_unique_matches(matches)
-        for start, end in matches:
-            print(doc[start:end])
 
         if len(matches) == 0:
             pass
@@ -87,7 +81,6 @@ def only_unique_matches(matches: List[Tuple[int, int, int]]) -> List[Tuple[int, 
 
     matches.sort(key=lambda x: x[2])
     matches.sort(key=lambda x: x[1])
-    print(matches)
     for match in matches[1:]:
         if match[1] == curr_start and curr_end < match[2]:
             curr_start = match[1]
@@ -108,7 +101,6 @@ def parse_period_text(text: str, day_parameters: ScheduleParameters) -> bool:
     match = period_regex.match(text)
     if match is None:
         return True
-    print("x ", match.group(1), match.group(2), match.group(3), match.group(4))
     if match.group(1) is not None:
         day_parameters.start_day = int(match.group(1))
     if match.group(2) is not None:
@@ -127,7 +119,6 @@ def parse_date(text: str, is_start_date: bool, day_parameters: ScheduleParameter
     match = date_regex.match(text)
     if match is None:
         return
-    print(match.group(1), match.group(2))
     if is_start_date:
         if match.group(1) is not None:
             day_parameters.start_day = int(match.group(1))
