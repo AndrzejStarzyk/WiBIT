@@ -7,17 +7,20 @@ from chatbot.text_to_prefs import TextProcessor
 
 
 class TextProcessorKnowledge:
-    vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit_categories.joblib')
-    df = pd.read_csv('./chatbot/models/tf_idf_categories.csv', index_col=0)
+    def __init__(self):
+        self.vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit_categories.joblib')
+        self.df = pd.read_csv('./chatbot/models/tf_idf_categories.csv', index_col=0)
+        self.categories = list(self.df.columns)
+        self.categories_sparse_matrices = {category: self.get_category_vector_from_df(category) for category in self.categories}
 
     def predict_classes(self, text, n=10):
         prep_text = TextProcessor.preprocess_text(text)
         text_vector = self.vectorizer.transform([prep_text])
-        categories = list(self.df.columns)
+
         calculated_metrics = {}
 
-        for category in categories:
-            category_vector = self.get_category_vector_from_df(category)
+        for category in self.categories:
+            category_vector = self.categories_sparse_matrices[category]
             calculated_metrics[category] = cosine_similarity(text_vector, category_vector)[0][0]
 
         metrics_values = list(calculated_metrics.values())

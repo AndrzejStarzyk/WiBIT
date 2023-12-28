@@ -15,7 +15,6 @@ class ScheduleParameters:
 
     def assume_missing_info(self):
         today = date.today()
-        print(self.start_day, self.start_month, self.end_day, self.end_month)
         if self.end_month is None:
             if self.start_month is None:
                 if self.end_day is None:

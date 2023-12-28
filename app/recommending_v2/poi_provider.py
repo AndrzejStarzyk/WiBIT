@@ -50,7 +50,6 @@ class PoiProvider:
 
         region_text = region_text.lower()
 
-        print(region_text, self.last_fetch_success, self.current_region is not None)
         if self.last_fetch_success and self.current_region is not None:
             if region_text == self.current_region.name.lower() or \
                     region_text == self.current_region.get_country_region().lower():
@@ -104,14 +103,14 @@ class PoiProvider:
             region_data = region_data[0]
 
         region_name = region_data.get("name")
+        region_id = region_data.get("osm_id")
         self.current_region = Region(region_name, float(region_data.get("lat")), float(region_data.get("lon")))
 
-        query_str = f'area["name"="{region_name}"]->.searchArea;('
+        query_str = f'rel({region_id});map_to_area->.searchArea;('
         for selector in selectors:
-            query_str += f'nwr["{selector[0]}"="{selector[1]}"](area.searchArea);'
-        query_str += ');out body;>;out skel;'
-        res = self.overpass.query(query_str)
-
+            query_str += f'nwr["{selector[0]}"="{selector[1]}"](area.searchArea);\n'
+        query_str += ');out body;'
+        res = self.overpass.query(query_str, timeout=60)
         self.pois = []
         for element in res.toJSON().get('elements'):
             tags = element.get("tags")
@@ -138,7 +137,6 @@ class PoiProvider:
             kinds = determine_kinds(tags)
             if len(kinds) == 0:
                 continue
-            kinds = []
             self.pois.append(
                 PointOfInterest(name=tags.get('name'),
                                 lon=lon,
@@ -171,8 +169,9 @@ class PoiProvider:
 
 
 if __name__ == "__main__":
-    print("a" == 'a')
-
+    p = PoiProvider(MongoUtils())
+    p.fetch_pois("Madryt")
+    print(len(p.pois))
 """
 overpass = Overpass()
         nominatim = Nominatim()

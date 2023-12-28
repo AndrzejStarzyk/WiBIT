@@ -21,12 +21,16 @@ def create_map(trajectory: Trajectory) -> folium.Map:
     
     trail = []
     for i in range(len(path)):
+        wiki = None
+        if path[i].poi.wiki is not None:
+            lang, wiki_art = path[i].poi.wiki.split(':')
+            wiki=f"https://{lang}.wikipedia.org/wiki/{wiki_art}"
         folium.Marker(
             location=(path[i].poi.lat, path[i].poi.lon),
             popup=render_template('map/popup.html',
                                   name=path[i].poi.name,
                                   website=path[i].poi.website,
-                                  wiki=path[i].poi.wiki,
+                                  wiki=wiki,
                                   start=path[i].start,
                                   end=path[i].end),
             icon=folium.Icon(color=color(i))
@@ -47,6 +51,5 @@ def color(i):
 
 
 if __name__ == '__main__':
-    a = [1, 2, 3]
-    for i_ in a[4: -1]:
-        print(i_)
+    lang, wiki = "fr:Musée du Louvre ".split(':')
+    print(lang, wiki)

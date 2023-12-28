@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Message:
-    def __init__(self, author: str, text: str):
-        self.author = author
-        self.text = text
+    author: str
+    text: str

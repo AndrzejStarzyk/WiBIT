@@ -7,14 +7,23 @@
 
 {% block body %}
 <div>
-    <h1>Wybierz miasto albo region, gdzie odbędzie się wycieczka</h1>
-    <form class="centered-form row" id="region_form" method="POST">
-        <div class="container">
+
+    <h1 class="title-header">Wybierz lub wprowadź nawzę miasta albo regionu, gdzie odbędzie się wycieczka</h1>
+    <h2 class="title-disclaimer">
+        Jeśli nie jesteś zainteresowany żadnym regionem z listy, możesz poprosić o wycieczkę do dowolnego miejsca.
+        Proponowanie takiej wycieczki może jednak potrwać dłużej.
+    </h2>
+
+    <form class="centered-form row justify-content-center" id="region_form" method="POST">
+        <div class="col-lg-6">
+
             {% for option in options %}
                 <div class="item">
                     <input class="not-displayed select-checkbox" name="region_radio" id="{{ option[1]  }}" type="radio"
                            value="{{ option[0] }}-{{ option[1] }}">
+
                     <label class="label" for="{{ option[1]  }}">{{ option[1] }}</label>
+
                 </div>
             {% endfor %}
             <br>
@@ -23,12 +32,12 @@
             </div>
 
         </div>
-        <div class="container">
-            <div class="single_item">
-                <label class="base-label h3" for="region_text"> Jeśli miejsce wycieczki nie znajduje się na liście, to wprowadź je poniżej </label>
-                <input id="region_text" name="region_text" type="text">
-                <button class="base-button " type="submit" form="region_form">Dalej</button>
-            </div>
+
+        <div class="col-11 col-lg-6">
+            <label class="base-label region-label" for="region_text"> Jeśli miejsce twojej wycieczki nie znajduje się na liście, to wprowadź je poniżej </label><br>
+            <input id="region_text" name="region_text" type="text">
+            <br>
+            <button class="base-button" type="submit" form="region_form">Dalej</button>
 
         </div>
     </form >

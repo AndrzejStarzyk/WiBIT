@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from typing import Tuple, List
 
 from models.mongo_utils import MongoUtils
 from chatbot.message import Message
@@ -12,31 +13,33 @@ from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 
 
 class ChatbotAgent:
-    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils):
-        self.messages = []
-        self.first_incentive_used = False
-        self.date_message_used = False
-        self.region_message_used = False
-        self.loading = False
-
-        self.user_information_text = ''
-        self.trip_date_text = None
-        self.region_text = None
-        self.mode = 'experience'
+    def __init__(self, recommender: Recommender, poi_provider: PoiProvider, db_connection: MongoUtils,
+                 text_processor_experience: TextProcessor, text_processor_knowledge: TextProcessorKnowledge,
+                 state_dict: dict):
 
         self.recommender = recommender
         self.db_connection = db_connection
         self.poi_provider = poi_provider
-        self.text_processor = TextProcessor()
-        self.text_processor_knowledge = TextProcessorKnowledge()
+        self.text_processor_experience = text_processor_experience
+        self.text_processor_knowledge = text_processor_knowledge
 
-        self.is_finished = False
+        self.messages = [Message(msg_dict['author'], msg_dict['text']) for msg_dict in
+                         state_dict.get('messages', [])]
+        self.first_incentive_used = state_dict.get('first_incentive_used', False)
+        self.date_message_used = state_dict.get('date_message_used', False)
+        self.region_message_used = state_dict.get('region_message_used', False)
+        self.user_information_text = state_dict.get('user_information_text', '')
+        self.trip_date_text = state_dict.get('trip_date_text', None)
+        self.region_text = state_dict.get('region_text', None)
+        self.mode = state_dict.get('mode', 'experience')
+        self.is_finished = state_dict.get('is_finished', False)
 
         init_message = ("Witaj w wirtualnym biurze informacji turystycznej. "
                         "Powiedz mi więcej o tym, w jaki sposób lubisz odwiedzać nowe miejsca, "
                         "abym mógł pomóc Ci z wyborem atrakcji.")
 
-        self.add_bot_message(init_message)
+        if not self.messages:
+            self.add_bot_message(init_message)
 
     def get_all_messages(self):
         return self.messages
@@ -69,7 +72,7 @@ class ChatbotAgent:
             if message.author == 'user':
                 user_input_len += len(message.text)
 
-        if user_input_len < 250:
+        if user_input_len < 180:
             if not self.first_incentive_used:
                 more_text = ("Podaj więcej informacji o sobie - czym się interesujesz? Jakie jest twoje hobby? "
                              "W jakich miejscach lubisz spędzać czas i jeść posiłki? "
@@ -101,7 +104,6 @@ class ChatbotAgent:
                 self.trip_date_text = self.messages[-1].text
 
             self.add_bot_message("Tworzę wycieczkę...")
-            self.loading = True
 
             dates, classes = self.parse_user_text(self.user_information_text, self.trip_date_text, self.region_text,
                                                   self.recommender, self.poi_provider, self.db_connection, self.mode)
@@ -119,7 +121,6 @@ class ChatbotAgent:
 
         schedule_parameters = parse_date_text(user_date)
 
-        print(schedule_parameters.start_date, schedule_parameters.end_date)
         start_date: date = schedule_parameters.start_date
         tmp = start_date
         dates = [start_date.isoformat()]
@@ -131,15 +132,35 @@ class ChatbotAgent:
 
         recommender.dates = dates
         recommender.days = len(dates)
-        recommender.hours = [('10:00', '18:00') for _ in range(0, len(dates))]
+
+        schedule_hours = [('10:00', '18:00')
+                          for _ in range(0, len(dates))]
+        recommender.hours = schedule_hours
+        recommender.create_schedule()
 
         if mode == 'experience':
-            classes = self.text_processor.predict_classes(user_information)
+            classes = self.text_processor_experience.predict_classes(user_information)
         elif mode == 'knowledge':
             classes = self.text_processor_knowledge.predict_classes(user_information)
         else:
             classes = []
 
+        print(classes)
         recommender.add_constraint(CategoryConstraint(classes, db_connection))
 
         return dates, classes
+
+    def store_as_dict(self):
+        chatbot_agent_dict = {
+            'messages': self.messages,
+            'first_incentive_used': self.first_incentive_used,
+            'date_message_used': self.date_message_used,
+            'region_message_used': self.region_message_used,
+            'user_information_text': self.user_information_text,
+            'trip_date_text': self.trip_date_text,
+            'region_text': self.region_text,
+            'mode': self.mode,
+            'is_finished': self.is_finished
+        }
+
+        return chatbot_agent_dict

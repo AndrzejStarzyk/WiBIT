@@ -5,6 +5,7 @@ from stop_words import get_stop_words
 from pyMorfologik import Morfologik
 from pyMorfologik.parsing import ListParser
 from keras.models import load_model
+import random
 
 parser = ListParser()
 stemmer = Morfologik()
@@ -28,6 +29,7 @@ class TextProcessor:
                   'towers', 'historic_architecture', 'bridges']
 
     vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit.joblib')
+
     model = load_model('./chatbot/models/tfidf_bigger_nn')
 
     def predict_classes(self, text):

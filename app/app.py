@@ -24,6 +24,8 @@ from models.forms import LoginForm, RegisterForm
 from models.user import User
 from models.mongo_utils import MongoUtils
 from chatbot.chatbot_agent import ChatbotAgent
+from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
+from chatbot.text_to_prefs import TextProcessor as TextProcessorExperience
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -43,8 +45,9 @@ categories_provider = CategoriesProvider(mongo_utils)
 poi_provider = PoiProvider(mongo_utils)
 visiting_time_provider = VisitingTimeProvider(mongo_utils)
 
+text_processor_knowledge = TextProcessorKnowledge()
+text_processor_experience = TextProcessorExperience()
 recommender = Recommender(algo_user, poi_provider, visiting_time_provider)
-chatbot_agent = ChatbotAgent(recommender, poi_provider,mongo_utils)
 
 
 @login_manager.user_loader
@@ -286,13 +289,20 @@ def show_schedule(start: str):
 def show_categories():
     if request.method == 'POST':
         categories = categories_provider.get_subcategories(list(map(lambda x: x[0][4:], request.form.items())))
-        return render_template("creating_trip/choose_duration.html", input_categories=categories, redirect='/suggested')
+        return render_template("creating_trip/choose_duration.html",
+                               input_categories=categories, redirect='/suggested', categories_type_name='szczegółowe')
+
     categories = categories_provider.get_main_categories()
-    return render_template("creating_trip/choose_duration.html", input_categories=categories, redirect='/categories')
+    return render_template("creating_trip/choose_duration.html",
+                           input_categories=categories, redirect='/categories', categories_type_name='główne')
 
 
 @app.route('/chatbot', methods=['GET', 'POST'])
 def show_chatbot():
+    user_chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils,
+                                      text_processor_experience, text_processor_knowledge,
+                                      session.get('chatbot_agent_dict', {}))
+
     chat_mode = 'experience'
     if request.method == "POST":
         if request.form.get("chatbot_mode", False) == 'on':
@@ -301,25 +311,26 @@ def show_chatbot():
             chat_mode = 'experience'
 
         new_message = request.form['user_text']
-        chatbot_agent.add_user_message(new_message, chat_mode)
+        user_chatbot_agent.add_user_message(new_message, chat_mode)
 
-        if chatbot_agent.is_finished and current_user.is_authenticated:
-            chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+        if user_chatbot_agent.is_finished and current_user.is_authenticated:
+            user_chatbot_agent.save_text_prefs(mongo_utils=mongo_utils, user_id=current_user.id)
+
+        session['chatbot_agent_dict'] = user_chatbot_agent.store_as_dict()
 
     chat_user = 'Użytkownik'
     if current_user.is_authenticated:
         chat_user = current_user.login
     return render_template("chatbot_view.html",
                            user_name=chat_user,
-                           messages=chatbot_agent.get_all_messages(),
-                           is_finished=chatbot_agent.is_finished,
+                           messages=user_chatbot_agent.get_all_messages(),
+                           is_finished=user_chatbot_agent.is_finished,
                            mode_checked=(chat_mode == 'knowledge'))
 
 
 @app.route('/reset-chatbot', methods=['POST'])
 def restart_chatbot():
-    global chatbot_agent
-    chatbot_agent = ChatbotAgent(recommender, poi_provider, mongo_utils)
+    session['chatbot_agent_dict'] = {}
     return redirect(url_for('show_chatbot'))
 
 
@@ -486,9 +497,9 @@ def upload_file():
                     file_content += ' ' + teletype.extractText(text_element)
 
             print(file_content)
-            classes = chatbot_agent.text_processor.predict_classes(file_content)
-            for kind in classes:
-                recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
+            classes = text_processor_knowledge.predict_classes(file_content)
+
+            recommender.add_constraint(CategoryConstraint(classes, mongo_utils))
             return redirect(url_for('show_date_duration'))
 
     return render_template("file_upload/file_upload.html")

@@ -12,7 +12,6 @@ def determine_kinds(tags):
                 if tags.get(parameter.get("key")) == parameter.get("value") or parameter.get("value") == "*":
                     if kind not in kinds:
                         kinds.append(kind)
-
     return kinds
 
 

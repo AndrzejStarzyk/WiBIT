@@ -8,15 +8,12 @@
 
 {% block body %}
  <div class="maps_container">
-     <h1> Zapisana wycieczka</h1>
-        {% for map_html, map_script, places in trajectories_data %}
+     <h1 class="title-header"> Zapisana wycieczka</h1>
+        {% for map_html, map_script, places, date in trajectories_data %}
         <div class="row">
-            <div> Dzień {{ loop.index }}</div>
+            <h4> Dzień {{ loop.index }}, {{ date }} </h4>
             <div class="big-map col-12 col-lg-8">
-                {% for map_header in map_headers  %}
-                    {{ map_html|safe }}
-                {% endfor %}
-
+                {{ map_html|safe }}
                 <script>
                     {{ map_script|safe }}
                 </script>
@@ -24,36 +21,32 @@
 
             <div class="col-12 col-lg-4">
                 <h2> Trasa wycieczki </h2>
-                <form id="save-form" class="not-displayed" action="/" method="post"> </form>
+                <form id="save-form" class="not-displayed" action="/static" method="post"> </form>
                 <form id="opinion-form" class="suggested-form" action="/suggested" method="post">
                     {% for place in places %}
                     <div class="one-line">
                         <p class="trip-place-name-wide"> {{place.name}} </p>
                     </div>
                     {% endfor %}
-
                 </form>
-
             </div>
-        </div>
         {% endfor %}
 
-        <div class="row">
-            <div class="col-12 col-lg-8"></div>
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="row justify-content-center">
+                    <a href="{{ url_for('all_saved_trips') }}" class="base-button col-11 col-lg-7">
+                        Zapisane wycieczki
+                    </a>
 
-            <div class="col-12 col-lg-4">
-
-                <a href="{{ url_for('all_saved_trips') }}" class="trip-additional-button">
-                    Zapisane wycieczki
-                </a>
-
-                <a  href="{{ url_for('show_home') }}" class="trip-additional-button">
-                    Strona główna
-                </a>
+                    <a  href="{{ url_for('show_home') }}" class="base-button col-11 col-lg-7">
+                        Strona główna
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- some other functions like trip export can be added here -->
     </div>
-
+ </div>
 {% endblock %}

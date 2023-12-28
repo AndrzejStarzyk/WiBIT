@@ -5,11 +5,12 @@
 
 {% block body %}
 <div>
+    <h1 class="title-header"> Data i czas trwania wycieczki</h1>
     <form method="POST" class="centered-form">
-        <label for="start_date"> Wybierz datę rozpoczęcia wycieczki</label>
+        <label for="start_date"> Wybierz datę rozpoczęcia wycieczki</label><br>
         <input type="date" id="start_date" name="start_date" value="{{tomorrow}}">
         <br><br>
-        <label for="duration_dropdown"> Wybierz czas trwania wycieczki</label>
+        <label for="duration_dropdown"> Wybierz czas trwania wycieczki</label><br>
         <select id="duration_dropdown" name="duration_dropdown" required>
             {% for option in options %}
             <option value={{option['time']}}>{{option['name']}}</option>

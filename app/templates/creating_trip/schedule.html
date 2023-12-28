@@ -5,6 +5,7 @@
 
 {% block body %}
 <div>
+    <h1 class="title-header">Wybierz godziny zwiedzania w poszczególne dni</h1>
     <form id="schedule-form" class="centered-form" method="POST">
         {% for date in dates %}
         <div class="one-line">
@@ -16,7 +17,7 @@
         </div>
 
         {% endfor %}
-        <input type="submit" value="dalej" class="base-button">
+        <input type="submit" value="Dalej" class="base-button">
     </form>
 </div>
 {% endblock %}
