@@ -39,7 +39,6 @@ class User:
             self.preferences.append(preference)
 
     def evaluate(self, poi: PointOfInterest) -> float:
-        print(self.preferences)
         res = 0
         for pref in self.preferences:
             res += pref.constraint.evaluate(poi) * pref.weight

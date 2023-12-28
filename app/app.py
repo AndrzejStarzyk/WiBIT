@@ -498,8 +498,8 @@ def upload_file():
 
             print(file_content)
             classes = text_processor_knowledge.predict_classes(file_content)
-            for kind in classes:
-                recommender.add_constraint(CategoryConstraint(kind, mongo_utils))
+
+            recommender.add_constraint(CategoryConstraint(classes, mongo_utils))
             return redirect(url_for('show_date_duration'))
 
     return render_template("file_upload/file_upload.html")
