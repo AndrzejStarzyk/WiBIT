@@ -24,7 +24,7 @@ For NER it is also necessary to download one of spacy models:
 ```
 python -m spacy download pl_core_news_md
 ```
-In order to run you need to move to app directory:
+In order to run you need to move to `/app` directory:
 ```
 cd app
 ```
@@ -33,3 +33,5 @@ And then run it using:
 python3 app.py
 ```
 If you want to stop app just use `Ctrl + C`
+
+For deployment, there was `/passenger_wsgi.py` file prepared
