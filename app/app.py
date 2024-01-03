@@ -9,15 +9,15 @@ from odf import text, teletype
 from odf.opendocument import load
 
 from display_route import create_map
-from recommending_v2.categories.estimated_visiting import VisitingTimeProvider
-from recommending_v2.poi_provider import PoiProvider
-from recommending_v2.algorythm_models.user_in_algorythm import User as Algo_User
-from recommending_v2.recommender import Recommender
-from recommending_v2.algorythm_models.constraint import *
-from recommending_v2.algorythm_models.schedule import Schedule
-from recommending_v2.save_trip import save_trip, schedule_from_saved_trip
-from recommending_v2.algorythm_models.mongo_trip_models import TripDaysMongo
-from recommending_v2.save_preferences import save_preferences, get_preferences_json, delete_preferences
+from creating_trip.categories.estimated_visiting import VisitingTimeProvider
+from creating_trip.poi_provider import PoiProvider
+from creating_trip.algorythm_models.user_in_algorythm import User as Algo_User
+from creating_trip.recommender import Recommender
+from creating_trip.algorythm_models.constraint import *
+from creating_trip.algorythm_models.schedule import Schedule
+from creating_trip.save_trip import save_trip, schedule_from_saved_trip
+from creating_trip.algorythm_models.mongo_trip_models import TripDaysMongo
+from creating_trip.save_preferences import save_preferences, get_preferences_json, delete_preferences
 from models.constants import SECRET_KEY
 from models.objectid import PydanticObjectId
 from models.forms import LoginForm, RegisterForm

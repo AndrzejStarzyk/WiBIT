@@ -4,10 +4,10 @@ from typing import Tuple, List
 from models.mongo_utils import MongoUtils
 from chatbot.message import Message
 from chatbot.chatbot_models import TextPreferences
-from recommending_v2.algorythm_models.constraint import CategoryConstraint
-from recommending_v3.date_recognition import parse_date_text
-from recommending_v2.poi_provider import PoiProvider
-from recommending_v2.recommender import Recommender
+from creating_trip.algorythm_models.constraint import CategoryConstraint
+from date_from_text.date_recognition import parse_date_text
+from creating_trip.poi_provider import PoiProvider
+from creating_trip.recommender import Recommender
 from chatbot.text_to_prefs import TextProcessor
 from chatbot.text_to_prefs_knowledge import TextProcessorKnowledge
 

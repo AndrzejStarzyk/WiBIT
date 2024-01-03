@@ -1,7 +1,7 @@
 import folium
 from flask import render_template
 
-from recommending_v2.algorythm_models.trajectory import Trajectory
+from creating_trip.algorythm_models.trajectory import Trajectory
 
 map_center = (50.0619474, 19.9368564)
 
@@ -48,8 +48,3 @@ def color(i):
         return "orange"
     else:
         return 'blue'
-
-
-if __name__ == '__main__':
-    lang, wiki = "fr:Musée du Louvre ".split(':')
-    print(lang, wiki)
