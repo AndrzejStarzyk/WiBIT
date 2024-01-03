@@ -208,14 +208,13 @@ def fetch_user_preferences():
 
 
 def get_region_from_request(req):
-    print(list(req.form.items()))
     region_text = None
     if 'region_text' in req.form:
         region_text = req.form.get('region_text')
     region_radio = None
     if 'region_radio' in req.form:
         region_radio = req.form.get('region_radio')
-    print(region_text, region_radio)
+
     if (region_radio is None or len(region_radio) == 0) and (region_text is None or len(region_text) == 0):
         poi_provider.fetch_pois()
     elif region_text is not None and len(region_text) > 0:
@@ -381,7 +380,6 @@ def suggest_again(day_nr: int):
     some_removed = False
     some_replaced = False
     to_remove = []
-    print(list(request.form.items()))
     for item in request.form.items():
         if item[0].startswith('button'):
             continue
@@ -496,7 +494,6 @@ def upload_file():
                 for text_element in all_text_elements:
                     file_content += ' ' + teletype.extractText(text_element)
 
-            print(file_content)
             classes = text_processor_knowledge.predict_classes(file_content)
 
             recommender.add_constraint(CategoryConstraint(classes, mongo_utils))
@@ -519,7 +516,6 @@ def show_date_duration():
         days_number = request.form.get('duration_dropdown')
         recommender.days = int(days_number)
         start = request.form.get('start_date')
-        print(start, days_number)
 
         start_date = date.fromisoformat(start)
         dates = []

@@ -132,8 +132,3 @@ def opt_1(path, graph):
     for i in range(new_start):
         new_path.append(path[i])
     return new_path
-
-
-if __name__ == "__main__":
-    a = 'cat_amusement_parks'
-    print(a[4:-1])

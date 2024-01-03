@@ -144,7 +144,3 @@ class ProximityConstraint(GeneralConstraint):
             "value": [self.best_pois_nr, self.radius, self.rate],
             "weight": self.weight
         }
-
-
-if __name__ == '__main__':
-    a = (1, 2)

@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-from typing import Tuple, List
 
 from models.mongo_utils import MongoUtils
 from chatbot.message import Message

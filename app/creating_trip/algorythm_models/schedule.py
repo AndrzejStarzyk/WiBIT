@@ -41,4 +41,3 @@ class Schedule:
 
         self.trajectories.remove(self.trajectories[i])
         self.trajectories.insert(i, trajectory)
-

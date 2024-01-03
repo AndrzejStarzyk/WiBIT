@@ -29,4 +29,3 @@ class Trajectory:
         for event in self.events:
             res += event.poi.name + ", "
         return res[0:-2]
-

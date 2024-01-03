@@ -41,8 +41,3 @@ def get_preferences_json(user_id, db_connection: MongoUtils):
         res = user['preferences']
         return res
     return []
-
-
-if __name__ == '__main__':
-    db = MongoUtils()
-    save_preferences('65380a296f6d2ff66d8f2d4b', [CategoryConstraint(['amusement_parks'], db)], db)

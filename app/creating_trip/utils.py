@@ -26,7 +26,3 @@ def estimated_time(s) -> float:  # m -> s
 
 def round_time(time: datetime):
     return datetime(time.year, time.month, time.day, time.hour, time.minute - (time.minute % 5), 0, 0)
-
-
-if __name__ == "__main__":
-    pass

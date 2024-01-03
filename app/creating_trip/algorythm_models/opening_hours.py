@@ -80,23 +80,3 @@ def parse_opening_hours(opening_hours_db) -> OpeningHours:
         return OpeningHours(periods)
     except Exception as e:
         return OpeningHours([])
-
-
-
-
-
-
-"""
-def parse_opening_hours(opening_hours_db) -> OpeningHours:
-    periods = []
-    for period_db in opening_hours_db:
-        start = BeginningOrEnding(period_db.get('open').get('day'), period_db.get('open').get('time'))
-        end = None
-        if 'close' in period_db:
-            end = BeginningOrEnding(period_db.get('close').get('day'), period_db.get('close').get('time'))
-        periods.append(Period(start, end))
-    return OpeningHours(periods)
-"""
-
-if __name__ == "__main__":
-    pass

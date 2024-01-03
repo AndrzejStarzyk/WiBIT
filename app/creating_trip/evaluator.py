@@ -25,12 +25,10 @@ class Evaluator:
         self.placeholder: PointOfInterest = placeholder_poi()
 
     def setup(self, cold_start: bool):
-        print(self.places_provider.get_current_region_name() != self.current_region_name)
         if self.places_provider.get_current_region_name() != self.current_region_name:
             self.places = self.places_provider.get_places()
             self.current_region_name = self.places_provider.get_current_region_name()
-        print(len(self.places))
-        print(cold_start)
+
         self.placeholder_to_remove = False
         if cold_start:
             self.placeholder.lat = self.places_provider.get_current_region().lat
@@ -55,11 +53,6 @@ class Evaluator:
     def extract_best_trajectory(self, day: Day) -> List[Tuple[PointOfInterest, float]]:
         poi_score: List[Tuple[PointOfInterest, float]] = self.user.general_evaluation(self.evaluated_places)
 
-        for poi, s in poi_score:
-            res = list(filter(lambda x: x[0].xid == poi.xid, self.evaluated_places))
-            #if len(res) > 0:
-                #print(poi.name, s, res[0][1], poi.kinds)
-
         if self.placeholder_to_remove:
             to_remove = list(filter(lambda x: x[0].xid == 'placeholder', poi_score))
             if len(to_remove) > 0:
@@ -82,8 +75,3 @@ class Evaluator:
     def add_already_recommended(self, xids: List[str]):
         for xid in xids:
             self.already_recommended.append(xid)
-
-
-if __name__ == "__main__":
-    a = {'a', 'b'}
-    print(a)

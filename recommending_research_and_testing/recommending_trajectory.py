@@ -95,7 +95,6 @@ class Recommender:
         self.trained = True
 
     def recommend(self, preferences):
-        places = get_places()
         X = [0 for _ in range(self.n_parameters)]
         for category in preferences:
             X[self.labels_ids[category]] = 1

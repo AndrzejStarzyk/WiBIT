@@ -19,7 +19,7 @@ class CategoriesProvider:
         self.code_to_graph_id: Dict[str: int] = {}
         self.category_ids: List[int] = []
         self.categories_graph: List[List[Tuple[int, int]]] = []  # adjacency lists with weights
-        self.categories_distances: List[List[Tuple[int, int]]] = []  # graph matrix with shortest distances
+        self.categories_distances: List[List[Tuple[int, int]]] = []  # graph matrix with the shortest distances
 
         self.additional_codes_mappings: Dict[str, str] = {}
 

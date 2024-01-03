@@ -1,12 +1,13 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from keysAndPasswords import mongodb_user, mongodb_password
 
 
 class OpenTripMapDbProvider:
     def __init__(self):
         self.places = []
         self.places_fetched = False
-        self.uri = f"mongodb+srv://andrzej:passwordas@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
+        self.uri = f"mongodb+srv://{mongodb_user}:{mongodb_password}@wibit.4d0e5vs.mongodb.net/?retryWrites=true&w=majority"
         self.collection = None
 
     def fetch_places(self):

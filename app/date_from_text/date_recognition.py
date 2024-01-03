@@ -1,4 +1,4 @@
-from typing import Union, List, Tuple, Pattern, Match
+from typing import Union, List, Tuple, Pattern
 import re
 import pl_core_news_md
 from spacy.matcher import Matcher
