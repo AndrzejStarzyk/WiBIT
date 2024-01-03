@@ -1,4 +1,4 @@
-# THIS BRANCH IS ONLY FOR TEST DEPLOYMENT, IT DOESN'T HAVE SOME CRUICIAL FUNCTIONALITY (EG. TENSORFLOW MODEL) BUT LOOKS GOOD
+# WiBIT
 
 To run this app manually it is recommended to prepare virtual environment and install all recommended packages.
 
