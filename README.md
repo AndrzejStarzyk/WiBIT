@@ -1,4 +1,6 @@
-# WiBIT
+# WiBIT - Virtual Tourist Information Office
+
+### Local run
 
 To run this app manually it is recommended to prepare virtual environment and install all recommended packages.
 
@@ -34,4 +36,15 @@ python3 app.py
 ```
 If you want to stop app just use `Ctrl + C`
 
-For deployment, there was `/passenger_wsgi.py` file prepared
+### Deployment
+
+For deployment, there was `app/passenger_wsgi.py` file prepared.
+
+### Tensorflow model problem
+After downloading repository from git, there could be some problems with using `app/chatbot/models/tfidf_bigger_nn` model.
+It can be necessary to prepare this model once again and replace it in `app/chatbot/models` directory. 
+The easiest way to do it is to use `text-operations/notebooks/prepare_final_model.ipynb` notebook.
+It needs some files to train the model:
+- train dataset csv (`text-operations/files/oversample_stemmed_train_df.csv`) 
+- test dataset csv (`text-operations/files/test_df.csv`) 
+- pretrained tfidf model (`text-operations/models/tfidf_vectorizer_wibit_joblib`) 
