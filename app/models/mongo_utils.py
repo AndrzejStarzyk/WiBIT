@@ -45,7 +45,7 @@ class MongoUtils:
         try:
             self.mongo_database.create_collection(collection_name)
         except CollectionInvalid:
-            print(f"Collection {collection_name} already exists.")
+            print(f"Collection {collection_name} exists.")
         else:
             print(f"Collection {collection_name} created.")
 
@@ -57,7 +57,7 @@ class MongoUtils:
         try:
             self.mongo_database_attractions.create_collection(collection_name)
         except CollectionInvalid:
-            print(f"Collection {collection_name} already exists.")
+            print(f"Collection {collection_name} exists.")
         else:
             print(f"Collection {collection_name} created.")
 

@@ -144,7 +144,6 @@ class ChatbotAgent:
         else:
             classes = []
 
-        print(classes)
         recommender.add_constraint(CategoryConstraint(classes, db_connection))
 
         return dates, classes
