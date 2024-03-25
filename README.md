@@ -47,4 +47,6 @@ The easiest way to do it is to use `text-operations/notebooks/prepare_final_mode
 It needs some files to train the model:
 - train dataset csv (`text-operations/files/oversample_stemmed_train_df.csv`) 
 - test dataset csv (`text-operations/files/test_df.csv`) 
-- pretrained tfidf model (`text-operations/models/tfidf_vectorizer_wibit_joblib`) 
+- pretrained tfidf model (`text-operations/models/tfidf_vectorizer_wibit_joblib`)
+
+#### Project was created using data from OpenStreetMaps (https://www.openstreetmap.org/) and Wikipedia (https://www.wikipedia.org/)
