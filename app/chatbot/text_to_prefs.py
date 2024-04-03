@@ -5,6 +5,7 @@ from stop_words import get_stop_words
 from pyMorfologik import Morfologik
 from pyMorfologik.parsing import ListParser
 from keras.models import load_model
+import keras
 import random
 
 parser = ListParser()
@@ -30,9 +31,11 @@ class TextProcessor:
 
     vectorizer = joblib.load('./chatbot/models/tfidf_vectorizer_wibit.joblib')
 
-    model = load_model('./chatbot/models/tfidf_bigger_nn')
+    #model = keras.models.load_model('./chatbot/models/tfidf_bigger_nn')
 
     def predict_classes(self, text):
+        return []
+        """
         prep_text = [self.preprocess_text(text)]
         vec_text = self.vectorizer.transform(prep_text)
         vec_text = vec_text.toarray()
@@ -45,7 +48,7 @@ class TextProcessor:
                 liked_categories.append(self.categories[i])
 
         return liked_categories
-
+"""
     @classmethod
     def preprocess_text(cls, text):
         translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
